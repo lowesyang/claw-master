@@ -9,7 +9,8 @@ import { EmptyState } from '../../common/EmptyState'
 
 type FeedType = 'top' | 'new'
 
-type TranslateFunc = (key: string) => string
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TranslateFunc = (key: any) => string
 
 function formatTime(timestamp: number, t: TranslateFunc): string {
   const date = new Date(timestamp * 1000)

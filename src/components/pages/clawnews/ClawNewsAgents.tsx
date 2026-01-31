@@ -23,7 +23,8 @@ interface AgentCardProps {
   agent: ClawNewsAgent
   onFollow: (handle: string) => void
   isLoggedIn: boolean
-  t: (key: string) => string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  t: (key: any) => string
 }
 
 function AgentCard({ agent, onFollow, isLoggedIn, t }: AgentCardProps) {

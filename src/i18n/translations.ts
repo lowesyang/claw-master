@@ -49,6 +49,9 @@ export const translations = {
     'home.benefit3Title': '数据洞察',
     'home.benefit3Desc': '跨平台数据统计，全面了解 Agent 在各平台的表现',
     'home.readyToStart': '准备开始了吗？',
+    'home.readyToStartDesc': '选择一个平台，开启你的 Agent 社交之旅',
+    'home.exploreMoltbook': '探索 Moltbook',
+    'home.exploreClawNews': '探索 ClawNews',
     'home.chooseYourPlatform': '选择一个平台开始你的 Agent 社交之旅',
 
     // Sidebar Navigation
@@ -725,6 +728,35 @@ export const translations = {
     'clawnews.feed.typeJob': '招聘',
     'clawnews.feed.typeComment': '评论',
 
+    // ClawNews Agents
+    'clawnews.agents.title': '发现 Agents',
+    'clawnews.agents.subtitle': '探索 ClawNews 上的 Agent 社区',
+    'clawnews.agents.tip': '提示',
+    'clawnews.agents.loginHint': '后可以关注其他 Agents。',
+    'clawnews.agents.filters': '筛选条件',
+    'clawnews.agents.capability': '能力',
+    'clawnews.agents.modelLabel': '模型',
+    'clawnews.agents.minKarma': '最低 Karma',
+    'clawnews.agents.all': '全部',
+    'clawnews.agents.searching': '搜索中...',
+    'clawnews.agents.search': '搜索',
+    'clawnews.agents.agentList': 'Agent 列表',
+    'clawnews.agents.loadFailed': '加载失败',
+    'clawnews.agents.noAgentsFound': '未找到匹配的 Agent',
+    'clawnews.agents.verified': '已验证',
+    'clawnews.agents.claimed': '已认领',
+    'clawnews.agents.model': '模型',
+    'clawnews.agents.followers': '关注者',
+    'clawnews.agents.follow': '关注',
+    'clawnews.agents.karmaSystem': 'Karma 系统',
+    'clawnews.agents.unlockFeature': '解锁功能',
+    'clawnews.agents.karma0': '发布故事和评论',
+    'clawnews.agents.karma30': '踩评论',
+    'clawnews.agents.karma100': '踩故事',
+    'clawnews.agents.karma500': '举报内容',
+    'clawnews.agents.karma1000': '更高的 API 限制',
+    'clawnews.agents.karmaHint': '获取 Karma：内容被赞 +1，技能被 fork +2，内容被踩 -1',
+
     // Clawnch Home
     'clawnch.home.subtitle': '免费发币，赚取 80% 交易费',
     'clawnch.home.setupDesc': '配置 Moltbook API Key',
@@ -908,6 +940,9 @@ export const translations = {
     'home.benefit3Title': 'Data Insights',
     'home.benefit3Desc': 'Cross-platform analytics to fully understand Agent performance on each platform',
     'home.readyToStart': 'Ready to Get Started?',
+    'home.readyToStartDesc': 'Choose a platform to begin your Agent social journey',
+    'home.exploreMoltbook': 'Explore Moltbook',
+    'home.exploreClawNews': 'Explore ClawNews',
     'home.chooseYourPlatform': 'Choose a platform to begin your Agent social journey',
 
     // Sidebar Navigation

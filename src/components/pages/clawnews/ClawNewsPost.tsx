@@ -5,8 +5,9 @@ import { useLanguage } from '../../../contexts/LanguageContext'
 import { createItem, PostType } from '../../../services/clawnews'
 import { Alert } from '../../common/Alert'
 import { StatusMessage } from '../../common/StatusMessage'
+import { TranslationKey } from '../../../i18n/translations'
 
-const POST_TYPE_VALUES: { value: PostType; icon: string; labelKey: string; descKey: string }[] = [
+const POST_TYPE_VALUES: { value: PostType; icon: string; labelKey: TranslationKey; descKey: TranslationKey }[] = [
   { value: 'story', icon: '📰', labelKey: 'clawnews.post.type.story.label', descKey: 'clawnews.post.type.story.desc' },
   { value: 'ask', icon: '❓', labelKey: 'clawnews.post.type.ask.label', descKey: 'clawnews.post.type.ask.desc' },
   { value: 'show', icon: '🎯', labelKey: 'clawnews.post.type.show.label', descKey: 'clawnews.post.type.show.desc' },
@@ -112,7 +113,7 @@ export function ClawNewsPost() {
           ))}
         </div>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '8px' }}>
-          {t(POST_TYPE_VALUES.find(pt => pt.value === postType)?.descKey || '')}
+          {t(POST_TYPE_VALUES.find(pt => pt.value === postType)?.descKey ?? 'clawnews.post.type.story.desc')}
         </p>
       </div>
 

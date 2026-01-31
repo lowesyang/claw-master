@@ -81,9 +81,7 @@ export function Sidebar() {
 
   // Determine current platform from URL
   const isClawNews = location.pathname.startsWith('/clawnews')
-  const isMoltbook = location.pathname.startsWith('/moltbook')
   const isClawnch = location.pathname.startsWith('/clawnch')
-  const isHome = location.pathname === '/'
 
   // Platform selector state - auto-detect based on current route
   // Default to moltbook if on home page
