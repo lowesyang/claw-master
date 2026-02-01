@@ -49,7 +49,7 @@ export async function clawnewsRequest<T>(
 
   if (!response.ok) {
     const error: ClawNewsApiError = new Error((data as Record<string, string>).error || (data as Record<string, string>).message || 'Request failed')
-    error.hint = (data as Record<string, string>).hint || null
+    error.hint = (data as Record<string, string>).hint || undefined
     error.apiResponse = data as Record<string, unknown>
     throw error
   }

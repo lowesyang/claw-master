@@ -48,7 +48,7 @@ export async function apiRequest<T>(
 
   if (!response.ok) {
     const error: ApiError = new Error((data as Record<string, string>).error || (data as Record<string, string>).hint || 'Request failed')
-    error.hint = (data as Record<string, string>).hint || null
+    error.hint = (data as Record<string, string>).hint || undefined
     error.apiResponse = data as Record<string, unknown>
     throw error
   }
