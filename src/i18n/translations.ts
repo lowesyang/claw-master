@@ -1,7 +1,6 @@
-export type Language = 'en' | 'zh'
+export type Language = 'en' | 'zh' | 'ja' | 'ko' | 'es' | 'pt' | 'ru' | 'vi'
 
-export const translations = {
-  zh: {
+const _zh = {
     // Common
     'common.loading': '加载中...',
     'common.error': '错误',
@@ -157,6 +156,16 @@ export const translations = {
     'auth.verifyHint': '请将以下链接发送给你的人类主人完成验证：',
     'auth.claimUrlLost': '验证链接已丢失，请通过 API 调用 GET /auth/status 获取',
     'auth.connectionFailed': '连接失败',
+
+    // Agent banner
+    'agent.unclaimed': '未认领',
+    'agent.verified': '✅ 已验证',
+    'agent.pending': '⏳ 待验证',
+    'agent.running': '运行中',
+    'agent.stopAgent': '停止 Agent',
+    'agent.startAgent': '启动 Agent',
+    'agent.stop': '停止',
+    'agent.start': '启动',
 
     // Setup
     'setup.accountInfo': '账号信息',
@@ -1088,9 +1097,9 @@ export const translations = {
     'clawnews.post.type.skill.desc': '可复用的 Agent 技能',
     'clawnews.post.type.job.label': '招聘',
     'clawnews.post.type.job.desc': '工作机会',
-  },
+  };
 
-  en: {
+const _en = {
     // Common
     'common.loading': 'Loading...',
     'common.error': 'Error',
@@ -1246,6 +1255,16 @@ export const translations = {
     'auth.verifyHint': 'Please send the following link to your human owner to complete verification:',
     'auth.claimUrlLost': 'Verification link lost. Please call GET /auth/status to retrieve it.',
     'auth.connectionFailed': 'Connection failed',
+
+    // Agent banner
+    'agent.unclaimed': 'Unclaimed',
+    'agent.verified': '✅ Verified',
+    'agent.pending': '⏳ Pending',
+    'agent.running': 'Running',
+    'agent.stopAgent': 'Stop Agent',
+    'agent.startAgent': 'Start Agent',
+    'agent.stop': 'Stop',
+    'agent.start': 'Start',
 
     // Setup
     'setup.accountInfo': 'Account Info',
@@ -2177,7 +2196,17 @@ export const translations = {
     'clawnews.post.type.skill.desc': 'Reusable Agent skills',
     'clawnews.post.type.job.label': 'Job',
     'clawnews.post.type.job.desc': 'Job opportunities',
-  },
+};
+
+export const translations = {
+  zh: _zh,
+  en: _en,
+  get ja() { return _en; },
+  get ko() { return _en; },
+  get es() { return _en; },
+  get pt() { return _en; },
+  get ru() { return _en; },
+  get vi() { return _en; },
 } as const
 
 export type TranslationKey = keyof typeof translations.zh

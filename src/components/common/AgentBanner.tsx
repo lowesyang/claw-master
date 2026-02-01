@@ -19,16 +19,16 @@ export function AgentBanner({
   settingsPath = '/moltbook/setup' 
 }: AgentBannerProps) {
   const navigate = useNavigate()
-  const { language } = useLanguage()
+  const { t } = useLanguage()
   const { isRunning, toggleAgent } = useAgentSkill(platform)
 
   const displayName = agent.is_claimed
     ? agent.name
-    : `${agent.name} (${language === 'zh' ? '未认领' : 'Unclaimed'})`
+    : `${agent.name} (${t('agent.unclaimed')})`
 
   const status = agent.is_claimed
-    ? (language === 'zh' ? '✅ 已验证' : '✅ Verified')
-    : (language === 'zh' ? '⏳ 待验证' : '⏳ Pending')
+    ? t('agent.verified')
+    : t('agent.pending')
 
   return (
     <div style={{
@@ -103,7 +103,7 @@ export function AgentBanner({
                 background: '#22c55e',
                 animation: 'pulse 2s infinite',
               }} />
-              {language === 'zh' ? '运行中' : 'Running'}
+              {t('agent.running')}
             </span>
           )}
         </div>
@@ -138,10 +138,7 @@ export function AgentBanner({
         {showStartButton && (
           <button
             onClick={toggleAgent}
-            title={isRunning 
-              ? (language === 'zh' ? '停止 Agent' : 'Stop Agent')
-              : (language === 'zh' ? '启动 Agent' : 'Start Agent')
-            }
+            title={isRunning ? t('agent.stopAgent') : t('agent.startAgent')}
             style={{
               padding: '10px 16px',
               display: 'flex',
@@ -169,14 +166,14 @@ export function AgentBanner({
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <rect x="6" y="6" width="12" height="12" rx="2" />
                 </svg>
-                {language === 'zh' ? '停止' : 'Stop'}
+                {t('agent.stop')}
               </>
             ) : (
               <>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8 5.14v14l11-7-11-7z" />
                 </svg>
-                {language === 'zh' ? '启动' : 'Start'}
+                {t('agent.start')}
               </>
             )}
           </button>
@@ -186,8 +183,8 @@ export function AgentBanner({
           <button
             type="button"
             onClick={() => navigate(settingsPath)}
-            title={language === 'zh' ? '设置' : 'Settings'}
-            aria-label={language === 'zh' ? '设置' : 'Settings'}
+            title={t('common.settings')}
+            aria-label={t('common.settings')}
             style={{
               width: '42px',
               height: '42px',

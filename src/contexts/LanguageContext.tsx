@@ -10,14 +10,13 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined)
 
 const STORAGE_KEY = 'openclaw_language'
+const VALID_LANGS: Language[] = ['en', 'zh', 'ja', 'ko', 'es', 'pt', 'ru', 'vi']
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved === 'en' || saved === 'zh') return saved
-    // Auto-detect browser language
-    const browserLang = navigator.language.toLowerCase()
-    return browserLang.startsWith('zh') ? 'zh' : 'en'
+    if (saved && VALID_LANGS.includes(saved as Language)) return saved as Language
+    return 'en'
   })
 
   const setLanguage = useCallback((lang: Language) => {
@@ -26,7 +25,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const t = useCallback((key: TranslationKey): string => {
-    return translations[language][key] || key
+    const langMap = translations[language]
+    return (langMap && langMap[key]) || translations.en[key] || key
   }, [language])
 
   return (

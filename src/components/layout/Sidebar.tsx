@@ -1,8 +1,19 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { useTheme } from '../../contexts/ThemeContext'
-import { TranslationKey } from '../../i18n/translations'
+import { TranslationKey, Language } from '../../i18n/translations'
+
+const LANGUAGES: { code: Language; label: string; flag: string }[] = [
+  { code: 'en', label: 'EN', flag: '🇺🇸' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
+  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'ko', label: '한국어', flag: '🇰🇷' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'pt', label: 'Português', flag: '🇧🇷' },
+  { code: 'ru', label: 'Русский', flag: '🇷🇺' },
+  { code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+]
 
 interface NavItem {
   path: string
@@ -107,9 +118,22 @@ export function Sidebar() {
     // Don't change selection when on home page
   }, [location.pathname])
 
-  const toggleLanguage = () => {
-    setLanguage(language === 'zh' ? 'en' : 'zh')
-  }
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false)
+  const languageMenuRef = useRef<HTMLDivElement>(null)
+  const currentLang = LANGUAGES.find((l) => l.code === language)
+  const currentLangLabel = currentLang?.label ?? 'EN'
+  const currentLangFlag = currentLang?.flag ?? '🌐'
+
+  useEffect(() => {
+    if (!languageMenuOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (languageMenuRef.current && !languageMenuRef.current.contains(e.target as Node)) {
+        setLanguageMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [languageMenuOpen])
 
   const handlePlatformChange = (platform: PlatformType) => {
     setSelectedPlatform(platform)
@@ -195,36 +219,84 @@ export function Sidebar() {
           >
             <span>{theme === 'dark' ? '🌙' : '☀️'}</span>
           </button>
-          <button
-            onClick={toggleLanguage}
-            style={{
-              flex: 1,
-              padding: '10px 14px',
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border)',
-              borderRadius: '10px',
-              color: 'var(--text-primary)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              fontSize: '0.85rem',
-              transition: 'all 0.2s ease',
-              fontWeight: 500,
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--bg-card-hover)'
-              e.currentTarget.style.borderColor = 'var(--accent)'
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--bg-card)'
-              e.currentTarget.style.borderColor = 'var(--border)'
-            }}
-          >
-            <span>🌐</span>
-            <span>{language === 'zh' ? '中' : 'EN'}</span>
-          </button>
+          <div ref={languageMenuRef} style={{ flex: 1, position: 'relative' }}>
+            <button
+              onClick={() => setLanguageMenuOpen((o) => !o)}
+              style={{
+                width: '100%',
+                padding: '10px 14px',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: '10px',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                fontSize: '0.85rem',
+                transition: 'all 0.2s ease',
+                fontWeight: 500,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--bg-card-hover)'
+                e.currentTarget.style.borderColor = 'var(--accent)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--bg-card)'
+                e.currentTarget.style.borderColor = 'var(--border)'
+              }}
+            >
+              <span style={{ fontSize: '1rem' }}>{currentLangFlag}</span>
+              <span>{currentLangLabel}</span>
+            </button>
+            {languageMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  width: 'max-content',
+                  minWidth: '120px',
+                  marginTop: '4px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+                  zIndex: 100,
+                  maxHeight: '240px',
+                  overflowY: 'auto',
+                }}
+              >
+                {LANGUAGES.map(({ code, label, flag }) => (
+                  <button
+                    key={code}
+                    onClick={() => {
+                      setLanguage(code)
+                      setLanguageMenuOpen(false)
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      background: code === language ? 'var(--accent-light)' : 'transparent',
+                      border: 'none',
+                      color: code === language ? 'var(--accent)' : 'var(--text-primary)',
+                      cursor: 'pointer',
+                      fontSize: '0.85rem',
+                      textAlign: 'left',
+                      fontWeight: code === language ? 600 : 400,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <span style={{ fontSize: '1rem' }}>{flag}</span>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           {/* GitHub Link */}
           <a
             href="https://github.com/lowesyang/claw-master"
