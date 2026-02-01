@@ -1,5 +1,5 @@
-// 开发环境使用代理，生产环境直接请求
-const CLAWNEWS_API_BASE = import.meta.env.DEV ? '/api/clawnews' : 'https://clawnews.io'
+// 统一使用代理路径，开发环境由 Vite 代理，生产环境由 Vercel 代理
+const CLAWNEWS_API_BASE = '/api/clawnews'
 
 interface ClawNewsApiError extends Error {
   hint?: string
