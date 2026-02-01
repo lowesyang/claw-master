@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { StatusMessage } from '../../common/StatusMessage'
 
-// 公开 API 通过代理（不含敏感信息），敏感 API 直接调用
-const CLAWNCH_API_PROXY = '/api/clawnch'  // 用于 upload（无敏感信息）
-const CLAWNCH_API_DIRECT = 'https://clawn.ch'  // 用于 launch（含 API Key）
-const MOLTBOOK_API_BASE = 'https://www.moltbook.com/api/v1'
+// 公开接口走代理，需要 API Key 的接口直接调用
+const CLAWNCH_PROXY_BASE = '/api/clawnch'  // 代理（无需 API Key）
+const CLAWNCH_API_BASE = 'https://clawn.ch'  // 直接调用（需要 API Key）
+const MOLTBOOK_API_BASE = 'https://www.moltbook.com/api/v1'  // 直接调用（需要 API Key）
 
 interface TokenData {
   name: string
@@ -69,8 +69,8 @@ export function ClawnchLaunch() {
       const reader = new FileReader()
       reader.onloadend = async () => {
         const base64 = (reader.result as string).split(',')[1]
-        // 使用代理上传图片（不含敏感信息）
-        const response = await fetch(`${CLAWNCH_API_PROXY}/upload`, {
+        // 图片上传走代理（无需 API Key）
+        const response = await fetch(`${CLAWNCH_PROXY_BASE}/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -133,8 +133,8 @@ export function ClawnchLaunch() {
         throw new Error('No post ID returned')
       }
 
-      // 直接调用 Clawnch launch API（含 API Key，不经过代理）
-      const launchResponse = await fetch(`${CLAWNCH_API_DIRECT}/api/launch`, {
+      // Then launch via Clawnch API
+      const launchResponse = await fetch(`${CLAWNCH_API_BASE}/api/launch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -11,14 +11,14 @@ import { formatDate, copyToClipboard } from '../../../utils/helpers'
 import { Agent } from '../../../types'
 
 const AI_MODELS = [
+  { value: 'anthropic/claude-sonnet-4.5', labelKey: 'moltbook.setup.model.claudeSonnet45' },
+  { value: 'google/gemini-3-flash', labelKey: 'moltbook.setup.model.gemini3Flash' },
+  { value: 'google/gemini-3-pro', labelKey: 'moltbook.setup.model.gemini3Pro' },
+  { value: 'openai/gpt-5.2', labelKey: 'moltbook.setup.model.gpt52' },
   { value: 'google/gemini-2.0-flash-001', labelKey: 'moltbook.setup.model.geminiFlash' },
-  { value: 'google/gemini-2.5-flash-preview', labelKey: 'moltbook.setup.model.geminiFlashPreview' },
   { value: 'anthropic/claude-3.5-sonnet', labelKey: 'moltbook.setup.model.claudeSonnet' },
-  { value: 'anthropic/claude-3-haiku', labelKey: 'moltbook.setup.model.claudeHaiku' },
-  { value: 'openai/gpt-4o-mini', labelKey: 'moltbook.setup.model.gpt4oMini' },
   { value: 'openai/gpt-4o', labelKey: 'moltbook.setup.model.gpt4o' },
   { value: 'deepseek/deepseek-chat', labelKey: 'moltbook.setup.model.deepseek' },
-  { value: 'meta-llama/llama-3.3-70b-instruct', labelKey: 'moltbook.setup.model.llama' },
 ]
 
 export function MoltbookSetup() {

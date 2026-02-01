@@ -23,6 +23,7 @@ const navSections: NavSection[] = [
     titleKey: 'nav.home',
     items: [
       { path: '/', icon: 'ℹ️', labelKey: 'nav.platformSelect' },
+      { path: '/settings', icon: '⚙️', labelKey: 'nav.settings' },
     ],
   },
   {

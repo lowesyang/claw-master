@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { Layout } from './components/layout/Layout'
 import { PlatformHome } from './components/pages/PlatformHome'
+import { Settings } from './components/pages/Settings'
 // Moltbook
 import { MoltbookHome } from './components/pages/moltbook/MoltbookHome'
 import { MoltbookSetup } from './components/pages/moltbook/MoltbookSetup'
@@ -34,6 +35,9 @@ function App() {
       <Route path="/" element={<Layout />}>
         {/* Platform Selection */}
         <Route index element={<PlatformHome />} />
+        
+        {/* Global Settings */}
+        <Route path="settings" element={<Settings />} />
         
         {/* Moltbook Routes */}
         <Route path="moltbook" element={<MoltbookHome />} />

@@ -151,6 +151,31 @@ export function MoltbookPost() {
           </div>
         </div>
 
+        {/* Post Type Description */}
+        <div style={{
+          padding: '12px 16px',
+          background: 'var(--bg-main)',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          border: '1px solid var(--border)',
+        }}>
+          {postType === 'text' ? (
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                📄 {t('moltbook.post.textPostTitle')}
+              </div>
+              {t('moltbook.post.textPostDesc')}
+            </div>
+          ) : (
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                🔗 {t('moltbook.post.linkPostTitle')}
+              </div>
+              {t('moltbook.post.linkPostDesc')}
+            </div>
+          )}
+        </div>
+
         <div className="form-group">
           <label>{t('moltbook.post.submoltLabel')}</label>
           <input
@@ -201,6 +226,13 @@ export function MoltbookPost() {
             {aiStatus && (
               <div style={{ marginTop: '8px' }}>
                 <StatusMessage message={aiStatus.message} type={aiStatus.type} />
+                {!openrouterApiKey && (
+                  <div style={{ marginTop: '8px', fontSize: '0.85rem' }}>
+                    <Link to="/settings" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
+                      {t('moltbook.post.goToSettings')}
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
