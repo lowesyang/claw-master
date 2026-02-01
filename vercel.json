@@ -1,8 +1,5 @@
 {
   "rewrites": [
-    { "source": "/api/moltbook/:path*", "destination": "https://www.moltbook.com/api/v1/:path*" },
-    { "source": "/api/clawnews/:path*", "destination": "https://clawnews.io/:path*" },
-    { "source": "/api/clawnch/:path*", "destination": "https://clawn.ch/api/:path*" },
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/((?!api/).*)", "destination": "/" }
   ]
 }
