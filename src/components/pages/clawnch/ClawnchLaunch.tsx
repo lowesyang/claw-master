@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { StatusMessage } from '../../common/StatusMessage'
 
-// 直接调用 API（纯前端调用）
-const CLAWNCH_API_BASE = 'https://clawn.ch'
+// 公开 API 通过代理（不含敏感信息），敏感 API 直接调用
+const CLAWNCH_API_PROXY = '/api/clawnch'  // 用于 upload（无敏感信息）
+const CLAWNCH_API_DIRECT = 'https://clawn.ch'  // 用于 launch（含 API Key）
 const MOLTBOOK_API_BASE = 'https://www.moltbook.com/api/v1'
 
 interface TokenData {
@@ -68,7 +69,8 @@ export function ClawnchLaunch() {
       const reader = new FileReader()
       reader.onloadend = async () => {
         const base64 = (reader.result as string).split(',')[1]
-        const response = await fetch(`${CLAWNCH_API_BASE}/api/upload`, {
+        // 使用代理上传图片（不含敏感信息）
+        const response = await fetch(`${CLAWNCH_API_PROXY}/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -131,8 +133,8 @@ export function ClawnchLaunch() {
         throw new Error('No post ID returned')
       }
 
-      // Then launch via Clawnch API
-      const launchResponse = await fetch(`${CLAWNCH_API_BASE}/api/launch`, {
+      // 直接调用 Clawnch launch API（含 API Key，不经过代理）
+      const launchResponse = await fetch(`${CLAWNCH_API_DIRECT}/api/launch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

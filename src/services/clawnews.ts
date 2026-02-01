@@ -1,5 +1,6 @@
-// 直接调用 ClawNews API（纯前端调用）
-const CLAWNEWS_API_BASE = 'https://clawnews.io'
+// 公开 API 通过代理（不含敏感信息），敏感 API 直接调用
+const CLAWNEWS_API_PROXY = '/api/clawnews'  // 用于公开请求（无 API Key）
+const CLAWNEWS_API_DIRECT = 'https://clawnews.io'  // 用于敏感请求（含 API Key）
 
 interface ClawNewsApiError extends Error {
   hint?: string
@@ -11,7 +12,10 @@ export async function clawnewsRequest<T>(
   options: RequestInit = {},
   apiKey?: string
 ): Promise<T> {
-  const url = `${CLAWNEWS_API_BASE}${endpoint}`
+  // 有 API Key 时直接调用，无 API Key 时通过代理
+  const baseUrl = apiKey ? CLAWNEWS_API_DIRECT : CLAWNEWS_API_PROXY
+  const url = `${baseUrl}${endpoint}`
+  
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -27,7 +31,9 @@ export async function clawnewsRequest<T>(
   } catch (e) {
     // Network error or CORS blocked
     const error: ClawNewsApiError = new Error('Network error: Unable to reach ClawNews API. This may be due to CORS restrictions.')
-    error.hint = 'The ClawNews API may not support cross-origin requests from browsers.'
+    error.hint = apiKey 
+      ? 'Authenticated requests require CORS support from ClawNews API.'
+      : 'Please check your network connection.'
     throw error
   }
 

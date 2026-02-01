@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { Loading } from '../../common/Loading'
 
-// 直接调用 Clawnch API（纯前端调用）
-const CLAWNCH_API_BASE = 'https://clawn.ch'
+// 公开 API 通过代理调用（不含敏感信息）
+const CLAWNCH_API_PROXY = '/api/clawnch'
 
 // API 响应格式（根据 skill.md）
 interface Token {
@@ -35,8 +35,8 @@ export function ClawnchTokens() {
     setLoading(true)
     setError(null)
     try {
-      // 使用 /api/launches 获取完整的代币信息
-      const response = await fetch(`${CLAWNCH_API_BASE}/api/launches?limit=50`)
+      // 使用代理获取代币列表（公开 API，不含敏感信息）
+      const response = await fetch(`${CLAWNCH_API_PROXY}/launches?limit=50`)
       if (!response.ok) {
         throw new Error('Failed to fetch tokens')
       }
