@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { StatusMessage } from '../../common/StatusMessage'
 
+// 直接调用 API（纯前端调用）
+const CLAWNCH_API_BASE = 'https://clawn.ch'
+const MOLTBOOK_API_BASE = 'https://www.moltbook.com/api/v1'
+
 interface TokenData {
   name: string
   symbol: string
@@ -64,7 +68,7 @@ export function ClawnchLaunch() {
       const reader = new FileReader()
       reader.onloadend = async () => {
         const base64 = (reader.result as string).split(',')[1]
-        const response = await fetch('/api/clawnch/upload', {
+        const response = await fetch(`${CLAWNCH_API_BASE}/api/upload`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -103,7 +107,7 @@ export function ClawnchLaunch() {
     setLaunching(true)
     try {
       // First, create a post on Moltbook with the token data
-      const postResponse = await fetch('https://www.moltbook.com/api/v1/posts', {
+      const postResponse = await fetch(`${MOLTBOOK_API_BASE}/posts`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${moltbookKey}`,
@@ -128,7 +132,7 @@ export function ClawnchLaunch() {
       }
 
       // Then launch via Clawnch API
-      const launchResponse = await fetch('/api/clawnch/launch', {
+      const launchResponse = await fetch(`${CLAWNCH_API_BASE}/api/launch`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

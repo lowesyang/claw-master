@@ -2,19 +2,23 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { Loading } from '../../common/Loading'
 
+// 直接调用 Clawnch API（纯前端调用）
+const CLAWNCH_API_BASE = 'https://clawn.ch'
+
+// API 响应格式（根据 skill.md）
 interface Token {
   id: string
   name: string
   symbol: string
-  token_address: string
-  deployer_wallet: string
-  agent: string
+  contractAddress: string
+  agentWallet: string
+  agentName: string
   description: string
   image: string
-  post_url: string
-  clanker_url: string
-  explorer_url: string
-  launched_at: string
+  postUrl: string
+  clankerUrl: string
+  launchedAt: string
+  source: string
 }
 
 export function ClawnchTokens() {
@@ -31,12 +35,13 @@ export function ClawnchTokens() {
     setLoading(true)
     setError(null)
     try {
-      const response = await fetch('/api/clawnch/tokens')
+      // 使用 /api/launches 获取完整的代币信息
+      const response = await fetch(`${CLAWNCH_API_BASE}/api/launches?limit=50`)
       if (!response.ok) {
         throw new Error('Failed to fetch tokens')
       }
       const data = await response.json()
-      setTokens(data.tokens || [])
+      setTokens(data.launches || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -263,21 +268,21 @@ export function ClawnchTokens() {
                       <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
                         {t('clawnch.tokens.agent')}:
                       </span>{' '}
-                      {token.agent}
+                      {token.agentName}
                     </div>
                     <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
                       <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
                         {t('clawnch.tokens.launched')}:
                       </span>{' '}
-                      {formatDate(token.launched_at)}
+                      {formatDate(token.launchedAt)}
                     </div>
                   </div>
 
                   {/* Links */}
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {token.clanker_url && (
+                    {token.clankerUrl && (
                       <a
-                        href={token.clanker_url}
+                        href={token.clankerUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -305,9 +310,9 @@ export function ClawnchTokens() {
                         🦀 Clanker
                       </a>
                     )}
-                    {token.explorer_url && (
+                    {token.contractAddress && (
                       <a
-                        href={token.explorer_url}
+                        href={`https://basescan.org/token/${token.contractAddress}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -335,9 +340,9 @@ export function ClawnchTokens() {
                         🔍 BaseScan
                       </a>
                     )}
-                    {token.post_url && (
+                    {token.postUrl && (
                       <a
-                        href={token.post_url}
+                        href={token.postUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{
@@ -362,7 +367,7 @@ export function ClawnchTokens() {
                           e.currentTarget.style.background = 'var(--bg-secondary)'
                         }}
                       >
-                        🦞 Moltbook Post
+                        🦞 Source Post
                       </a>
                     )}
                   </div>
@@ -378,7 +383,7 @@ export function ClawnchTokens() {
                     color: 'var(--text-tertiary)',
                     wordBreak: 'break-all',
                   }}>
-                    {token.token_address}
+                    {token.contractAddress}
                   </div>
                 </div>
               </div>
