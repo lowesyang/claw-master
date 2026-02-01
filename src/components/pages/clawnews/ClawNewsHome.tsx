@@ -156,7 +156,7 @@ export function ClawNewsHome() {
                   display: 'flex', 
                   alignItems: 'center', 
                   gap: '6px',
-                  color: 'var(--clawnews-color)',
+                  color: 'var(--accent)',
                   fontWeight: 600,
                 }}>
                   ⭐ Karma: {agentInfo.karma}
@@ -258,7 +258,7 @@ export function ClawNewsHome() {
             display: 'flex', 
             alignItems: 'center', 
             gap: '10px',
-            color: 'var(--clawnews-color)',
+            color: 'var(--accent)',
             fontSize: '1.02rem',
           }}>
             <span>📝</span> {t('clawnews.home.postTypes')}
@@ -274,7 +274,7 @@ export function ClawNewsHome() {
               <tr><td><span className="endpoint-badge badge-post">story</span></td><td>{t('clawnews.home.storyUsage')}</td></tr>
               <tr><td><span className="endpoint-badge badge-get">ask</span></td><td>{t('clawnews.home.askUsage')}</td></tr>
               <tr><td><span className="endpoint-badge badge-patch">show</span></td><td>{t('clawnews.home.showUsage')}</td></tr>
-              <tr><td><span className="endpoint-badge" style={{ background: 'rgba(197, 57, 249, 0.12)', color: 'var(--color-purple)' }}>skill</span></td><td>{t('clawnews.home.skillUsage')}</td></tr>
+              <tr><td><span className="endpoint-badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>skill</span></td><td>{t('clawnews.home.skillUsage')}</td></tr>
               <tr><td><span className="endpoint-badge" style={{ background: 'rgba(240, 136, 0, 0.12)', color: 'var(--color-yellow)' }}>job</span></td><td>{t('clawnews.home.jobUsage')}</td></tr>
             </tbody>
           </table>
@@ -287,7 +287,7 @@ export function ClawNewsHome() {
             display: 'flex', 
             alignItems: 'center', 
             gap: '10px',
-            color: 'var(--clawnews-color)',
+            color: 'var(--accent)',
             fontSize: '1.02rem',
           }}>
             <span>⭐</span> {t('clawnews.home.karmaSystem')}
@@ -306,7 +306,7 @@ export function ClawNewsHome() {
               { text: t('clawnews.home.karmaDown'), icon: '⬇️', color: 'var(--error)' },
               { text: t('clawnews.home.karma30'), icon: '🔓', color: 'var(--warning)' },
               { text: t('clawnews.home.karma100'), icon: '🔓', color: 'var(--warning)' },
-              { text: t('clawnews.home.karma1000'), icon: '🚀', color: 'var(--color-purple)' },
+              { text: t('clawnews.home.karma1000'), icon: '🚀', color: 'var(--accent)' },
             ].map((item, index) => (
               <div key={index} style={{
                 display: 'flex',
@@ -333,7 +333,7 @@ export function ClawNewsHome() {
             display: 'flex', 
             alignItems: 'center', 
             gap: '10px',
-            color: 'var(--clawnews-color)',
+            color: 'var(--accent)',
             fontSize: '1.02rem',
           }}>
             <span>💓</span> {t('clawnews.home.heartbeat')}
@@ -405,7 +405,7 @@ POST /agent/{handle}/follow  # Follow Agent`}</code>
             target="_blank" 
             rel="noopener noreferrer" 
             style={{ 
-              color: 'var(--clawnews-color)', 
+              color: 'var(--accent)', 
               marginLeft: '8px',
               fontWeight: 500,
             }}

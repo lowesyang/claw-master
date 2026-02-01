@@ -321,7 +321,7 @@ export function ClawnchHome() {
               textAlign: 'center',
             }}>
               <div style={{ fontSize: '2rem', marginBottom: '8px' }}>20%</div>
-              <div style={{ color: 'var(--color-purple)', fontWeight: 600, fontSize: '0.9rem' }}>
+              <div style={{ color: 'var(--accent)', fontWeight: 600, fontSize: '0.9rem' }}>
                 {t('clawnch.home.platformShare')}
               </div>
             </div>
@@ -348,23 +348,23 @@ export function ClawnchHome() {
             </thead>
             <tbody>
               <tr>
-                <td><code style={{ color: 'var(--color-purple)' }}>name</code></td>
+                <td><code style={{ color: 'var(--accent)' }}>name</code></td>
                 <td>{t('clawnch.home.nameDesc')}</td>
               </tr>
               <tr>
-                <td><code style={{ color: 'var(--color-purple)' }}>symbol</code></td>
+                <td><code style={{ color: 'var(--accent)' }}>symbol</code></td>
                 <td>{t('clawnch.home.symbolDesc')}</td>
               </tr>
               <tr>
-                <td><code style={{ color: 'var(--color-purple)' }}>wallet</code></td>
+                <td><code style={{ color: 'var(--accent)' }}>wallet</code></td>
                 <td>{t('clawnch.home.walletDesc')}</td>
               </tr>
               <tr>
-                <td><code style={{ color: 'var(--color-purple)' }}>description</code></td>
+                <td><code style={{ color: 'var(--accent)' }}>description</code></td>
                 <td>{t('clawnch.home.descriptionDesc')}</td>
               </tr>
               <tr>
-                <td><code style={{ color: 'var(--color-purple)' }}>image</code></td>
+                <td><code style={{ color: 'var(--accent)' }}>image</code></td>
                 <td>{t('clawnch.home.imageDesc')}</td>
               </tr>
             </tbody>
@@ -426,7 +426,7 @@ GET  /api/health    # Service health`}</code>
             target="_blank" 
             rel="noopener noreferrer" 
             style={{ 
-              color: 'var(--color-purple)', 
+              color: 'var(--accent)', 
               marginLeft: '8px',
               fontWeight: 500,
             }}

@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SavedAgent } from '../../types'
+import { useAgentSkill } from '../../hooks/useAgentSkill'
 
 interface AgentSwitcherProps {
   savedAgents: SavedAgent[]
@@ -25,9 +26,22 @@ export function AgentSwitcher({
   const [editName, setEditName] = useState('')
   const [switching, setSwitching] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [removeConfirm, setRemoveConfirm] = useState<SavedAgent | null>(null)
+  const { isRunning, toggleAgent, clearConfig } = useAgentSkill(platform)
+  const autoSwitchingRef = useRef(false)
 
   const platformAgents = savedAgents.filter(a => a.platform === platform)
   const currentAgent = platformAgents.find(a => a.id === currentAgentId)
+
+  // Auto-select first platform agent if no current agent is selected
+  useEffect(() => {
+    if (platformAgents.length > 0 && !currentAgent && !autoSwitchingRef.current) {
+      autoSwitchingRef.current = true
+      onSwitch(platformAgents[0].id).finally(() => {
+        autoSwitchingRef.current = false
+      })
+    }
+  }, [platformAgents, currentAgent, onSwitch])
 
   const handleSwitch = async (agentId: string) => {
     if (agentId === currentAgentId) {
@@ -59,11 +73,21 @@ export function AgentSwitcher({
     setEditingId(null)
   }
 
-  const handleRemove = (agentId: string, e: React.MouseEvent) => {
+  const handleRemoveClick = (agent: SavedAgent, e: React.MouseEvent) => {
     e.stopPropagation()
-    if (confirm('确定要移除此 Agent 吗？')) {
-      onRemove(agentId)
+    setRemoveConfirm(agent)
+  }
+
+  const handleConfirmRemove = () => {
+    if (!removeConfirm) return
+
+    // If removing current agent, stop it and clear config first
+    if (removeConfirm.id === currentAgentId) {
+      clearConfig()
     }
+
+    onRemove(removeConfirm.id)
+    setRemoveConfirm(null)
   }
 
   const formatDate = (dateStr?: string) => {
@@ -80,7 +104,7 @@ export function AgentSwitcher({
     return null
   }
 
-  const platformColor = platform === 'clawnews' ? 'var(--clawnews-color)' : 'var(--moltbook-color)'
+  const accentColor = 'var(--accent)'
 
   return (
     <div className="agent-switcher" style={{ position: 'relative' }}>
@@ -105,11 +129,23 @@ export function AgentSwitcher({
           width: '8px',
           height: '8px',
           borderRadius: '50%',
-          background: platformColor,
+          background: isRunning ? '#22c55e' : accentColor,
+          boxShadow: isRunning ? '0 0 8px rgba(34, 197, 94, 0.5)' : 'none',
         }} />
         <span style={{ fontWeight: 500 }}>
           {currentAgent?.name || currentAgentName || 'Unknown Agent'}
         </span>
+        {isRunning && (
+          <span style={{
+            fontSize: '0.7rem',
+            padding: '2px 6px',
+            background: 'rgba(34, 197, 94, 0.15)',
+            color: '#22c55e',
+            borderRadius: '4px',
+          }}>
+            运行中
+          </span>
+        )}
         <span style={{
           marginLeft: '4px',
           opacity: 0.5,
@@ -176,10 +212,10 @@ export function AgentSwitcher({
                   padding: '12px 16px',
                   cursor: editingId ? 'default' : 'pointer',
                   background: agent.id === currentAgentId
-                    ? `${platformColor}15`
+                    ? 'var(--accent-light)'
                     : 'transparent',
                   borderLeft: agent.id === currentAgentId
-                    ? `3px solid ${platformColor}`
+                    ? '3px solid var(--accent)'
                     : '3px solid transparent',
                   transition: 'all 0.15s ease',
                 }}
@@ -221,7 +257,7 @@ export function AgentSwitcher({
                         onClick={(e) => { e.stopPropagation(); handleSaveEdit(agent.id) }}
                         style={{
                           padding: '4px 8px',
-                          background: platformColor,
+                          background: accentColor,
                           border: 'none',
                           borderRadius: '4px',
                           color: 'white',
@@ -240,6 +276,7 @@ export function AgentSwitcher({
                         display: 'flex',
                         alignItems: 'center',
                         gap: '8px',
+                        flexWrap: 'wrap',
                       }}>
                         {agent.name}
                         {agent.handle && (
@@ -255,11 +292,31 @@ export function AgentSwitcher({
                           <span style={{
                             fontSize: '0.7rem',
                             padding: '2px 6px',
-                            background: platformColor,
+                            background: accentColor,
                             color: 'white',
                             borderRadius: '4px',
                           }}>
                             当前
+                          </span>
+                        )}
+                        {agent.id === currentAgentId && isRunning && (
+                          <span style={{
+                            fontSize: '0.65rem',
+                            padding: '2px 6px',
+                            background: 'rgba(34, 197, 94, 0.15)',
+                            color: '#22c55e',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px',
+                          }}>
+                            <span style={{
+                              width: '5px',
+                              height: '5px',
+                              borderRadius: '50%',
+                              background: '#22c55e',
+                            }} />
+                            运行中
                           </span>
                         )}
                       </div>
@@ -275,13 +332,50 @@ export function AgentSwitcher({
                 </div>
 
                 {!editingId && (
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                     {switching === agent.id ? (
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
                         切换中...
                       </span>
                     ) : (
                       <>
+                        {agent.id === currentAgentId && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); toggleAgent() }}
+                            title={isRunning ? '停止 Agent' : '启动 Agent'}
+                            style={{
+                              padding: '4px 10px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '4px',
+                              background: isRunning ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)',
+                              border: `1px solid ${isRunning ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)'}`,
+                              borderRadius: '6px',
+                              color: isRunning ? '#ef4444' : '#22c55e',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s ease',
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                            }}
+                          >
+                            {isRunning ? (
+                              <>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                                  <rect x="6" y="6" width="12" height="12" rx="2" />
+                                </svg>
+                                停止
+                              </>
+                            ) : (
+                              <>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M8 5.14v14l11-7-11-7z" />
+                                </svg>
+                                启动
+                              </>
+                            )}
+                          </button>
+                        )}
                         <button
                           onClick={(e) => { e.stopPropagation(); handleStartEdit(agent) }}
                           style={{
@@ -297,7 +391,7 @@ export function AgentSwitcher({
                           编辑
                         </button>
                         <button
-                          onClick={(e) => handleRemove(agent.id, e)}
+                          onClick={(e) => handleRemoveClick(agent, e)}
                           style={{
                             padding: '4px 8px',
                             background: 'transparent',
@@ -333,6 +427,124 @@ export function AgentSwitcher({
           }}
           onClick={() => setIsOpen(false)}
         />
+      )}
+
+      {/* Remove Confirmation Modal */}
+      {removeConfirm && (
+        <div
+          className="modal-overlay"
+          onClick={() => setRemoveConfirm(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.6)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: '16px',
+              padding: '24px',
+              width: '100%',
+              maxWidth: '400px',
+              boxShadow: '0 24px 48px rgba(0, 0, 0, 0.4)',
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              marginBottom: '16px',
+            }}>
+              <span style={{
+                width: '40px',
+                height: '40px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: 'rgba(239, 68, 68, 0.1)',
+                borderRadius: '10px',
+                fontSize: '1.3rem',
+              }}>
+                ⚠️
+              </span>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>
+                  确认移除 Agent
+                </h3>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+                  {removeConfirm.name}
+                </p>
+              </div>
+            </div>
+
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: '10px',
+              padding: '14px',
+              marginBottom: '20px',
+            }}>
+              <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                移除此 Agent 后将会：
+              </p>
+              <ul style={{
+                margin: '10px 0 0',
+                paddingLeft: '20px',
+                color: 'var(--text-secondary)',
+                fontSize: '0.85rem',
+                lineHeight: 1.8,
+              }}>
+                <li>自动停止该 Agent 的运行</li>
+                <li>清空所有自动化配置</li>
+                <li>从已保存列表中删除</li>
+              </ul>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setRemoveConfirm(null)}
+                style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  background: 'var(--bg-secondary)',
+                  border: '1px solid var(--border)',
+                  borderRadius: '8px',
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                }}
+              >
+                取消
+              </button>
+              <button
+                onClick={handleConfirmRemove}
+                style={{
+                  flex: 1,
+                  padding: '10px 16px',
+                  background: 'var(--error)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: '0.9rem',
+                  fontWeight: 500,
+                }}
+              >
+                确认移除
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

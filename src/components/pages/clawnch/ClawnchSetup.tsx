@@ -52,12 +52,12 @@ export function ClawnchSetup() {
     }
 
     setIsVerifying(true)
-    setStatus({ type: 'info', message: t('auth.verifying') })
+    setStatus(null)
 
     try {
       // 验证 Moltbook API Key
       const data = await apiRequest<{ agent?: MoltbookAgent }>('/agents/me', {}, moltbookKey.trim())
-      
+
       if (!data.agent) {
         throw new Error('Invalid API key')
       }
@@ -73,14 +73,14 @@ export function ClawnchSetup() {
       const updated = [...savedAgents, newAgent]
       setSavedAgents(updated)
       localStorage.setItem('clawnch_agents', JSON.stringify(updated))
-      
+
       setCurrentAgentId(newAgent.id)
       setStatus({ type: 'success', message: `${t('clawnch.setup.agentAdded')}: @${data.agent.handle}` })
       setAgentName('')
       setMoltbookKey('')
     } catch (error) {
-      setStatus({ 
-        type: 'error', 
+      setStatus({
+        type: 'error',
         message: error instanceof Error ? error.message : t('auth.connectionFailed')
       })
     } finally {
@@ -103,7 +103,7 @@ export function ClawnchSetup() {
       const updated = savedAgents.filter(a => a.id !== id)
       setSavedAgents(updated)
       localStorage.setItem('clawnch_agents', JSON.stringify(updated))
-      
+
       if (currentAgentId === id) {
         if (updated.length > 0) {
           setCurrentAgentId(updated[0].id)
@@ -115,7 +115,7 @@ export function ClawnchSetup() {
           setAgentName('')
         }
       }
-      
+
       setStatus({ type: 'success', message: t('clawnch.setup.agentRemoved') })
     }
   }
@@ -123,23 +123,11 @@ export function ClawnchSetup() {
   return (
     <div>
       {/* Page Header */}
-      <div style={{
-        marginBottom: '32px',
-        paddingBottom: '24px',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: 700,
-          marginBottom: '8px',
-          background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
+      <div className="page-header">
+        <h1 className="page-title">
           {t('clawnch.setup.title')}
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+        <p className="page-desc">
           {t('clawnch.setup.subtitle')}
         </p>
       </div>
@@ -152,282 +140,200 @@ export function ClawnchSetup() {
         />
       )}
 
-      {/* Current Agent */}
+      {/* Current Agent Banner */}
       {currentAgentId && (
-        <div style={{
-          background: 'var(--glass-bg)',
-          backdropFilter: 'blur(20px)',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '28px',
-          border: '1px solid var(--glass-border)',
-          position: 'relative',
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '2px',
-            background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-          }} />
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2rem',
-              boxShadow: '0 8px 24px rgba(131, 83, 255, 0.3)',
-            }}>
-              🤖
+        <div className="agent-banner">
+          <div className="agent-avatar">🤖</div>
+          <div className="agent-details">
+            <div className="agent-name">
+              {agentName || t('clawnch.setup.currentAgent')}
             </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: '1.2rem', letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
-                {agentName || t('clawnch.setup.currentAgent')}
-              </div>
-              <div style={{ 
-                color: 'var(--text-secondary)', 
-                fontSize: '0.9rem',
-                marginTop: '4px',
-              }}>
-                {t('clawnch.setup.moltbookKey')}: {showKey ? moltbookKey : '••••••••'}
-                <button
-                  onClick={() => setShowKey(!showKey)}
-                  style={{
-                    marginLeft: '10px',
-                    padding: '2px 10px',
-                    fontSize: '0.75rem',
-                    background: 'var(--bg-secondary)',
-                    border: '1px solid var(--border)',
-                    borderRadius: '6px',
-                    color: 'var(--text-secondary)',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {showKey ? t('auth.hideApiKey') : t('auth.showApiKey')}
-                </button>
-              </div>
+            <div className="agent-meta">
+              <span>{t('clawnch.setup.moltbookKey')}: {showKey ? moltbookKey : '••••••••'}</span>
+              <button
+                onClick={() => setShowKey(!showKey)}
+                className="btn-small btn-secondary"
+                style={{ padding: '4px 12px', fontSize: '0.75rem' }}
+              >
+                {showKey ? t('auth.hideApiKey') : t('auth.showApiKey')}
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Add Agent Card */}
-      <div style={{
-        background: 'var(--bg-card)',
-        borderRadius: '20px',
-        padding: '28px',
-        marginBottom: '28px',
-        border: '1px solid var(--border)',
-      }}>
-        <div style={{
-          fontSize: '1.15rem',
-          fontWeight: 600,
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-        }}>
-          <span style={{ fontSize: '1.3rem' }}>➕</span>
-          {t('clawnch.setup.addAgent')}
-        </div>
+      {/* Two Column Layout */}
+      <div className="two-column-layout">
+        {/* Left Column - Add Agent Form */}
+        <div>
+          <div className="card" style={{ marginBottom: '20px' }}>
+            <div className="card-title">
+              <span style={{ fontSize: '1.3rem' }}>➕</span>
+              {t('clawnch.setup.addAgent')}
+            </div>
 
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px' }}>
-          {t('clawnch.setup.addAgentDesc')}
-        </p>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '20px' }}>
+              {t('clawnch.setup.addAgentDesc')}
+            </p>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            {t('clawnch.setup.agentName')}
-          </label>
-          <input
-            type="text"
-            value={agentName}
-            onChange={(e) => setAgentName(e.target.value)}
-            placeholder={t('clawnch.setup.agentNamePlaceholder')}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)',
-              borderRadius: '10px',
-              color: 'var(--text-primary)',
-              fontSize: '0.9rem',
-            }}
-          />
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
-            {t('clawnch.setup.agentNameHint')}
-          </p>
-        </div>
+            <div className="form-group">
+              <label>{t('clawnch.setup.agentName')}</label>
+              <input
+                type="text"
+                value={agentName}
+                onChange={(e) => setAgentName(e.target.value)}
+                placeholder={t('clawnch.setup.agentNamePlaceholder')}
+              />
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
+                {t('clawnch.setup.agentNameHint')}
+              </p>
+            </div>
 
-        <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-            {t('clawnch.setup.moltbookApiKey')} *
-          </label>
-          <input
-            type={showKey ? 'text' : 'password'}
-            value={moltbookKey}
-            onChange={(e) => setMoltbookKey(e.target.value)}
-            placeholder={t('clawnch.setup.enterMoltbookKey')}
-            style={{
-              width: '100%',
-              padding: '12px 14px',
-              background: 'var(--bg-secondary)',
-              border: '1px solid var(--border)',
-              borderRadius: '10px',
-              color: 'var(--text-primary)',
-              fontSize: '0.9rem',
-              fontFamily: "'JetBrains Mono', monospace",
-            }}
-          />
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
-            {t('clawnch.setup.moltbookKeyHint')}
-            <a 
-              href="https://www.moltbook.com" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              style={{ color: 'var(--color-purple)', marginLeft: '4px' }}
+            <div className="form-group">
+              <label>{t('clawnch.setup.moltbookApiKey')} *</label>
+              <input
+                type={showKey ? 'text' : 'password'}
+                value={moltbookKey}
+                onChange={(e) => setMoltbookKey(e.target.value)}
+                placeholder={t('clawnch.setup.enterMoltbookKey')}
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              />
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', marginTop: '6px' }}>
+                {t('clawnch.setup.moltbookKeyHint')}
+                <a
+                  href="https://www.moltbook.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--accent)', marginLeft: '4px' }}
+                >
+                  moltbook.com
+                </a>
+              </p>
+            </div>
+
+            <button
+              onClick={handleAddAgent}
+              disabled={isVerifying}
+              className="btn-block"
+              style={{
+                opacity: isVerifying ? 0.7 : 1,
+                cursor: isVerifying ? 'not-allowed' : 'pointer',
+              }}
             >
-              moltbook.com
-            </a>
-          </p>
-        </div>
-
-        <button
-          onClick={handleAddAgent}
-          disabled={isVerifying}
-          style={{
-            padding: '12px 28px',
-            background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            fontSize: '0.95rem',
-            fontWeight: 600,
-            cursor: isVerifying ? 'not-allowed' : 'pointer',
-            opacity: isVerifying ? 0.7 : 1,
-          }}
-        >
-          {isVerifying ? t('auth.verifying') : t('clawnch.setup.addButton')}
-        </button>
-      </div>
-
-      {/* Saved Agents List */}
-      {savedAgents.length > 0 && (
-        <div style={{
-          background: 'var(--bg-card)',
-          borderRadius: '20px',
-          padding: '28px',
-          border: '1px solid var(--border)',
-        }}>
-          <div style={{
-            fontSize: '1.15rem',
-            fontWeight: 600,
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-          }}>
-            <span style={{ fontSize: '1.3rem' }}>📋</span>
-            {t('clawnch.setup.savedAgents')}
+              {isVerifying ? t('clawnch.setup.adding') : t('clawnch.setup.addAgent')}
+            </button>
           </div>
 
-          <div style={{ display: 'grid', gap: '12px' }}>
-            {savedAgents.map((agent) => (
-              <div
-                key={agent.id}
-                style={{
-                  padding: '16px',
-                  background: agent.id === currentAgentId ? 'rgba(131, 83, 255, 0.08)' : 'var(--bg-secondary)',
-                  border: `1px solid ${agent.id === currentAgentId ? 'rgba(131, 83, 255, 0.3)' : 'var(--border)'}`,
-                  borderRadius: '12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <div>
-                  <div style={{ fontWeight: 600, marginBottom: '4px', color: 'var(--text-primary)' }}>
-                    {agent.name}
-                    {agent.id === currentAgentId && (
-                      <span style={{
-                        marginLeft: '10px',
-                        padding: '2px 8px',
-                        background: 'var(--color-purple)',
-                        color: 'white',
-                        borderRadius: '6px',
-                        fontSize: '0.7rem',
-                        fontWeight: 600,
-                      }}>
-                        {t('clawnch.setup.current')}
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-                    {t('clawnch.setup.addedAt')}: {new Date(agent.addedAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  {agent.id !== currentAgentId && (
-                    <button
-                      onClick={() => handleSwitchAgent(agent.id)}
-                      style={{
-                        padding: '8px 16px',
-                        background: 'var(--bg-card)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '8px',
-                        color: 'var(--text-primary)',
-                        fontSize: '0.85rem',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {t('clawnch.setup.switch')}
-                    </button>
-                  )}
-                  <button
-                    onClick={() => handleRemoveAgent(agent.id)}
+          {/* Info Box */}
+          <div className="alert alert-info">
+            <span className="alert-icon">ℹ️</span>
+            <div className="alert-content">
+              <div className="alert-title">{t('clawnch.setup.infoTitle')}</div>
+              <div className="alert-text">{t('clawnch.setup.infoText')}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - Saved Agents List */}
+        <div>
+          <div className="card" style={{ marginBottom: 0 }}>
+            <div className="card-title">
+              <span style={{ fontSize: '1.3rem' }}>📋</span>
+              {t('clawnch.setup.savedAgents')}
+              <span style={{
+                marginLeft: 'auto',
+                fontSize: '0.85rem',
+                fontWeight: 400,
+                color: 'var(--text-tertiary)',
+              }}>
+                {savedAgents.length} {savedAgents.length === 1 ? 'agent' : 'agents'}
+              </span>
+            </div>
+
+            {savedAgents.length === 0 ? (
+              <div className="empty-state" style={{ padding: '32px' }}>
+                <div className="empty-state-icon">🤖</div>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  {t('clawnch.setup.noAgents') || 'No agents added yet'}
+                </p>
+              </div>
+            ) : (
+              <div className="cards-grid compact" style={{ gridTemplateColumns: '1fr' }}>
+                {savedAgents.map((agent) => (
+                  <div
+                    key={agent.id}
+                    className="card-compact"
                     style={{
-                      padding: '8px 16px',
-                      background: 'rgba(247, 93, 95, 0.1)',
-                      border: '1px solid var(--error)',
-                      borderRadius: '8px',
-                      color: 'var(--error)',
-                      fontSize: '0.85rem',
-                      cursor: 'pointer',
+                      padding: '16px',
+                      background: agent.id === currentAgentId ? 'rgba(131, 83, 255, 0.08)' : 'var(--bg-secondary)',
+                      border: `1px solid ${agent.id === currentAgentId ? 'rgba(131, 83, 255, 0.3)' : 'var(--border)'}`,
+                      borderRadius: '12px',
+                      marginBottom: '12px',
                     }}
                   >
-                    {t('clawnch.setup.remove')}
-                  </button>
-                </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '10px',
+                        background: agent.id === currentAgentId
+                          ? 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)'
+                          : 'var(--bg-tertiary)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '1.2rem',
+                      }}>
+                        🤖
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {agent.name}
+                          {agent.id === currentAgentId && (
+                            <span style={{
+                              padding: '2px 8px',
+                              background: 'var(--accent)',
+                              color: 'white',
+                              borderRadius: '6px',
+                              fontSize: '0.7rem',
+                              fontWeight: 600,
+                            }}>
+                              {t('clawnch.setup.current')}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                          @{agent.handle} • {new Date(agent.addedAt).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {agent.id !== currentAgentId && (
+                        <button
+                          onClick={() => handleSwitchAgent(agent.id)}
+                          className="btn-small btn-secondary"
+                          style={{ flex: 1 }}
+                        >
+                          {t('clawnch.setup.switch')}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleRemoveAgent(agent.id)}
+                        className="btn-small"
+                        style={{
+                          flex: agent.id === currentAgentId ? 1 : 'none',
+                          background: 'rgba(247, 93, 95, 0.1)',
+                          border: '1px solid var(--error)',
+                          color: 'var(--error)',
+                        }}
+                      >
+                        {t('clawnch.setup.remove')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Info Box */}
-      <div style={{
-        marginTop: '28px',
-        padding: '20px',
-        background: 'rgba(57, 158, 247, 0.08)',
-        border: '1px solid var(--info)',
-        borderRadius: '12px',
-      }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: '6px', color: 'var(--info)' }}>
-              {t('clawnch.setup.infoTitle')}
-            </div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
-              {t('clawnch.setup.infoText')}
-            </div>
+            )}
           </div>
         </div>
       </div>

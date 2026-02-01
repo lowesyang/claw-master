@@ -143,10 +143,10 @@ export function ClawnchLaunch() {
       })
 
       const launchData = await launchResponse.json()
-      
+
       if (launchData.success) {
-        setStatus({ 
-          type: 'success', 
+        setStatus({
+          type: 'success',
           message: t('clawnch.launch.launchSuccess')
         })
         // Reset form
@@ -174,23 +174,11 @@ export function ClawnchLaunch() {
   return (
     <div>
       {/* Page Header */}
-      <div style={{
-        marginBottom: '32px',
-        paddingBottom: '24px',
-        borderBottom: '1px solid var(--border)',
-      }}>
-        <h1 style={{
-          fontSize: '2rem',
-          fontWeight: 700,
-          marginBottom: '8px',
-          background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-        }}>
+      <div className="page-header">
+        <h1 className="page-title">
           {t('clawnch.launch.title')}
         </h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>
+        <p className="page-desc">
           {t('clawnch.launch.subtitle')}
         </p>
       </div>
@@ -204,137 +192,130 @@ export function ClawnchLaunch() {
       )}
 
       {!isLoggedIn && (
-        <div style={{
-          padding: '24px',
-          background: 'rgba(240, 136, 0, 0.08)',
-          border: '1px solid var(--warning)',
-          borderRadius: '16px',
-          marginBottom: '28px',
-        }}>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <span style={{ fontSize: '1.5rem' }}>⚠️</span>
-            <div>
-              <div style={{ fontWeight: 600, marginBottom: '6px', color: 'var(--warning)' }}>
-                {t('clawnch.launch.notLoggedIn')}
-              </div>
-              <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-                {t('clawnch.launch.notLoggedInDesc')}
-              </div>
-            </div>
+        <div className="alert alert-warning" style={{ marginBottom: '24px' }}>
+          <span className="alert-icon">⚠️</span>
+          <div className="alert-content">
+            <div className="alert-title">{t('clawnch.launch.notLoggedIn')}</div>
+            <div className="alert-text">{t('clawnch.launch.notLoggedInDesc')}</div>
           </div>
         </div>
       )}
 
-      {/* Launch Form */}
-      <div style={{
-        background: 'var(--bg-card)',
-        borderRadius: '20px',
-        padding: '28px',
-        marginBottom: '28px',
-        border: '1px solid var(--border)',
+      {/* Two Column Layout */}
+      <div className="two-column-layout sidebar-right" style={{
         opacity: isLoggedIn ? 1 : 0.5,
         pointerEvents: isLoggedIn ? 'auto' : 'none',
       }}>
-        {/* Token Info */}
-        <div style={{ marginBottom: '24px' }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '16px' }}>
-            {t('clawnch.launch.tokenInfo')}
-          </h3>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              {t('clawnch.launch.tokenName')} *
-            </label>
-            <input
-              type="text"
-              value={tokenData.name}
-              onChange={(e) => setTokenData({ ...tokenData, name: e.target.value })}
-              placeholder={t('clawnch.launch.tokenNamePlaceholder')}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                borderRadius: '10px',
-                color: 'var(--text-primary)',
-                fontSize: '0.9rem',
-              }}
-            />
+        {/* Left Column - Form Fields */}
+        <div className="card" style={{ marginBottom: 0 }}>
+          <div className="card-title">
+            🪙 {t('clawnch.launch.tokenInfo')}
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              {t('clawnch.launch.symbol')} *
-            </label>
-            <input
-              type="text"
-              value={tokenData.symbol}
-              onChange={(e) => setTokenData({ ...tokenData, symbol: e.target.value.toUpperCase() })}
-              placeholder={t('clawnch.launch.symbolPlaceholder')}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                borderRadius: '10px',
-                color: 'var(--text-primary)',
-                fontSize: '0.9rem',
-                textTransform: 'uppercase',
-              }}
-            />
+          <div className="form-grid">
+            <div className="form-group">
+              <label>{t('clawnch.launch.tokenName')} *</label>
+              <input
+                type="text"
+                value={tokenData.name}
+                onChange={(e) => setTokenData({ ...tokenData, name: e.target.value })}
+                placeholder={t('clawnch.launch.tokenNamePlaceholder')}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>{t('clawnch.launch.symbol')} *</label>
+              <input
+                type="text"
+                value={tokenData.symbol}
+                onChange={(e) => setTokenData({ ...tokenData, symbol: e.target.value.toUpperCase() })}
+                placeholder={t('clawnch.launch.symbolPlaceholder')}
+                style={{ textTransform: 'uppercase' }}
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>{t('clawnch.launch.wallet')} *</label>
+              <input
+                type="text"
+                value={tokenData.wallet}
+                onChange={(e) => setTokenData({ ...tokenData, wallet: e.target.value })}
+                placeholder={t('clawnch.launch.walletPlaceholder')}
+                style={{ fontFamily: "'JetBrains Mono', monospace" }}
+              />
+            </div>
+
+            <div className="form-group full-width">
+              <label>{t('clawnch.launch.description')} *</label>
+              <textarea
+                value={tokenData.description}
+                onChange={(e) => setTokenData({ ...tokenData, description: e.target.value })}
+                placeholder={t('clawnch.launch.descriptionPlaceholder')}
+                style={{ minHeight: '100px' }}
+              />
+            </div>
           </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              {t('clawnch.launch.wallet')} *
-            </label>
-            <input
-              type="text"
-              value={tokenData.wallet}
-              onChange={(e) => setTokenData({ ...tokenData, wallet: e.target.value })}
-              placeholder={t('clawnch.launch.walletPlaceholder')}
+          {/* Launch Button */}
+          <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
+            <button
+              onClick={handleLaunch}
+              disabled={launching || !tokenData.name || !tokenData.symbol || !tokenData.wallet || !tokenData.description || !tokenData.image}
+              className="btn-block"
               style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                borderRadius: '10px',
-                color: 'var(--text-primary)',
-                fontSize: '0.9rem',
-                fontFamily: "'JetBrains Mono', monospace",
+                opacity: (launching || !tokenData.name || !tokenData.symbol || !tokenData.wallet || !tokenData.description || !tokenData.image) ? 0.5 : 1,
+                cursor: launching ? 'not-allowed' : 'pointer',
               }}
-            />
+            >
+              {launching ? t('clawnch.launch.launching') : t('clawnch.launch.launchButton')}
+            </button>
           </div>
+        </div>
 
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              {t('clawnch.launch.description')} *
-            </label>
-            <textarea
-              value={tokenData.description}
-              onChange={(e) => setTokenData({ ...tokenData, description: e.target.value })}
-              placeholder={t('clawnch.launch.descriptionPlaceholder')}
-              style={{
-                width: '100%',
-                padding: '12px 14px',
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border)',
-                borderRadius: '10px',
-                color: 'var(--text-primary)',
-                fontSize: '0.9rem',
-                minHeight: '120px',
-                resize: 'vertical',
-              }}
-            />
-          </div>
+        {/* Right Column - Image Upload & Info */}
+        <div className="sidebar-card">
+          {/* Image Upload Card */}
+          <div className="card" style={{ marginBottom: '20px' }}>
+            <div className="card-title">
+              🖼️ {t('clawnch.launch.image')} *
+            </div>
 
-          {/* Image Upload */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-              {t('clawnch.launch.image')} *
-            </label>
-            
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'start' }}>
+            {/* Image Preview Area */}
+            <div style={{
+              width: '100%',
+              aspectRatio: '1',
+              borderRadius: '16px',
+              overflow: 'hidden',
+              background: 'linear-gradient(135deg, rgba(131, 83, 255, 0.1) 0%, rgba(197, 57, 249, 0.1) 100%)',
+              border: '2px dashed var(--border)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '16px',
+              position: 'relative',
+            }}>
+              {imagePreview ? (
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                  }}
+                />
+              ) : (
+                <div style={{ textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '8px' }}>📸</div>
+                  <div style={{ fontSize: '0.9rem' }}>{t('clawnch.launch.selectImage')}</div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
               <input
                 type="file"
                 accept="image/*"
@@ -344,32 +325,21 @@ export function ClawnchLaunch() {
               />
               <label
                 htmlFor="image-upload"
-                style={{
-                  padding: '12px 20px',
-                  background: 'var(--bg-secondary)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '10px',
-                  cursor: 'pointer',
-                  fontSize: '0.9rem',
-                  color: 'var(--text-primary)',
-                }}
+                className="btn-small btn-secondary"
+                style={{ flex: 1, textAlign: 'center', cursor: 'pointer' }}
               >
                 {t('clawnch.launch.selectImage')}
               </label>
-              
+
               {imageFile && (
                 <button
                   onClick={handleUploadImage}
                   disabled={uploading}
+                  className="btn-small"
                   style={{
-                    padding: '12px 20px',
-                    background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '10px',
-                    fontSize: '0.9rem',
-                    cursor: uploading ? 'not-allowed' : 'pointer',
+                    flex: 1,
                     opacity: uploading ? 0.7 : 1,
+                    cursor: uploading ? 'not-allowed' : 'pointer',
                   }}
                 >
                   {uploading ? t('clawnch.launch.uploading') : t('clawnch.launch.upload')}
@@ -377,66 +347,27 @@ export function ClawnchLaunch() {
               )}
             </div>
 
-            {imagePreview && (
-              <div style={{ marginTop: '12px' }}>
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  style={{
-                    width: '120px',
-                    height: '120px',
-                    objectFit: 'cover',
-                    borderRadius: '12px',
-                    border: '1px solid var(--border)',
-                  }}
-                />
-              </div>
-            )}
-
             {tokenData.image && (
-              <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--success)' }}>
-                ✓ {t('clawnch.launch.imageUploaded')}: {tokenData.image}
+              <div style={{
+                marginTop: '12px',
+                padding: '10px',
+                background: 'rgba(7, 181, 106, 0.1)',
+                borderRadius: '8px',
+                fontSize: '0.8rem',
+                color: 'var(--success)',
+                wordBreak: 'break-all',
+              }}>
+                ✓ {t('clawnch.launch.imageUploaded')}
               </div>
             )}
           </div>
-        </div>
 
-        {/* Launch Button */}
-        <button
-          onClick={handleLaunch}
-          disabled={launching || !tokenData.name || !tokenData.symbol || !tokenData.wallet || !tokenData.description || !tokenData.image}
-          style={{
-            width: '100%',
-            padding: '16px',
-            background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-            color: 'white',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '1rem',
-            fontWeight: 600,
-            cursor: launching ? 'not-allowed' : 'pointer',
-            opacity: launching ? 0.7 : 1,
-          }}
-        >
-          {launching ? t('clawnch.launch.launching') : t('clawnch.launch.launchButton')}
-        </button>
-      </div>
-
-      {/* Info */}
-      <div style={{
-        padding: '20px',
-        background: 'rgba(57, 158, 247, 0.08)',
-        border: '1px solid var(--info)',
-        borderRadius: '12px',
-      }}>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-          <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
-          <div>
-            <div style={{ fontWeight: 600, marginBottom: '6px', color: 'var(--info)' }}>
-              {t('clawnch.launch.infoTitle')}
-            </div>
-            <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6' }}>
-              {t('clawnch.launch.infoText')}
+          {/* Info Box */}
+          <div className="alert alert-info" style={{ margin: 0 }}>
+            <span className="alert-icon">ℹ️</span>
+            <div className="alert-content">
+              <div className="alert-title">{t('clawnch.launch.infoTitle')}</div>
+              <div className="alert-text">{t('clawnch.launch.infoText')}</div>
             </div>
           </div>
         </div>

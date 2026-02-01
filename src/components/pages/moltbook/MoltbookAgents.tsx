@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../../../contexts/AuthContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
+import { followAgent, unfollowAgent } from '../../../services/api'
 import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
 import { EmptyState } from '../../common/EmptyState'
@@ -15,22 +17,6 @@ interface Agent {
   isFollowing: boolean
   joinedAt: number
   avatar?: string
-}
-
-// Get API key from localStorage
-function getMoltbookApiKey(): string {
-  try {
-    const stored = localStorage.getItem('moltbook_agents')
-    if (stored) {
-      const agents = JSON.parse(stored)
-      if (agents.length > 0 && agents[0].apiKey) {
-        return agents[0].apiKey
-      }
-    }
-  } catch {
-    // ignore
-  }
-  return ''
 }
 
 // Mock data for demonstration
@@ -104,7 +90,7 @@ function formatDate(timestamp: number): string {
 
 interface AgentCardProps {
   agent: Agent
-  onFollow: (name: string, follow: boolean) => void
+  onFollow: (name: string, follow: boolean) => void | Promise<void>
   isLoggedIn: boolean
   t: (key: string) => string
 }
@@ -115,9 +101,11 @@ function AgentCard({ agent, onFollow, isLoggedIn, t }: AgentCardProps) {
   const handleFollow = async () => {
     if (!isLoggedIn) return
     setLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    onFollow(agent.name, !agent.isFollowing)
-    setLoading(false)
+    try {
+      await onFollow(agent.name, !agent.isFollowing)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -158,8 +146,8 @@ function AgentCard({ agent, onFollow, isLoggedIn, t }: AgentCardProps) {
           {loading
             ? t('moltbook.agents.followingAction')
             : agent.isFollowing
-            ? t('moltbook.agents.unfollow')
-            : t('moltbook.agents.follow')}
+              ? t('moltbook.agents.unfollow')
+              : t('moltbook.agents.follow')}
         </button>
       </div>
     </div>
@@ -168,12 +156,14 @@ function AgentCard({ agent, onFollow, isLoggedIn, t }: AgentCardProps) {
 
 export function MoltbookAgents() {
   const { t } = useLanguage()
-  const apiKey = getMoltbookApiKey()
-  const isLoggedIn = !!apiKey
+  const { isLoggedIn, apiKey } = useAuth()
+  const apiKeyRef = useRef(apiKey)
+  apiKeyRef.current = apiKey
 
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [followError, setFollowError] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterType>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -212,19 +202,32 @@ export function MoltbookAgents() {
     loadAgents()
   }, [loadAgents])
 
-  const handleFollow = (name: string, follow: boolean) => {
-    setAgents(prev =>
-      prev.map(agent =>
-        agent.name === name
-          ? {
-              ...agent,
-              isFollowing: follow,
-              followers: agent.followers + (follow ? 1 : -1),
-            }
-          : agent
+  const handleFollow = useCallback(async (name: string, follow: boolean) => {
+    const key = apiKeyRef.current
+    if (!key) return
+    setFollowError(null)
+    try {
+      if (follow) {
+        await followAgent(name, key)
+      } else {
+        await unfollowAgent(name, key)
+      }
+      setAgents(prev =>
+        prev.map(agent =>
+          agent.name === name
+            ? {
+                ...agent,
+                isFollowing: follow,
+                followers: Math.max(0, agent.followers + (follow ? 1 : -1)),
+              }
+            : agent
+        )
       )
-    )
-  }
+    } catch (err) {
+      console.error('Follow/unfollow failed:', err)
+      setFollowError((err as Error).message)
+    }
+  }, [])
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const tAny = t as (key: string) => string
@@ -243,63 +246,98 @@ export function MoltbookAgents() {
         </Alert>
       )}
 
-      <div className="card">
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            placeholder={t('moltbook.agents.search')}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ flex: 1, minWidth: '200px' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <button
-            className={`btn-small ${filter === 'all' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('all')}
-          >
-            {t('moltbook.agents.all')}
-          </button>
-          <button
-            className={`btn-small ${filter === 'following' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('following')}
-          >
-            ✓ {t('moltbook.agents.followingTab')}
-          </button>
-          <button
-            className={`btn-small ${filter === 'popular' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('popular')}
-          >
-            🔥 {t('moltbook.agents.popular')}
-          </button>
-          <div style={{ flex: 1 }} />
-          <button className="btn-small btn-secondary" onClick={loadAgents} disabled={loading}>
-            {t('moltbook.agents.refresh')}
-          </button>
-        </div>
-
-        {loading && <Loading />}
-
-        {error && <EmptyState icon="❌" message={`${t('moltbook.agents.loadFailed')}: ${error}`} />}
-
-        {!loading && !error && agents.length === 0 && (
-          <EmptyState icon="🤖" message={t('moltbook.agents.noAgents')} />
-        )}
-
-        {!loading && !error && agents.length > 0 && (
-          <div className="agents-list">
-            {agents.map(agent => (
-              <AgentCard
-                key={agent.id}
-                agent={agent}
-                onFollow={handleFollow}
-                isLoggedIn={isLoggedIn}
-                t={tAny}
-              />
-            ))}
+      {/* Two Column Layout */}
+      <div className="two-column-layout sidebar-layout">
+        {/* Left Sidebar - Filters */}
+        <div className="filter-sidebar sidebar-card">
+          <div className="filter-section">
+            <div className="filter-section-title">{t('moltbook.agents.search')}</div>
+            <input
+              type="text"
+              placeholder={t('moltbook.agents.search')}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ width: '100%' }}
+            />
           </div>
-        )}
+
+          <div className="filter-section">
+            <div className="filter-section-title">{t('moltbook.agents.filterBy') || 'Filter By'}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                className={`quick-action-btn ${filter === 'all' ? 'active' : ''}`}
+                onClick={() => setFilter('all')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                📋 {t('moltbook.agents.all')}
+              </button>
+              <button
+                className={`quick-action-btn ${filter === 'following' ? 'active' : ''}`}
+                onClick={() => setFilter('following')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                ✓ {t('moltbook.agents.followingTab')}
+              </button>
+              <button
+                className={`quick-action-btn ${filter === 'popular' ? 'active' : ''}`}
+                onClick={() => setFilter('popular')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                🔥 {t('moltbook.agents.popular')}
+              </button>
+            </div>
+          </div>
+
+          <div className="section-divider" />
+
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <button className="btn-small btn-secondary btn-block" onClick={loadAgents} disabled={loading}>
+              🔄 {t('moltbook.agents.refresh')}
+            </button>
+          </div>
+
+          <div className="section-divider" />
+
+          {/* Stats */}
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <div className="filter-section-title">{t('moltbook.agents.stats') || 'Stats'}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <div style={{ marginBottom: '6px' }}>🤖 {agents.length} agents</div>
+              <div>✓ {agents.filter(a => a.isFollowing).length} following</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content - Agent Grid */}
+        <div className="content-area">
+          {loading && <Loading />}
+
+          {followError && (
+            <Alert icon="⚠️" title={t('moltbook.agents.loadFailed')} type="warning">
+              {followError}
+            </Alert>
+          )}
+
+          {error && <EmptyState icon="❌" message={`${t('moltbook.agents.loadFailed')}: ${error}`} />}
+
+          {!loading && !error && agents.length === 0 && (
+            <EmptyState icon="🤖" message={t('moltbook.agents.noAgents')} />
+          )}
+
+          {!loading && !error && agents.length > 0 && (
+            <div className="cards-grid">
+              {agents.map(agent => (
+                <AgentCard
+                  key={agent.id}
+                  agent={agent}
+                  onFollow={handleFollow}
+                  isLoggedIn={isLoggedIn}
+                  t={tAny}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

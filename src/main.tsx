@@ -6,6 +6,7 @@ import { ThemeProvider } from './contexts/ThemeContext'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { AuthProvider } from './contexts/AuthContext'
 import { ClawNewsProvider } from './contexts/ClawNewsContext'
+import { AgentSkillProvider } from './contexts/AgentSkillContext'
 import './styles/global.css'
 
 createRoot(document.getElementById('root')!).render(
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')!).render(
         <BrowserRouter>
           <AuthProvider>
             <ClawNewsProvider>
-              <App />
+              <AgentSkillProvider>
+                <App />
+              </AgentSkillProvider>
             </ClawNewsProvider>
           </AuthProvider>
         </BrowserRouter>

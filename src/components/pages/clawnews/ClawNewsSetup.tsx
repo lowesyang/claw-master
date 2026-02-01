@@ -6,6 +6,7 @@ import { registerAgent } from '../../../services/clawnews'
 import { StatusMessage } from '../../common/StatusMessage'
 import { Alert } from '../../common/Alert'
 import { AgentSwitcher } from '../../common/AgentSwitcher'
+import { Select } from '../../common/Select'
 import { copyToClipboard, formatDate } from '../../../utils/helpers'
 import { ClawNewsCredentials } from '../../../types'
 
@@ -45,7 +46,10 @@ export function ClawNewsSetup() {
   const navigate = useNavigate()
 
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
-  const [apiKeyInput, setApiKeyInput] = useState(apiKey)
+  // 登录表单使用的 API key 输入（未登录状态）
+  const [loginApiKeyInput, setLoginApiKeyInput] = useState(apiKey)
+  // 添加新 agent 表单使用的 API key 输入（已登录状态）- 始终为空
+  const [newAgentApiKeyInput, setNewAgentApiKeyInput] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
   const [loginStatus, setLoginStatus] = useState<{ message: string; type: 'success' | 'error' | 'info' } | null>(null)
   const [loading, setLoading] = useState(false)
@@ -65,12 +69,12 @@ export function ClawNewsSetup() {
 
   useEffect(() => {
     if (apiKey) {
-      setApiKeyInput(apiKey)
+      setLoginApiKeyInput(apiKey)
     }
   }, [apiKey])
 
   const handleLogin = async () => {
-    if (!apiKeyInput.trim()) {
+    if (!loginApiKeyInput.trim()) {
       setLoginStatus({ message: t('clawnews.setup.enterApiKey'), type: 'error' })
       return
     }
@@ -80,7 +84,7 @@ export function ClawNewsSetup() {
 
     try {
       // Add to saved agents list and login
-      const savedAgent = await addAgent(apiKeyInput.trim(), agentName || undefined)
+      const savedAgent = await addAgent(loginApiKeyInput.trim(), agentName || undefined)
       await switchAgent(savedAgent.id)
       setLoginStatus({ message: t('clawnews.setup.connectSuccess'), type: 'success' })
       setAgentName('')
@@ -94,7 +98,7 @@ export function ClawNewsSetup() {
   }
 
   const handleAddAgent = async () => {
-    if (!apiKeyInput.trim()) {
+    if (!newAgentApiKeyInput.trim()) {
       setAddAgentStatus({ message: t('clawnews.setup.enterApiKey'), type: 'error' })
       return
     }
@@ -103,9 +107,9 @@ export function ClawNewsSetup() {
     setAddAgentStatus(null)
 
     try {
-      await addAgent(apiKeyInput.trim(), agentName || undefined)
+      await addAgent(newAgentApiKeyInput.trim(), agentName || undefined)
       setAddAgentStatus({ message: t('clawnews.setup.agentAdded'), type: 'success' })
-      setApiKeyInput('')
+      setNewAgentApiKeyInput('')
       setAgentName('')
     } catch (error) {
       setAddAgentStatus({ message: (error as Error).message, type: 'error' })
@@ -201,185 +205,225 @@ export function ClawNewsSetup() {
           </div>
         )}
 
-        <div className="card">
-          <div className="card-title">{t('clawnews.setup.currentCredentials')}</div>
-          <div className="credential-box">
-            <div className="credential-label">API Key</div>
-            <div className="credential-value">{apiKey.substring(0, 25)}...</div>
-            <button className="copy-btn btn-small btn-secondary" onClick={() => copyToClipboard(apiKey)}>
-              {t('common.copy')}
-            </button>
-          </div>
-          <div style={{ marginTop: '16px' }}>
-            <button className="btn-secondary" onClick={logout}>
-              {t('common.logout')}
-            </button>
-          </div>
-        </div>
+        {/* Two Column Layout */}
+        <div className="two-column-layout">
+          {/* Left Column - Account Info */}
+          <div>
+            {/* Current Credentials */}
+            <div className="card">
+              <div className="card-title">{t('clawnews.setup.currentCredentials')}</div>
+              <div className="credential-box">
+                <div className="credential-label">API Key</div>
+                <div className="credential-value">{apiKey.substring(0, 25)}...</div>
+                <button className="copy-btn btn-small btn-secondary" onClick={() => copyToClipboard(apiKey)}>
+                  {t('common.copy')}
+                </button>
+              </div>
+              <div style={{ marginTop: '16px' }}>
+                <button className="btn-secondary btn-small" onClick={logout}>
+                  {t('common.logout')}
+                </button>
+              </div>
+            </div>
 
-        <div className="card">
-          <div className="card-title">{t('setup.accountInfo')}</div>
-          {agentInfo ? (
-            <>
-              {!authStatus?.claimed && (
-                <Alert icon="⏳" title={t('auth.agentUnclaimed')} type="warning">
-                  {t('auth.verifyHint')}
-                  <br />
-                  {(newCredentials?.claim_url || credentials?.claim_url) ? (
-                    <a
-                      href={newCredentials?.claim_url || credentials?.claim_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: 'var(--accent)', wordBreak: 'break-all' }}
-                    >
-                      {newCredentials?.claim_url || credentials?.claim_url}
-                    </a>
-                  ) : (
-                    <span style={{ color: 'var(--text-secondary)' }}>
-                      {t('auth.claimUrlLost')}
-                    </span>
+            {/* Account Info */}
+            <div className="card" style={{ marginBottom: 0 }}>
+              <div className="card-title">{t('setup.accountInfo')}</div>
+              {agentInfo ? (
+                <>
+                  {authStatus !== null && !authStatus.claimed && (
+                    <Alert icon="⏳" title={t('auth.agentUnclaimed')} type="warning">
+                      {t('auth.verifyHint')}
+                      <br />
+                      {(newCredentials?.claim_url || credentials?.claim_url) ? (
+                        <a
+                          href={newCredentials?.claim_url || credentials?.claim_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ color: 'var(--accent)', wordBreak: 'break-all' }}
+                        >
+                          {newCredentials?.claim_url || credentials?.claim_url}
+                        </a>
+                      ) : (
+                        <span style={{ color: 'var(--text-secondary)' }}>
+                          {t('auth.claimUrlLost')}
+                        </span>
+                      )}
+                    </Alert>
                   )}
-                </Alert>
-              )}
-              <table className="api-table">
-                <tbody>
-                  <tr><td>{t('setup.handle')}</td><td>@{agentInfo.handle}</td></tr>
-                  <tr><td>{t('setup.about')}</td><td>{agentInfo.about || '-'}</td></tr>
-                  <tr><td>{t('setup.capabilities')}</td><td>{agentInfo.capabilities?.join(', ') || '-'}</td></tr>
-                  <tr><td>{t('setup.model')}</td><td>{agentInfo.model || '-'}</td></tr>
-                  <tr><td>{t('setup.karma')}</td><td>{agentInfo.karma || 0}</td></tr>
-                  <tr><td>{t('setup.followers')}</td><td>{agentInfo.follower_count || 0}</td></tr>
-                  <tr><td>{t('setup.following')}</td><td>{agentInfo.following_count || 0}</td></tr>
-                  <tr><td>{t('setup.status')}</td><td>{authStatus?.verified ? t('auth.verified') : authStatus?.claimed ? t('auth.claimed') : t('auth.unclaimed')}</td></tr>
-                  <tr><td>{t('setup.createdAt')}</td><td>{formatDate(agentInfo.created_at)}</td></tr>
-                </tbody>
-              </table>
-              <button
-                className="btn-small btn-secondary"
-                style={{ marginTop: '16px' }}
-                onClick={() => refreshAgentInfo()}
-              >
-                {t('setup.refreshInfo')}
-              </button>
-            </>
-          ) : (
-            <div className="loading">
-              <div className="spinner"></div>
-              <p>{t('common.loading')}</p>
-            </div>
-          )}
-        </div>
 
-        {/* Add New Agent Card */}
-        <div className="card">
-          <div className="card-title">{t('clawnews.setup.addNewAgent')}</div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>
-            {t('clawnews.setup.addNewAgentDesc')}
-          </p>
-          {addAgentStatus && <StatusMessage message={addAgentStatus.message} type={addAgentStatus.type} />}
-          <div className="form-group">
-            <label>{t('clawnews.setup.agentNameOptional')}</label>
-            <input
-              type="text"
-              value={agentName}
-              onChange={(e) => setAgentName(e.target.value)}
-              placeholder={t('clawnews.setup.agentNamePlaceholder')}
-            />
-          </div>
-          <div className="form-group">
-            <label>API Key</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showApiKey ? 'text' : 'password'}
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                placeholder="clawnews_sk_..."
-                style={{ paddingRight: '80px' }}
-              />
-              <button
-                type="button"
-                className="btn-small btn-secondary"
-                style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', padding: '6px 10px' }}
-                onClick={() => setShowApiKey(!showApiKey)}
-              >
-                {showApiKey ? t('auth.hideApiKey') : t('auth.showApiKey')}
-              </button>
-            </div>
-          </div>
-          <button className="btn-block btn-secondary" onClick={handleAddAgent} disabled={loading}>
-            {loading ? t('clawnews.setup.adding') : t('clawnews.setup.addAgent')}
-          </button>
-        </div>
-
-        {/* Agent List */}
-        {clawnewsAgents.length > 0 && (
-          <div className="card">
-            <div className="card-title">{t('clawnews.setup.savedAgents')} ({clawnewsAgents.length})</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {clawnewsAgents.map(agent => (
-                <div
-                  key={agent.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '12px 16px',
-                    background: agent.id === currentAgentId ? 'rgba(34, 197, 94, 0.1)' : 'var(--bg-main)',
-                    border: agent.id === currentAgentId ? '1px solid var(--clawnews-color)' : '1px solid var(--border)',
-                    borderRadius: '8px',
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 500 }}>
-                      {agent.name}
-                      {agent.handle && (
-                        <span style={{ marginLeft: '8px', color: 'var(--text-secondary)', fontWeight: 400 }}>
-                          @{agent.handle}
-                        </span>
-                      )}
-                      {agent.id === currentAgentId && (
-                        <span style={{
-                          marginLeft: '8px',
-                          fontSize: '0.75rem',
-                          padding: '2px 8px',
-                          background: 'var(--clawnews-color)',
-                          color: 'white',
-                          borderRadius: '4px',
-                        }}>
-                          {t('clawnews.setup.current')}
-                        </span>
-                      )}
+                  {/* Stats Grid */}
+                  <div className="stats-grid" style={{ marginBottom: '16px' }}>
+                    <div className="stat-item">
+                      <div className="stat-value">{agentInfo.karma || 0}</div>
+                      <div className="stat-label">{t('setup.karma')}</div>
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      {t('clawnews.setup.addedAt')} {formatDate(agent.addedAt)}
+                    <div className="stat-item">
+                      <div className="stat-value">{agentInfo.follower_count || 0}</div>
+                      <div className="stat-label">{t('setup.followers')}</div>
+                    </div>
+                    <div className="stat-item">
+                      <div className="stat-value">{agentInfo.following_count || 0}</div>
+                      <div className="stat-label">{t('setup.following')}</div>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {agent.id !== currentAgentId && (
-                      <button
-                        className="btn-small"
-                        onClick={() => switchAgent(agent.id)}
-                      >
-                        {t('clawnews.setup.switch')}
-                      </button>
-                    )}
-                    <button
-                      className="btn-small btn-secondary"
-                      style={{ color: 'var(--error)', borderColor: 'var(--error)' }}
-                      onClick={() => {
-                        if (confirm(t('clawnews.setup.confirmRemove'))) {
-                          removeAgent(agent.id)
-                        }
+
+                  <table className="api-table">
+                    <tbody>
+                      <tr><td>{t('setup.handle')}</td><td>@{agentInfo.handle}</td></tr>
+                      <tr><td>{t('setup.about')}</td><td>{agentInfo.about || '-'}</td></tr>
+                      <tr><td>{t('setup.capabilities')}</td><td>{agentInfo.capabilities?.join(', ') || '-'}</td></tr>
+                      <tr><td>{t('setup.model')}</td><td>{agentInfo.model || '-'}</td></tr>
+                      <tr><td>{t('setup.status')}</td><td>{authStatus?.verified ? t('auth.verified') : authStatus?.claimed ? t('auth.claimed') : t('auth.unclaimed')}</td></tr>
+                      <tr><td>{t('setup.createdAt')}</td><td>{formatDate(agentInfo.created_at)}</td></tr>
+                    </tbody>
+                  </table>
+                  <button
+                    className="btn-small btn-secondary"
+                    style={{ marginTop: '16px' }}
+                    onClick={() => refreshAgentInfo()}
+                  >
+                    {t('setup.refreshInfo')}
+                  </button>
+                </>
+              ) : (
+                <div className="loading">
+                  <div className="spinner"></div>
+                  <p>{t('common.loading')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column - Agent Management */}
+          <div>
+            {/* Add New Agent Card */}
+            <div className="card">
+              <div className="card-title">{t('clawnews.setup.addNewAgent')}</div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '16px' }}>
+                {t('clawnews.setup.addNewAgentDesc')}
+              </p>
+              {addAgentStatus && <StatusMessage message={addAgentStatus.message} type={addAgentStatus.type} />}
+              <div className="form-group">
+                <label>{t('clawnews.setup.agentNameOptional')}</label>
+                <input
+                  type="text"
+                  value={agentName}
+                  onChange={(e) => setAgentName(e.target.value)}
+                  placeholder={t('clawnews.setup.agentNamePlaceholder')}
+                />
+              </div>
+              <div className="form-group">
+                <label>API Key</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={newAgentApiKeyInput}
+                    onChange={(e) => setNewAgentApiKeyInput(e.target.value)}
+                    placeholder="clawnews_sk_..."
+                    style={{ paddingRight: '80px' }}
+                  />
+                  <button
+                    type="button"
+                    className="btn-small btn-secondary"
+                    style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', padding: '6px 10px' }}
+                    onClick={() => setShowApiKey(!showApiKey)}
+                  >
+                    {showApiKey ? t('auth.hideApiKey') : t('auth.showApiKey')}
+                  </button>
+                </div>
+              </div>
+              <button className="btn-block" onClick={handleAddAgent} disabled={loading}>
+                {loading ? t('clawnews.setup.adding') : t('clawnews.setup.addAgent')}
+              </button>
+            </div>
+
+            {/* Agent List */}
+            <div className="card" style={{ marginBottom: 0 }}>
+              <div className="card-title">
+                {t('clawnews.setup.savedAgents')}
+                <span style={{ marginLeft: 'auto', fontSize: '0.85rem', fontWeight: 400, color: 'var(--text-tertiary)' }}>
+                  {clawnewsAgents.length} {clawnewsAgents.length === 1 ? 'agent' : 'agents'}
+                </span>
+              </div>
+              {clawnewsAgents.length === 0 ? (
+                <div className="empty-state" style={{ padding: '24px' }}>
+                  <div className="empty-state-icon">🤖</div>
+                  <p>No agents added yet</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {clawnewsAgents.map(agent => (
+                    <div
+                      key={agent.id}
+                      style={{
+                        padding: '14px',
+                        background: agent.id === currentAgentId ? 'rgba(7, 181, 106, 0.08)' : 'var(--bg-secondary)',
+                        border: agent.id === currentAgentId ? '1px solid var(--accent)' : '1px solid var(--border)',
+                        borderRadius: '10px',
                       }}
                     >
-                      {t('clawnews.setup.remove')}
-                    </button>
-                  </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                        <div style={{
+                          width: '36px',
+                          height: '36px',
+                          borderRadius: '8px',
+                          background: agent.id === currentAgentId ? 'var(--gradient-clawnews)' : 'var(--bg-tertiary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1rem',
+                        }}>🤖</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 500, display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{agent.name}</span>
+                            {agent.id === currentAgentId && (
+                              <span style={{
+                                fontSize: '0.7rem',
+                                padding: '2px 6px',
+                                background: 'var(--accent)',
+                                color: 'white',
+                                borderRadius: '4px',
+                              }}>
+                                {t('clawnews.setup.current')}
+                              </span>
+                            )}
+                          </div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
+                            {agent.handle && `@${agent.handle} • `}{formatDate(agent.addedAt)}
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {agent.id !== currentAgentId && (
+                          <button className="btn-small" style={{ flex: 1 }} onClick={() => switchAgent(agent.id)}>
+                            {t('clawnews.setup.switch')}
+                          </button>
+                        )}
+                        <button
+                          className="btn-small"
+                          style={{
+                            flex: agent.id === currentAgentId ? 1 : 'none',
+                            background: 'rgba(247, 93, 95, 0.1)',
+                            border: '1px solid var(--error)',
+                            color: 'var(--error)'
+                          }}
+                          onClick={() => {
+                            if (confirm(t('clawnews.setup.confirmRemove'))) {
+                              removeAgent(agent.id)
+                            }
+                          }}
+                        >
+                          {t('clawnews.setup.remove')}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
-        )}
+        </div>
       </div>
     )
   }
@@ -427,8 +471,8 @@ export function ClawNewsSetup() {
             <div style={{ position: 'relative' }}>
               <input
                 type={showApiKey ? 'text' : 'password'}
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
+                value={loginApiKeyInput}
+                onChange={(e) => setLoginApiKeyInput(e.target.value)}
                 placeholder="clawnews_sk_..."
                 style={{ paddingRight: '80px' }}
               />
@@ -442,7 +486,7 @@ export function ClawNewsSetup() {
               </button>
             </div>
           </div>
-          {apiKey && (
+          {loginApiKeyInput && (
             <div className="status info" style={{ display: 'block' }}>
               {t('clawnews.setup.apiKeyRestored')}
             </div>
@@ -505,11 +549,14 @@ export function ClawNewsSetup() {
 
               <div className="form-group">
                 <label>{t('setup.modelOptional')}</label>
-                <select value={model} onChange={(e) => setModel(e.target.value)}>
-                  {MODEL_OPTIONS.map(m => (
-                    <option key={m.value} value={m.value}>{'labelKey' in m ? t(m.labelKey as any) : m.label}</option>
-                  ))}
-                </select>
+                <Select
+                  value={model}
+                  onChange={setModel}
+                  options={MODEL_OPTIONS.map(m => ({
+                    value: m.value,
+                    label: 'labelKey' in m ? t(m.labelKey as any) : m.label
+                  }))}
+                />
                 <small style={{ color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
                   {t('setup.modelHint')}
                 </small>

@@ -1,5 +1,48 @@
 // 所有请求都走代理（避免 CORS 问题）
+import { PLATFORM_SKILLS } from '../types'
+
 const CLAWNEWS_PROXY = '/api/clawnews/proxy'
+
+// Cache for ClawNews skill content
+let clawnewsSkillCache: { content: string; timestamp: number } | null = null
+const SKILL_CACHE_DURATION = 60 * 60 * 1000 // 1 hour in milliseconds
+
+/**
+ * Fetch and cache the ClawNews skill.md content
+ * Used to provide agents with platform-specific instructions in their system prompt
+ */
+export async function fetchClawNewsSkillContent(): Promise<string> {
+  const skillUrl = PLATFORM_SKILLS.clawnews?.skillUrl
+  if (!skillUrl) {
+    throw new Error('No skill URL configured for ClawNews')
+  }
+  
+  const now = Date.now()
+  
+  // Return cached content if still valid
+  if (clawnewsSkillCache && (now - clawnewsSkillCache.timestamp) < SKILL_CACHE_DURATION) {
+    return clawnewsSkillCache.content
+  }
+  
+  try {
+    const response = await fetch(skillUrl)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ClawNews skill.md: ${response.status}`)
+    }
+    const content = await response.text()
+    
+    // Update cache
+    clawnewsSkillCache = { content, timestamp: now }
+    return content
+  } catch (error) {
+    console.error('Failed to fetch ClawNews skill content:', error)
+    // Return cached content if available, even if expired
+    if (clawnewsSkillCache) {
+      return clawnewsSkillCache.content
+    }
+    throw error
+  }
+}
 
 interface ClawNewsApiError extends Error {
   hint?: string
@@ -89,6 +132,7 @@ export async function getAuthStatus(apiKey: string): Promise<AuthStatusResponse>
 
 // Agent 信息
 export interface ClawNewsAgent {
+  id?: string
   handle: string
   about?: string
   capabilities?: string[]
@@ -152,6 +196,11 @@ export async function getTopStories(): Promise<number[]> {
 
 export async function getNewStories(): Promise<number[]> {
   return clawnewsRequest<number[]>('/newstories.json')
+}
+
+/** Get IDs of items submitted by the current agent (requires apiKey). */
+export async function getMySubmittedIds(apiKey: string): Promise<number[]> {
+  return clawnewsRequest<number[]>('/agent/me/submitted', {}, apiKey)
 }
 
 export async function upvoteItem(id: number, apiKey: string): Promise<void> {

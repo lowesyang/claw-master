@@ -27,8 +27,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const STORAGE_KEY_SAVED_AGENTS = 'moltbook_saved_agents'
 const STORAGE_KEY_CURRENT_AGENT_ID = 'moltbook_current_agent_id'
 
+/** Initialize auth state solely from moltbook_saved_agents. No separate login state. */
+function getInitialAuth(): { apiKey: string; currentAgentId: string | null } {
+  try {
+    const cached = localStorage.getItem(STORAGE_KEY_SAVED_AGENTS)
+    const agents: SavedAgent[] = cached ? JSON.parse(cached) : []
+    if (agents.length === 0) return { apiKey: '', currentAgentId: null }
+
+    const currentId = localStorage.getItem(STORAGE_KEY_CURRENT_AGENT_ID)
+    let agent = currentId ? agents.find(a => a.id === currentId) : null
+    if (!agent) {
+      agent = [...agents].sort((a, b) => {
+        const aTime = a.lastUsedAt || a.addedAt || ''
+        const bTime = b.lastUsedAt || b.addedAt || ''
+        return bTime.localeCompare(aTime)
+      })[0]
+    }
+    if (agent?.apiKey) {
+      localStorage.setItem(STORAGE_KEY_CURRENT_AGENT_ID, agent.id)
+      return { apiKey: agent.apiKey, currentAgentId: agent.id }
+    }
+  } catch { /* ignore */ }
+  return { apiKey: '', currentAgentId: null }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem('moltbook_api_key') || '')
+  const [apiKey, setApiKey] = useState(() => getInitialAuth().apiKey)
   const [agentInfo, setAgentInfo] = useState<Agent | null>(() => {
     try {
       const cached = localStorage.getItem('moltbook_agent_info')
@@ -41,7 +65,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem('openrouter_api_key') || ''
   )
   const [aiModel, setAiModel] = useState(
-    () => localStorage.getItem('openrouter_model') || 'google/gemini-3-flash'
+    () => {
+      const stored = localStorage.getItem('openrouter_model') || 'google/gemini-3-flash-preview'
+      // Migrate legacy model IDs
+      const migration: Record<string, string> = {
+        'google/gemini-3-flash': 'google/gemini-3-flash-preview',
+        'google/gemini-3-pro': 'google/gemini-3-pro-preview',
+      }
+      return migration[stored] || stored
+    }
   )
 
   // Multi-agent state
@@ -54,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   })
   const [currentAgentId, setCurrentAgentId] = useState<string | null>(() =>
-    localStorage.getItem(STORAGE_KEY_CURRENT_AGENT_ID) || null
+    getInitialAuth().currentAgentId
   )
 
   // Use ref to access latest agentInfo without adding it to dependencies
@@ -120,9 +152,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updated = savedAgents.filter(a => a.id !== agentId)
     saveSavedAgents(updated)
 
-    // If removing current agent, logout
     if (currentAgentId === agentId) {
-      logout()
+      if (updated.length > 0) {
+        // Switch to first remaining agent
+        const next = updated[0]
+        setApiKey(next.apiKey)
+        setCurrentAgentId(next.id)
+        localStorage.setItem('moltbook_api_key', next.apiKey)
+        localStorage.setItem(STORAGE_KEY_CURRENT_AGENT_ID, next.id)
+      } else {
+        logout()
+      }
     }
   }, [savedAgents, saveSavedAgents, currentAgentId, logout])
 
@@ -132,12 +172,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Agent not found')
     }
 
-    // Login with the agent's API key
-    await login(agent.apiKey)
-
-    // Update current agent ID and last used time
+    // Update selection first so we remember which agent is selected
     setCurrentAgentId(agentId)
     localStorage.setItem(STORAGE_KEY_CURRENT_AGENT_ID, agentId)
+    setApiKey(agent.apiKey)
+    localStorage.setItem('moltbook_api_key', agent.apiKey)
 
     const updated = savedAgents.map(a =>
       a.id === agentId
@@ -145,6 +184,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         : a
     )
     saveSavedAgents(updated)
+
+    // Verification happens via loadAgentInfo useEffect when apiKey changes
+    // If key is invalid, loadAgentInfo will clear apiKey but keep currentAgentId
   }, [savedAgents, saveSavedAgents])
 
   const updateAgentName = useCallback((agentId: string, name: string) => {
@@ -181,9 +223,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         saveAgentInfo(unclaimed)
       }
-      // Only logout on explicit authentication errors (invalid API key)
+      // On invalid API key, only clear apiKey but keep currentAgentId so user can see which agent to fix
       else if (err.message?.includes('Invalid') || err.message?.includes('Unauthorized') || err.message?.includes('invalid')) {
-        logout()
+        setApiKey('')
+        setAgentInfo(null)
+        localStorage.removeItem('moltbook_api_key')
+        localStorage.removeItem('moltbook_agent_info')
+        // Don't clear currentAgentId - keep showing which agent is selected
       }
       // For network errors or other issues, just log and keep the cached data
       else {
@@ -219,7 +265,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         agentInfo,
         openrouterApiKey,
         aiModel,
-        isLoggedIn: !!apiKey,
+        isLoggedIn: !!apiKey && savedAgents.filter(a => a.platform === 'moltbook').length > 0,
         // Multi-agent support
         savedAgents,
         currentAgentId,

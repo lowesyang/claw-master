@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { apiRequest } from '../../../services/api'
@@ -67,45 +67,130 @@ export function MoltbookFeed() {
         <p className="page-desc">{t('moltbook.feed.subtitle')}</p>
       </div>
 
-      <div className="card">
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SortType)}
-            style={{ flex: 1 }}
-          >
-            <option value="hot">🔥 {t('moltbook.feed.hot')}</option>
-            <option value="new">🆕 {t('moltbook.feed.new')}</option>
-            <option value="top">🏆 {t('moltbook.feed.top')}</option>
-            <option value="rising">📈 {t('moltbook.feed.rising')}</option>
-          </select>
-          <input
-            type="text"
-            value={submolt}
-            onChange={(e) => setSubmolt(e.target.value)}
-            placeholder={t('moltbook.feed.allCommunities')}
-            style={{ flex: 1 }}
-          />
-          <button className="btn-small" onClick={loadFeed}>
-            {t('moltbook.feed.refresh')}
-          </button>
+      {/* Two Column Layout with Sidebar */}
+      <div className="two-column-layout sidebar-layout">
+        {/* Left Sidebar - Filters */}
+        <div className="filter-sidebar sidebar-card">
+          {/* 筛选项：查看 - 浏览动态 / 我发布的（单选项） */}
+          <div className="filter-section" role="radiogroup" aria-label={t('moltbook.feed.view')}>
+            <div className="filter-section-title">{t('moltbook.feed.view')}</div>
+            <div className="filter-option-list">
+              <NavLink
+                to="/moltbook/feed"
+                end
+                className={({ isActive }) => `quick-action-btn ${isActive ? 'active' : ''}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <span className="filter-option-icon">📡</span>
+                <span>{t('moltbook.feed.browseFeed')}</span>
+              </NavLink>
+              <NavLink
+                to="/moltbook/feed/my-posts"
+                className={({ isActive }) => `quick-action-btn ${isActive ? 'active' : ''}`}
+                style={{ textDecoration: 'none', color: 'inherit' }}
+              >
+                <span className="filter-option-icon">✏️</span>
+                <span>{t('moltbook.feed.myPosts')}</span>
+              </NavLink>
+            </div>
+          </div>
+
+          <div className="section-divider" />
+
+          {/* 排序选项 - 仅对「浏览动态」有效 */}
+          <div className="filter-section">
+            <div className="filter-section-title">{t('moltbook.feed.sortBy')}</div>
+            <div className="filter-option-list">
+              <button
+                type="button"
+                className={`quick-action-btn ${sort === 'hot' ? 'active' : ''}`}
+                onClick={() => setSort('hot')}
+              >
+                <span className="filter-option-icon">🔥</span>
+                <span>{t('moltbook.feed.hot')}</span>
+              </button>
+              <button
+                type="button"
+                className={`quick-action-btn ${sort === 'new' ? 'active' : ''}`}
+                onClick={() => setSort('new')}
+              >
+                <span className="filter-option-icon">🆕</span>
+                <span>{t('moltbook.feed.new')}</span>
+              </button>
+              <button
+                type="button"
+                className={`quick-action-btn ${sort === 'top' ? 'active' : ''}`}
+                onClick={() => setSort('top')}
+              >
+                <span className="filter-option-icon">🏆</span>
+                <span>{t('moltbook.feed.top')}</span>
+              </button>
+              <button
+                type="button"
+                className={`quick-action-btn ${sort === 'rising' ? 'active' : ''}`}
+                onClick={() => setSort('rising')}
+              >
+                <span className="filter-option-icon">📈</span>
+                <span>{t('moltbook.feed.rising')}</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="section-divider" />
+
+          <div className="filter-section">
+            <div className="filter-section-title">{t('moltbook.feed.community') || 'Community'}</div>
+            <input
+              type="text"
+              value={submolt}
+              onChange={(e) => setSubmolt(e.target.value)}
+              placeholder={t('moltbook.feed.allCommunities')}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div className="section-divider" />
+
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <button className="btn-small btn-secondary btn-block" onClick={loadFeed}>
+              🔄 {t('moltbook.feed.refresh')}
+            </button>
+            <Link to="/moltbook/post" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
+              <button className="btn-small btn-block">
+                ✏️ {t('moltbook.post.title') || 'New Post'}
+              </button>
+            </Link>
+          </div>
+
+          <div className="section-divider" />
+
+          {/* Stats */}
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <div className="filter-section-title">{t('moltbook.feed.stats') || 'Stats'}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <div style={{ marginBottom: '6px' }}>📊 {posts.length} {t('moltbook.feed.posts') || 'posts'}</div>
+            </div>
+          </div>
         </div>
 
-        {loading && <Loading />}
+        {/* Right Content - Feed */}
+        <div className="content-area">
+          {loading && <Loading />}
 
-        {error && <EmptyState icon="❌" message={`${t('moltbook.feed.loadFailed')}: ${error}`} />}
+          {error && <EmptyState icon="❌" message={`${t('moltbook.feed.loadFailed')}: ${error}`} />}
 
-        {!loading && !error && posts.length === 0 && (
-          <EmptyState icon="📭" message={t('moltbook.feed.noPosts')} />
-        )}
+          {!loading && !error && posts.length === 0 && (
+            <EmptyState icon="📭" message={t('moltbook.feed.noPosts')} />
+          )}
 
-        {!loading && !error && posts.length > 0 && (
-          <div>
-            {posts.map((post) => (
-              <FeedItem key={post.id} post={post} />
-            ))}
-          </div>
-        )}
+          {!loading && !error && posts.length > 0 && (
+            <div>
+              {posts.map((post) => (
+                <FeedItem key={post.id} post={post} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

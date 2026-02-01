@@ -95,7 +95,7 @@ type FilterType = 'all' | 'popular' | 'newest'
 function formatTime(timestamp: number): string {
   const now = Date.now() / 1000
   const diff = now - timestamp
-  
+
   if (diff < 86400) {
     const hours = Math.floor(diff / 3600)
     return `${hours}h ago`
@@ -134,9 +134,9 @@ function SkillCard({ skill, onFork, isLoggedIn, t }: SkillCardProps) {
           <span className="skill-forks">🔀 {skill.forks} {t('clawnews.skills.forks')}</span>
         </div>
       </div>
-      
+
       <p className="skill-description">{skill.description}</p>
-      
+
       <div className="skill-author">
         <span>{t('clawnews.skills.by')} @{skill.by}</span>
         <span className="skill-time">{t('clawnews.skills.createdAt')} {formatTime(skill.time)}</span>
@@ -151,7 +151,7 @@ function SkillCard({ skill, onFork, isLoggedIn, t }: SkillCardProps) {
           >
             {showCode ? t('clawnews.skills.hideCode') : t('clawnews.skills.viewCode')}
           </button>
-          
+
           {showCode && (
             <div className="code-block" style={{ marginTop: '12px' }}>
               <code>{skill.code}</code>
@@ -190,9 +190,9 @@ export function ClawNewsSkills() {
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500))
-      
+
       let filteredSkills = [...MOCK_SKILLS]
-      
+
       if (filter === 'popular') {
         filteredSkills.sort((a, b) => b.forks - a.forks)
       } else if (filter === 'newest') {
@@ -243,63 +243,94 @@ export function ClawNewsSkills() {
         </Alert>
       )}
 
-      <div className="card">
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            placeholder={t('clawnews.skills.search')}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ flex: 1, minWidth: '200px' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <button
-            className={`btn-small ${filter === 'all' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('all')}
-          >
-            {t('clawnews.skills.all')}
-          </button>
-          <button
-            className={`btn-small ${filter === 'popular' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('popular')}
-          >
-            🔥 {t('clawnews.skills.popular')}
-          </button>
-          <button
-            className={`btn-small ${filter === 'newest' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('newest')}
-          >
-            🆕 {t('clawnews.skills.newest')}
-          </button>
-          <div style={{ flex: 1 }} />
-          <button className="btn-small btn-secondary" onClick={loadSkills} disabled={loading}>
-            {t('clawnews.skills.refresh')}
-          </button>
-        </div>
-
-        {loading && <Loading />}
-
-        {error && <EmptyState icon="❌" message={`${t('clawnews.skills.loadFailed')}: ${error}`} />}
-
-        {!loading && !error && skills.length === 0 && (
-          <EmptyState icon="🛠️" message={t('clawnews.skills.noSkills')} />
-        )}
-
-        {!loading && !error && skills.length > 0 && (
-          <div className="skills-list">
-            {skills.map(skill => (
-              <SkillCard
-                key={skill.id}
-                skill={skill}
-                onFork={handleFork}
-                isLoggedIn={isLoggedIn}
-                t={tAny}
-              />
-            ))}
+      {/* Two Column Layout */}
+      <div className="two-column-layout sidebar-layout">
+        {/* Left Sidebar - Filters */}
+        <div className="filter-sidebar sidebar-card">
+          <div className="filter-section">
+            <div className="filter-section-title">{t('clawnews.skills.search')}</div>
+            <input
+              type="text"
+              placeholder={t('clawnews.skills.search')}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ width: '100%' }}
+            />
           </div>
-        )}
+
+          <div className="filter-section">
+            <div className="filter-section-title">{t('clawnews.skills.sortBy') || 'Sort By'}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                className={`quick-action-btn ${filter === 'all' ? 'active' : ''}`}
+                onClick={() => setFilter('all')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                📋 {t('clawnews.skills.all')}
+              </button>
+              <button
+                className={`quick-action-btn ${filter === 'popular' ? 'active' : ''}`}
+                onClick={() => setFilter('popular')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                🔥 {t('clawnews.skills.popular')}
+              </button>
+              <button
+                className={`quick-action-btn ${filter === 'newest' ? 'active' : ''}`}
+                onClick={() => setFilter('newest')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                🆕 {t('clawnews.skills.newest')}
+              </button>
+            </div>
+          </div>
+
+          <div className="section-divider" />
+
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <button className="btn-small btn-secondary btn-block" onClick={loadSkills} disabled={loading}>
+              🔄 {t('clawnews.skills.refresh')}
+            </button>
+          </div>
+
+          <div className="section-divider" />
+
+          {/* Stats */}
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <div className="filter-section-title">{t('clawnews.skills.stats') || 'Stats'}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <div style={{ marginBottom: '6px' }}>🛠️ {skills.length} {t('clawnews.skills.skills') || 'skills'}</div>
+              {skills.length > 0 && (
+                <div>🔀 {skills.reduce((sum, s) => sum + s.forks, 0)} {t('clawnews.skills.totalForks') || 'total forks'}</div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content - Skills Grid */}
+        <div className="content-area">
+          {loading && <Loading />}
+
+          {error && <EmptyState icon="❌" message={`${t('clawnews.skills.loadFailed')}: ${error}`} />}
+
+          {!loading && !error && skills.length === 0 && (
+            <EmptyState icon="🛠️" message={t('clawnews.skills.noSkills')} />
+          )}
+
+          {!loading && !error && skills.length > 0 && (
+            <div className="cards-grid">
+              {skills.map(skill => (
+                <SkillCard
+                  key={skill.id}
+                  skill={skill}
+                  onFork={handleFork}
+                  isLoggedIn={isLoggedIn}
+                  t={tAny}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

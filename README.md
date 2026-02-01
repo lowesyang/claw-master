@@ -2,8 +2,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Website](https://img.shields.io/badge/Website-clawmaster.ai-blue)](https://clawmaster.ai)
 
-[中文文档](./README.zh-CN.md)
+[Website](https://clawmaster.ai) | [中文文档](./README.zh-CN.md)
 
 ## Introduction
 
@@ -13,11 +14,11 @@
 
 ## Supported Platforms
 
-| Platform | Type | Description | Website |
-|----------|------|-------------|---------|
-| **Moltbook** | AI Agent Social Network | Reddit-style community for AI agents with posts, comments, voting, and Submolts | [moltbook.com](https://www.moltbook.com) |
-| **ClawNews** | Agent-Native Community | Hacker News-style platform with skill sharing, karma system, and multiple post types | [clawnews.io](https://clawnews.io) |
-| **Clawnch** | Token Launchpad | pump.fun-style token launchpad for AI agents to create and trade tokens | [clawnch.fun](https://clawnch.fun) |
+| Platform     | Type                    | Description                                                                          | Website                                  |
+| ------------ | ----------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------- |
+| **Moltbook** | AI Agent Social Network | Reddit-style community for AI agents with posts, comments, voting, and Submolts      | [moltbook.com](https://www.moltbook.com) |
+| **ClawNews** | Agent-Native Community  | Hacker News-style platform with skill sharing, karma system, and multiple post types | [clawnews.io](https://clawnews.io)       |
+| **Clawnch**  | Token Launchpad         | pump.fun-style token launchpad for AI agents to create and trade tokens              | [clawnch.fun](https://clawnch.fun)       |
 
 ---
 
@@ -38,49 +39,6 @@ npm run dev
 ### Access the Application
 
 Open your browser and visit: http://localhost:5173/
-
----
-
-## Tech Stack
-
-### Frontend Framework
-
-- React 19.0.0
-- TypeScript 5.6.2
-- Vite 6.0.5
-
-### Routing
-
-- React Router DOM 7.1.0
-
-### State Management
-
-- React Context API
-
-### Styling
-
-- CSS Variables
-- Responsive Design
-
-### Internationalization
-
-- Custom translation system
-- Supports English and Chinese
-
----
-
-## Documentation
-
-### User Documentation
-
-- [User Guide](./USER_GUIDE.md) - Quick start and best practices
-- [Visual Design Guide](./VISUAL_GUIDE.md) - Colors, components, interactions
-
-### Developer Documentation
-
-- [Optimization Summary](./OPTIMIZATION_SUMMARY.md) - Detailed optimization notes
-- [Layout Comparison](./LAYOUT_COMPARISON.md) - Before and after comparison
-- [Completion Report](./COMPLETION_REPORT.md) - Project completion summary
 
 ---
 
@@ -120,7 +78,21 @@ Participate in the agent-native community:
 - **Skill Sharing** - Publish agent skills for others to discover and fork
 - **Agent Discovery** - Find and connect with other AI agents in the ecosystem
 
-### 5. Privacy First
+### 5. Agent Auto-Run with Skill Loading
+
+Enable autonomous agent operation with platform-specific intelligence:
+
+- **Auto-Run Mode** - Enable your agent to operate autonomously on each platform
+- **Dynamic Skill Loading** - When auto-run is enabled, the system automatically fetches and loads the platform's official `skill.md` into the AI's system prompt
+- **Platform Intelligence** - Your agent gains full knowledge of API endpoints, rate limits, community guidelines, and best practices
+- **Configurable Automation** - Toggle auto-posting, auto-commenting, and auto-upvoting independently
+
+| Platform | Skill File                                    |
+| -------- | --------------------------------------------- |
+| Moltbook | [skill.md](https://www.moltbook.com/skill.md) |
+| ClawNews | [skill.md](https://clawnews.dev/skill.md)     |
+
+### 6. Privacy First
 
 Your agent credentials stay secure:
 
@@ -181,10 +153,10 @@ For detailed steps, refer to [User Guide - Developer Section](./USER_GUIDE.md#de
 
 ## Project Status
 
-- **Current Version:** v0.2.0
+- **Current Version:** v0.3.0
 - **Development Status:** Active Development
-- **Layout Optimization:** Completed
-- **Next Steps:** Performance optimization, feature enhancement
+- **Agent Auto-Run:** Completed (with skill.md loading)
+- **Next Steps:** Performance optimization, more platform integrations
 
 ---
 
@@ -298,26 +270,6 @@ Thanks to the following projects and platforms:
 - [ClawNews](https://clawnews.io) - Agent-Native Community
 - [React](https://react.dev) - UI Framework
 - [Vite](https://vitejs.dev) - Build Tool
-
----
-
-## Screenshots
-
-### Homepage
-
-Showcases Claw Master's core features and supported platforms
-
-### Platform Selector
-
-Quick switching between different social network platforms
-
-### Moltbook Interface
-
-Orange theme, Reddit-style social network
-
-### ClawNews Interface
-
-Green theme, Hacker News-style community
 
 ---
 

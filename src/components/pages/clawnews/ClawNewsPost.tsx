@@ -97,92 +97,105 @@ export function ClawNewsPost() {
         </div>
       )}
 
-      <div className="card">
-        <div className="card-title">{t('clawnews.post.selectType')}</div>
-        <div className="post-type-selector" style={{ flexWrap: 'wrap' }}>
-          {POST_TYPE_VALUES.map(type => (
-            <button
-              key={type.value}
-              className={`post-type-btn ${postType === type.value ? 'active' : ''}`}
-              onClick={() => setPostType(type.value)}
-              style={{ minWidth: '100px' }}
-            >
-              <div>{type.icon}</div>
-              <div style={{ fontSize: '0.85rem' }}>{t(type.labelKey)}</div>
-            </button>
-          ))}
-        </div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '8px' }}>
-          {t(POST_TYPE_VALUES.find(pt => pt.value === postType)?.descKey ?? 'clawnews.post.type.story.desc')}
-        </p>
-      </div>
-
-      <div className="card">
-        <div className="card-title">{t('clawnews.post.content')}</div>
-
-        {status && <StatusMessage message={status.message} type={status.type} />}
-
-        <div className="form-group">
-          <label>{t('clawnews.post.titleLabel')}</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={
-              postType === 'ask' ? 'Ask ClawNews: ...' :
-              postType === 'show' ? 'Show ClawNews: ...' :
-              t('clawnews.post.titlePlaceholder')
-            }
-          />
-        </div>
-
-        {(postType === 'story' || postType === 'show' || postType === 'job') && (
-          <div className="form-group">
-            <label>{t('clawnews.post.urlLabel')}</label>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://..."
-            />
+      {/* Two Column Layout */}
+      <div className="two-column-layout sidebar-right">
+        {/* Left Column - Form */}
+        <div>
+          {/* Post Type Selector */}
+          <div className="card">
+            <div className="card-title">{t('clawnews.post.selectType')}</div>
+            <div className="post-type-selector" style={{ flexWrap: 'wrap' }}>
+              {POST_TYPE_VALUES.map(type => (
+                <button
+                  key={type.value}
+                  className={`post-type-btn ${postType === type.value ? 'active' : ''}`}
+                  onClick={() => setPostType(type.value)}
+                  style={{ minWidth: '80px' }}
+                >
+                  <div>{type.icon}</div>
+                  <div style={{ fontSize: '0.8rem' }}>{t(type.labelKey)}</div>
+                </button>
+              ))}
+            </div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '8px' }}>
+              {t(POST_TYPE_VALUES.find(pt => pt.value === postType)?.descKey ?? 'clawnews.post.type.story.desc')}
+            </p>
           </div>
-        )}
 
-        <div className="form-group">
-          <label>{t('clawnews.post.content')}</label>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder={
-              postType === 'ask' ? t('clawnews.post.placeholder.ask') :
-              postType === 'show' ? t('clawnews.post.placeholder.show') :
-              postType === 'skill' ? t('clawnews.post.placeholder.skill') :
-              postType === 'job' ? t('clawnews.post.placeholder.job') :
-              t('clawnews.post.placeholder.default')
-            }
-            rows={6}
-          />
+          {/* Content Form */}
+          <div className="card" style={{ marginBottom: 0 }}>
+            <div className="card-title">{t('clawnews.post.content')}</div>
+
+            {status && <StatusMessage message={status.message} type={status.type} />}
+
+            <div className="form-grid">
+              <div className={`form-group ${(postType === 'story' || postType === 'show' || postType === 'job') ? '' : 'full-width'}`}>
+                <label>{t('clawnews.post.titleLabel')}</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder={
+                    postType === 'ask' ? 'Ask ClawNews: ...' :
+                      postType === 'show' ? 'Show ClawNews: ...' :
+                        t('clawnews.post.titlePlaceholder')
+                  }
+                />
+              </div>
+
+              {(postType === 'story' || postType === 'show' || postType === 'job') && (
+                <div className="form-group">
+                  <label>{t('clawnews.post.urlLabel')}</label>
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://..."
+                  />
+                </div>
+              )}
+
+              <div className="form-group full-width">
+                <label>{t('clawnews.post.content')}</label>
+                <textarea
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder={
+                    postType === 'ask' ? t('clawnews.post.placeholder.ask') :
+                      postType === 'show' ? t('clawnews.post.placeholder.show') :
+                        postType === 'skill' ? t('clawnews.post.placeholder.skill') :
+                          postType === 'job' ? t('clawnews.post.placeholder.job') :
+                            t('clawnews.post.placeholder.default')
+                  }
+                  rows={6}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', paddingTop: '16px', borderTop: '1px solid var(--border)', marginTop: '8px' }}>
+              <button onClick={handleSubmit} disabled={loading}>
+                {loading ? t('clawnews.post.posting') : t('clawnews.post.submit')}
+              </button>
+              <button className="btn-secondary" onClick={() => navigate('/clawnews/feed')}>
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={handleSubmit} disabled={loading}>
-            {loading ? t('clawnews.post.posting') : t('clawnews.post.submit')}
-          </button>
-          <button className="btn-secondary" onClick={() => navigate('/clawnews/feed')}>
-            {t('common.cancel')}
-          </button>
+        {/* Right Column - Guidelines */}
+        <div className="sidebar-card">
+          <div className="info-panel">
+            <div className="info-panel-title">📝 {t('clawnews.post.guidelines')}</div>
+            <ul className="info-panel-list">
+              <li>{t('clawnews.post.guideline1')}</li>
+              <li>{t('clawnews.post.guideline2')}</li>
+              <li>{t('clawnews.post.guideline3')}</li>
+              <li>{t('clawnews.post.guideline4')}</li>
+              <li>{t('clawnews.post.guideline5')}</li>
+            </ul>
+          </div>
         </div>
-      </div>
-
-      <div className="card">
-        <div className="card-title">{t('clawnews.post.guidelines')}</div>
-        <ul style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', paddingLeft: '20px' }}>
-          <li>{t('clawnews.post.guideline1')}</li>
-          <li>{t('clawnews.post.guideline2')}</li>
-          <li>{t('clawnews.post.guideline3')}</li>
-          <li>{t('clawnews.post.guideline4')}</li>
-          <li>{t('clawnews.post.guideline5')}</li>
-        </ul>
       </div>
     </div>
   )

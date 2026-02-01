@@ -2,12 +2,10 @@ import { useState, useEffect, useCallback } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { useClawNews } from '../../../contexts/ClawNewsContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
-import { getTopStories, getNewStories, getItem, upvoteItem, ClawNewsItem } from '../../../services/clawnews'
+import { getMySubmittedIds, getItem, upvoteItem, ClawNewsItem } from '../../../services/clawnews'
 import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
 import { EmptyState } from '../../common/EmptyState'
-
-type FeedType = 'top' | 'new'
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type TranslateFunc = (key: any) => string
@@ -16,7 +14,6 @@ function formatTime(timestamp: number, t: TranslateFunc): string {
   const date = new Date(timestamp * 1000)
   const now = new Date()
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000)
-
   if (diff < 60) return `${diff}${t('clawnews.feed.secondsAgo')}`
   if (diff < 3600) return `${Math.floor(diff / 60)}${t('clawnews.feed.minutesAgo')}`
   if (diff < 86400) return `${Math.floor(diff / 3600)}${t('clawnews.feed.hoursAgo')}`
@@ -91,40 +88,40 @@ function FeedItemCard({ item, onUpvote, isLoggedIn, t }: FeedItemProps) {
   )
 }
 
-export function ClawNewsFeed() {
+export function ClawNewsMyPosts() {
   const { isLoggedIn, apiKey } = useClawNews()
   const { t } = useLanguage()
   const [items, setItems] = useState<ClawNewsItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [feedType, setFeedType] = useState<FeedType>('top')
 
-  const loadFeed = useCallback(async () => {
+  const loadMyPosts = useCallback(async () => {
+    if (!apiKey) return
     setLoading(true)
     setError(null)
-
     try {
-      const ids = feedType === 'top' ? await getTopStories() : await getNewStories()
-      const limitedIds = ids.slice(0, 20)
-
+      const ids = await getMySubmittedIds(apiKey)
+      const limitedIds = (Array.isArray(ids) ? ids : []).slice(0, 50)
       const itemPromises = limitedIds.map(id => getItem(id).catch(() => null))
       const fetchedItems = await Promise.all(itemPromises)
-
       setItems(fetchedItems.filter((item): item is ClawNewsItem => item !== null))
     } catch (err) {
+      // API may not implement /agent/me/submitted yet
       setError((err as Error).message)
+      setItems([])
     } finally {
       setLoading(false)
     }
-  }, [feedType])
+  }, [apiKey])
 
   useEffect(() => {
-    loadFeed()
-  }, [loadFeed])
+    if (isLoggedIn && apiKey) {
+      loadMyPosts()
+    }
+  }, [isLoggedIn, apiKey, loadMyPosts])
 
   const handleUpvote = async (id: number) => {
-    if (!isLoggedIn) return
-
+    if (!isLoggedIn || !apiKey) return
     try {
       await upvoteItem(id, apiKey)
       setItems(prev =>
@@ -137,24 +134,29 @@ export function ClawNewsFeed() {
     }
   }
 
-  return (
-    <div>
-      <div className="page-header">
-        <h1 className="page-title">{t('clawnews.feed.title')}</h1>
-        <p className="page-desc">{t('clawnews.feed.subtitle')}</p>
-      </div>
-
-      {!isLoggedIn && (
+  if (!isLoggedIn) {
+    return (
+      <div>
+        <div className="page-header">
+          <h1 className="page-title">{t('clawnews.feed.myPostsTitle')}</h1>
+          <p className="page-desc">{t('clawnews.feed.myPostsSubtitle')}</p>
+        </div>
         <Alert icon="💡" title={t('clawnews.feed.tip')} type="info">
           <Link to="/clawnews/setup" style={{ color: 'var(--accent)' }}>{t('clawnews.feed.login')}</Link> {t('clawnews.feed.loginHint')}
         </Alert>
-      )}
+      </div>
+    )
+  }
 
-      {/* Two Column Layout with Sidebar */}
+  return (
+    <div>
+      <div className="page-header">
+        <h1 className="page-title">{t('clawnews.feed.myPostsTitle')}</h1>
+        <p className="page-desc">{t('clawnews.feed.myPostsSubtitle')}</p>
+      </div>
+
       <div className="two-column-layout sidebar-layout">
-        {/* Left Sidebar - Filters */}
         <div className="filter-sidebar sidebar-card">
-          {/* 筛选项：查看 - 浏览动态 / 我发布的（单选项） */}
           <div className="filter-section" role="radiogroup" aria-label={t('clawnews.feed.view')}>
             <div className="filter-section-title">{t('clawnews.feed.view')}</div>
             <div className="filter-option-list">
@@ -177,72 +179,30 @@ export function ClawNewsFeed() {
               </NavLink>
             </div>
           </div>
-
           <div className="section-divider" />
-
-          {/* 排序选项 - 仅对「浏览动态」有效 */}
           <div className="filter-section">
-            <div className="filter-section-title">{t('clawnews.feed.sortBy')}</div>
-            <div className="filter-option-list">
-              <button
-                type="button"
-                className={`quick-action-btn ${feedType === 'top' ? 'active' : ''}`}
-                onClick={() => setFeedType('top')}
-              >
-                <span className="filter-option-icon">🔥</span>
-                <span>{t('clawnews.feed.hot')}</span>
-              </button>
-              <button
-                type="button"
-                className={`quick-action-btn ${feedType === 'new' ? 'active' : ''}`}
-                onClick={() => setFeedType('new')}
-              >
-                <span className="filter-option-icon">🆕</span>
-                <span>{t('clawnews.feed.new')}</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="section-divider" />
-
-          <div className="filter-section">
-            <div className="filter-section-title">{t('clawnews.feed.actions') || 'Actions'}</div>
-            <button className="btn-small btn-secondary btn-block" onClick={loadFeed} disabled={loading}>
+            <button className="btn-small btn-secondary btn-block" onClick={loadMyPosts} disabled={loading}>
               🔄 {t('clawnews.feed.refresh')}
             </button>
-            {isLoggedIn && (
-              <Link to="/clawnews/post" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
-                <button className="btn-small btn-block">
-                  ✏️ {t('clawnews.post.title') || 'New Post'}
-                </button>
-              </Link>
-            )}
+            <Link to="/clawnews/post" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
+              <button className="btn-small btn-block">✏️ {t('clawnews.post.title') || 'New Post'}</button>
+            </Link>
           </div>
-
           <div className="section-divider" />
-
-          {/* Stats */}
           <div className="filter-section" style={{ marginBottom: 0 }}>
             <div className="filter-section-title">{t('clawnews.feed.stats') || 'Stats'}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              <div style={{ marginBottom: '6px' }}>📊 {items.length} {t('clawnews.feed.posts') || 'posts'}</div>
-              {items.length > 0 && (
-                <div>⭐ {Math.max(...items.map(i => i.score))} {t('clawnews.feed.topScore') || 'top score'}</div>
-              )}
+              📊 {items.length} {t('clawnews.feed.posts') || 'posts'}
             </div>
           </div>
         </div>
 
-        {/* Right Content - Feed */}
         <div className="content-area">
           {loading && <Loading />}
-
           {error && <EmptyState icon="❌" message={`${t('clawnews.feed.loadFailed')}: ${error}`} />}
-
           {!loading && !error && items.length === 0 && (
-            <EmptyState icon="📭" message={t('clawnews.feed.noPosts')} />
+            <EmptyState icon="📭" message={t('clawnews.feed.myPostsEmpty')} />
           )}
-
           {!loading && !error && items.length > 0 && (
             <div>
               {items.map(item => (

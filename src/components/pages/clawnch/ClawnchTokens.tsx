@@ -54,11 +54,11 @@ export function ClawnchTokens() {
     const now = new Date()
     const diff = now.getTime() - date.getTime()
     const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-    
+
     if (days === 0) return t('clawnch.tokens.today')
     if (days === 1) return t('clawnch.tokens.yesterday')
     if (days < 30) return `${days} ${t('clawnch.tokens.daysAgo')}`
-    
+
     return date.toLocaleDateString()
   }
 
@@ -148,32 +148,24 @@ export function ClawnchTokens() {
       )}
 
       {!loading && !error && tokens.length > 0 && (
-        <div style={{ display: 'grid', gap: '16px' }}>
+        <div className="cards-grid">
           {tokens.map((token) => (
             <div
               key={token.id}
+              className="card"
               style={{
-                background: 'var(--bg-card)',
-                borderRadius: '16px',
-                padding: '24px',
-                border: '1px solid var(--border)',
-                transition: 'all 0.2s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--color-purple)'
-                e.currentTarget.style.transform = 'translateX(4px)'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border)'
-                e.currentTarget.style.transform = 'translateX(0)'
+                marginBottom: 0,
+                display: 'flex',
+                flexDirection: 'column',
               }}
             >
-              <div style={{ display: 'flex', gap: '20px', alignItems: 'start' }}>
+              {/* Token Header */}
+              <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
                 {/* Token Image */}
                 <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '12px',
+                  width: '64px',
+                  height: '64px',
+                  borderRadius: '14px',
                   overflow: 'hidden',
                   background: 'linear-gradient(135deg, rgba(131, 83, 255, 0.15) 0%, rgba(197, 57, 249, 0.15) 100%)',
                   border: '1px solid rgba(131, 83, 255, 0.2)',
@@ -181,7 +173,7 @@ export function ClawnchTokens() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '2.5rem',
+                  fontSize: '2rem',
                   position: 'relative',
                 }}>
                   {token.image ? (
@@ -200,14 +192,12 @@ export function ClawnchTokens() {
                         }}
                         onLoad={(e) => {
                           const target = e.target as HTMLImageElement
-                          // Hide fallback emoji when image loads
                           const fallback = target.nextElementSibling as HTMLElement
                           if (fallback) fallback.style.display = 'none'
                         }}
                         onError={(e) => {
                           const target = e.target as HTMLImageElement
                           target.style.display = 'none'
-                          console.error('Failed to load token image:', token.image)
                         }}
                       />
                       <span style={{ position: 'relative', zIndex: 1 }}>🪙</span>
@@ -217,175 +207,122 @@ export function ClawnchTokens() {
                   )}
                 </div>
 
-                {/* Token Info */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <h3 style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                      {token.name}
-                    </h3>
-                    <span style={{
-                      padding: '4px 10px',
-                      background: 'linear-gradient(135deg, rgba(131, 83, 255, 0.15) 0%, rgba(197, 57, 249, 0.15) 100%)',
-                      border: '1px solid rgba(131, 83, 255, 0.3)',
-                      borderRadius: '8px',
-                      color: 'var(--color-purple)',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                      fontFamily: "'JetBrains Mono', monospace",
-                    }}>
-                      ${token.symbol}
-                    </span>
-                  </div>
-
-                  <p style={{
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.9rem',
-                    lineHeight: '1.6',
-                    marginBottom: '12px',
+                {/* Token Name & Symbol */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 700,
+                    color: 'var(--text-primary)',
+                    marginBottom: '4px',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
                   }}>
-                    {token.description}
-                  </p>
-
-                  {/* Debug: Show image URL */}
-                  {token.image && (
-                    <div style={{
-                      fontSize: '0.75rem',
-                      color: 'var(--text-tertiary)',
-                      marginBottom: '12px',
-                      wordBreak: 'break-all',
-                    }}>
-                      🖼️ Image: {token.image}
-                    </div>
-                  )}
-
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                    gap: '10px',
-                    marginBottom: '12px',
-                  }}>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
-                        {t('clawnch.tokens.agent')}:
-                      </span>{' '}
-                      {token.agentName}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
-                        {t('clawnch.tokens.launched')}:
-                      </span>{' '}
-                      {formatDate(token.launchedAt)}
-                    </div>
-                  </div>
-
-                  {/* Links */}
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {token.clankerUrl && (
-                      <a
-                        href={token.clankerUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '8px 14px',
-                          background: 'var(--bg-secondary)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '8px',
-                          color: 'var(--text-primary)',
-                          fontSize: '0.85rem',
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--color-purple)'
-                          e.currentTarget.style.background = 'rgba(131, 83, 255, 0.08)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--border)'
-                          e.currentTarget.style.background = 'var(--bg-secondary)'
-                        }}
-                      >
-                        🦀 Clanker
-                      </a>
-                    )}
-                    {token.contractAddress && (
-                      <a
-                        href={`https://basescan.org/token/${token.contractAddress}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '8px 14px',
-                          background: 'var(--bg-secondary)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '8px',
-                          color: 'var(--text-primary)',
-                          fontSize: '0.85rem',
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--info)'
-                          e.currentTarget.style.background = 'rgba(57, 158, 247, 0.08)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--border)'
-                          e.currentTarget.style.background = 'var(--bg-secondary)'
-                        }}
-                      >
-                        🔍 BaseScan
-                      </a>
-                    )}
-                    {token.postUrl && (
-                      <a
-                        href={token.postUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          padding: '8px 14px',
-                          background: 'var(--bg-secondary)',
-                          border: '1px solid var(--border)',
-                          borderRadius: '8px',
-                          color: 'var(--text-primary)',
-                          fontSize: '0.85rem',
-                          textDecoration: 'none',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          transition: 'all 0.2s ease',
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--moltbook-color)'
-                          e.currentTarget.style.background = 'rgba(240, 136, 0, 0.08)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = 'var(--border)'
-                          e.currentTarget.style.background = 'var(--bg-secondary)'
-                        }}
-                      >
-                        🦞 Source Post
-                      </a>
-                    )}
-                  </div>
-
-                  {/* Token Address */}
-                  <div style={{
-                    marginTop: '12px',
-                    padding: '10px 12px',
-                    background: 'var(--bg-primary)',
-                    borderRadius: '8px',
-                    fontFamily: "'JetBrains Mono', monospace",
+                    {token.name}
+                  </h3>
+                  <span style={{
+                    display: 'inline-block',
+                    padding: '4px 10px',
+                    background: 'linear-gradient(135deg, rgba(131, 83, 255, 0.15) 0%, rgba(197, 57, 249, 0.15) 100%)',
+                    border: '1px solid rgba(131, 83, 255, 0.3)',
+                    borderRadius: '6px',
+                    color: 'var(--accent)',
                     fontSize: '0.8rem',
-                    color: 'var(--text-tertiary)',
-                    wordBreak: 'break-all',
+                    fontWeight: 600,
+                    fontFamily: "'JetBrains Mono', monospace",
                   }}>
-                    {token.contractAddress}
+                    ${token.symbol}
+                  </span>
+                </div>
+              </div>
+
+              {/* Description */}
+              <p style={{
+                color: 'var(--text-secondary)',
+                fontSize: '0.85rem',
+                lineHeight: '1.5',
+                marginBottom: '12px',
+                flex: 1,
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}>
+                {token.description}
+              </p>
+
+              {/* Stats Grid */}
+              <div className="stats-grid" style={{ marginBottom: '12px' }}>
+                <div className="stat-item" style={{ padding: '10px' }}>
+                  <div className="stat-label">Agent</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-primary)', marginTop: '2px' }}>
+                    {token.agentName}
                   </div>
                 </div>
+                <div className="stat-item" style={{ padding: '10px' }}>
+                  <div className="stat-label">{t('clawnch.tokens.launched')}</div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 500, color: 'var(--text-primary)', marginTop: '2px' }}>
+                    {formatDate(token.launchedAt)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Contract Address */}
+              <div style={{
+                padding: '8px 10px',
+                background: 'var(--bg-primary)',
+                borderRadius: '8px',
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: '0.7rem',
+                color: 'var(--text-tertiary)',
+                marginBottom: '12px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}>
+                {token.contractAddress}
+              </div>
+
+              {/* Links */}
+              <div style={{
+                display: 'flex',
+                gap: '8px',
+                borderTop: '1px solid var(--border)',
+                paddingTop: '12px',
+              }}>
+                {token.clankerUrl && (
+                  <a
+                    href={token.clankerUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-small btn-secondary"
+                    style={{ flex: 1, textAlign: 'center', textDecoration: 'none', fontSize: '0.8rem' }}
+                  >
+                    🦀 Clanker
+                  </a>
+                )}
+                {token.contractAddress && (
+                  <a
+                    href={`https://basescan.org/token/${token.contractAddress}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-small btn-secondary"
+                    style={{ flex: 1, textAlign: 'center', textDecoration: 'none', fontSize: '0.8rem' }}
+                  >
+                    🔍 Scan
+                  </a>
+                )}
+                {token.postUrl && (
+                  <a
+                    href={token.postUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-small btn-secondary"
+                    style={{ flex: 1, textAlign: 'center', textDecoration: 'none', fontSize: '0.8rem' }}
+                  >
+                    🦞 Post
+                  </a>
+                )}
               </div>
             </div>
           ))}

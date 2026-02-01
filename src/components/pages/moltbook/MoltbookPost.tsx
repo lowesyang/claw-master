@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
-import { apiRequest, generateAIContent, generateAITitle } from '../../../services/api'
+import { useAgentSkill } from '../../../contexts/AgentSkillContext'
+import { apiRequest, generateAIContent, generateAITitle, fetchSkillContent } from '../../../services/api'
 import { Alert } from '../../common/Alert'
 import { StatusMessage } from '../../common/StatusMessage'
 import { ModelSelector } from '../../common/ModelSelector'
@@ -12,6 +13,7 @@ type PostType = 'text' | 'link'
 export function MoltbookPost() {
   const { isLoggedIn, apiKey, openrouterApiKey, aiModel, setOpenRouterSettings } = useAuth()
   const { t } = useLanguage()
+  const { isRunning: isAgentRunning } = useAgentSkill('moltbook')
 
   const [postType, setPostType] = useState<PostType>('text')
   const [submolt, setSubmolt] = useState('general')
@@ -24,6 +26,24 @@ export function MoltbookPost() {
   const [aiStatus, setAiStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [loading, setLoading] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
+  const [skillContent, setSkillContent] = useState<string | undefined>(undefined)
+
+  const MAX_CONTENT_LENGTH = 10000
+  const MAX_TITLE_LENGTH = 300
+
+  // Fetch skill content when agent auto-run is enabled
+  useEffect(() => {
+    if (isAgentRunning) {
+      fetchSkillContent('moltbook')
+        .then(content => setSkillContent(content))
+        .catch(err => {
+          console.error('Failed to load skill content:', err)
+          setSkillContent(undefined)
+        })
+    } else {
+      setSkillContent(undefined)
+    }
+  }, [isAgentRunning])
 
   // Sync model selection with global settings
   const handleModelChange = (model: string) => {
@@ -86,26 +106,24 @@ export function MoltbookPost() {
       return
     }
 
-    if (!aiPrompt.trim() && !title.trim()) {
-      setAiStatus({ message: t('moltbook.post.enterTopicOrTitle'), type: 'error' })
-      return
-    }
-
     setAiLoading(true)
     setAiStatus(null)
 
     try {
-      const topic = aiPrompt.trim() || title.trim()
+      // Allow empty: use prompt, title, or fallback to community-based free creation
+      const topic = aiPrompt.trim() || title.trim() || `${submolt || 'general'}`
+      // Pass skill content when agent auto-run is enabled
       const generatedContent = await generateAIContent(
         openrouterApiKey,
         selectedModel,
         topic,
-        submolt || 'general'
+        submolt || 'general',
+        isAgentRunning ? skillContent : undefined
       )
       setContent(generatedContent)
 
-      // Generate title if empty
-      if (!title.trim() && aiPrompt.trim()) {
+      // Generate title if empty (works for both prompt-based and fallback generation)
+      if (!title.trim()) {
         const generatedTitle = await generateAITitle(openrouterApiKey, selectedModel, generatedContent)
         if (generatedTitle) {
           setTitle(generatedTitle)
@@ -123,7 +141,7 @@ export function MoltbookPost() {
 
   if (!isLoggedIn) {
     return (
-      <div>
+      <div className="moltbook-post-page">
         <div className="page-header">
           <h1 className="page-title" style={{ color: 'var(--accent)' }}>🦞 {t('moltbook.post.title')}</h1>
           <p className="page-desc">{t('moltbook.post.subtitle')}</p>
@@ -137,165 +155,259 @@ export function MoltbookPost() {
   }
 
   return (
-    <div>
+    <div className="moltbook-post-page">
       <div className="page-header">
         <h1 className="page-title" style={{ color: 'var(--accent)' }}>🦞 {t('moltbook.post.title')}</h1>
         <p className="page-desc">{t('moltbook.post.subtitle')}</p>
       </div>
 
-      <div className="card">
-        {status && <StatusMessage message={status.message} type={status.type} />}
-
-        <div className="post-type-selector">
-          <div
-            className={`post-type-btn ${postType === 'text' ? 'active' : ''}`}
-            onClick={() => setPostType('text')}
-          >
-            📄 {t('moltbook.post.textPost')}
-          </div>
-          <div
-            className={`post-type-btn ${postType === 'link' ? 'active' : ''}`}
-            onClick={() => setPostType('link')}
-          >
-            🔗 {t('moltbook.post.linkPost')}
-          </div>
-        </div>
-
-        {/* Post Type Description */}
-        <div style={{
-          padding: '12px 16px',
-          background: 'var(--bg-main)',
-          borderRadius: '8px',
-          marginBottom: '16px',
-          border: '1px solid var(--border)',
-        }}>
-          {postType === 'text' ? (
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                📄 {t('moltbook.post.textPostTitle')}
+      {/* Two Column Layout */}
+      <div className="post-layout">
+        {/* Left Column - Form */}
+        <div className="post-form-column">
+          <div className="post-form-card">
+            {status && (
+              <div className="post-status-wrapper">
+                <StatusMessage message={status.message} type={status.type} />
               </div>
-              {t('moltbook.post.textPostDesc')}
+            )}
+
+            {/* Post Type Selector - Enhanced */}
+            <div className="post-type-tabs">
+              <button
+                type="button"
+                className={`post-type-tab ${postType === 'text' ? 'active' : ''}`}
+                onClick={() => setPostType('text')}
+              >
+                <span className="post-type-icon">📝</span>
+                <span className="post-type-label">{t('moltbook.post.textPost')}</span>
+              </button>
+              <button
+                type="button"
+                className={`post-type-tab ${postType === 'link' ? 'active' : ''}`}
+                onClick={() => setPostType('link')}
+              >
+                <span className="post-type-icon">🔗</span>
+                <span className="post-type-label">{t('moltbook.post.linkPost')}</span>
+              </button>
             </div>
-          ) : (
-            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              <div style={{ fontWeight: 500, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                🔗 {t('moltbook.post.linkPostTitle')}
-              </div>
-              {t('moltbook.post.linkPostDesc')}
-            </div>
-          )}
-        </div>
 
-        <div className="form-group">
-          <label>{t('moltbook.post.submoltLabel')}</label>
-          <input
-            type="text"
-            value={submolt}
-            onChange={(e) => setSubmolt(e.target.value)}
-            placeholder="general"
-          />
-        </div>
-
-        <div className="form-group">
-          <label>{t('moltbook.post.titleLabel')}</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Hello Moltbook!"
-          />
-        </div>
-
-        {postType === 'text' && (
-          <div className="form-group">
-            <label>{t('moltbook.post.contentLabel')}</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={t('moltbook.post.contentPlaceholder')}
-            />
-            {/* AI Generation Section */}
-            <div style={{ 
-              marginTop: '12px', 
-              padding: '12px', 
-              background: 'var(--bg-main)', 
-              borderRadius: '8px',
-              border: '1px solid var(--border)'
-            }}>
-              <div style={{ marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                ✨ {t('moltbook.post.aiGenerateSection')}
-              </div>
-              <textarea
-                value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder={t('moltbook.post.aiPromptPlaceholder')}
-                style={{ 
-                  width: '100%', 
-                  minHeight: '80px', 
-                  padding: '10px 12px', 
-                  fontSize: '0.9rem',
-                  marginBottom: '8px',
-                  resize: 'vertical'
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && e.metaKey) {
-                    handleAIGenerate()
-                  }
-                }}
-              />
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ flex: '1 1 200px', minWidth: '150px' }}>
-                  <ModelSelector 
-                    value={selectedModel} 
-                    onChange={handleModelChange}
+            {/* Form Fields */}
+            <div className="post-form-fields">
+              {/* Submolt Field */}
+              <div className="post-field">
+                <label className="post-field-label">
+                  <span className="label-icon">📂</span>
+                  {t('moltbook.post.submoltLabel')}
+                </label>
+                <div className="post-input-wrapper">
+                  <span className="input-prefix">m/</span>
+                  <input
+                    type="text"
+                    value={submolt}
+                    onChange={(e) => setSubmolt(e.target.value)}
+                    placeholder="general"
+                    className="post-input with-prefix"
                   />
                 </div>
-                <button
-                  type="button"
-                  className="btn-small"
-                  style={{ whiteSpace: 'nowrap', padding: '10px 16px' }}
-                  onClick={handleAIGenerate}
-                  disabled={aiLoading || !openrouterApiKey}
-                >
-                  {aiLoading ? `⏳ ${t('moltbook.post.aiGenerating')}` : `✨ ${t('moltbook.post.aiGenerate')}`}
-                </button>
               </div>
-              {!openrouterApiKey && (
-                <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  💡 {t('moltbook.post.aiConfigHint')}{' '}
-                  <Link to="/settings" style={{ color: 'var(--accent)' }}>
-                    {t('moltbook.post.goToSettings')}
-                  </Link>
+
+              {/* Title Field */}
+              <div className="post-field">
+                <label className="post-field-label">
+                  <span className="label-icon">✏️</span>
+                  {t('moltbook.post.titleLabel')}
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value.slice(0, MAX_TITLE_LENGTH))}
+                  placeholder="Hello Moltbook!"
+                  className="post-input post-title-input"
+                />
+                <div className="post-field-footer">
+                  <span className={`char-counter ${title.length > MAX_TITLE_LENGTH * 0.9 ? 'warning' : ''}`}>
+                    {title.length}/{MAX_TITLE_LENGTH}
+                  </span>
+                </div>
+              </div>
+
+              {/* Content Field - Text Post */}
+              {postType === 'text' && (
+                <div className="post-field">
+                  <label className="post-field-label">
+                    <span className="label-icon">📄</span>
+                    {t('moltbook.post.contentLabel')}
+                  </label>
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value.slice(0, MAX_CONTENT_LENGTH))}
+                    placeholder={t('moltbook.post.contentPlaceholder')}
+                    className="post-textarea"
+                    rows={8}
+                  />
+                  <div className="post-field-footer">
+                    <span className="helper-text">Markdown supported</span>
+                    <span className={`char-counter ${content.length > MAX_CONTENT_LENGTH * 0.9 ? 'warning' : ''}`}>
+                      {content.length.toLocaleString()}/{MAX_CONTENT_LENGTH.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* URL Field - Link Post */}
+              {postType === 'link' && (
+                <div className="post-field">
+                  <label className="post-field-label">
+                    <span className="label-icon">🌐</span>
+                    {t('moltbook.post.urlLabel')}
+                  </label>
+                  <input
+                    type="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    placeholder="https://example.com"
+                    className="post-input"
+                  />
+                  {url && (
+                    <div className="url-preview">
+                      <span className="url-preview-label">Preview:</span>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="url-preview-link">
+                        {url}
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-            {aiStatus && (
-              <div style={{ marginTop: '8px' }}>
-                <StatusMessage message={aiStatus.message} type={aiStatus.type} />
+
+            {/* Submit Button */}
+            <div className="post-submit-section">
+              <button
+                className="post-submit-btn"
+                onClick={handleSubmit}
+                disabled={loading || (!title.trim()) || (postType === 'text' && !content.trim()) || (postType === 'link' && !url.trim())}
+              >
+                {loading ? (
+                  <>
+                    <span className="btn-spinner"></span>
+                    {t('moltbook.post.posting')}
+                  </>
+                ) : (
+                  <>
+                    <span className="btn-icon">🦞</span>
+                    {t('moltbook.post.submit')}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column - AI & Info */}
+        <div className="post-sidebar-column">
+          {/* Post Type Info Card */}
+          <div className="post-info-card">
+            <div className="post-info-header">
+              <span className="post-info-icon">{postType === 'text' ? '📝' : '🔗'}</span>
+              <h3 className="post-info-title">
+                {postType === 'text' ? t('moltbook.post.textPostTitle') : t('moltbook.post.linkPostTitle')}
+              </h3>
+            </div>
+            <p className="post-info-desc">
+              {postType === 'text' ? t('moltbook.post.textPostDesc') : t('moltbook.post.linkPostDesc')}
+            </p>
+            <div className="post-info-tips">
+              <div className="tip-item">
+                <span className="tip-icon">💡</span>
+                <span>{postType === 'text' ? 'Use clear, engaging titles' : 'Share interesting articles'}</span>
               </div>
-            )}
+              <div className="tip-item">
+                <span className="tip-icon">🎯</span>
+                <span>{postType === 'text' ? 'Markdown formatting supported' : 'URL will be validated'}</span>
+              </div>
+            </div>
           </div>
-        )}
 
-        {postType === 'link' && (
-          <div className="form-group">
-            <label>{t('moltbook.post.urlLabel')}</label>
-            <input
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-            />
+          {/* AI Generation Card - Only for text posts */}
+          {postType === 'text' && (
+            <div className="ai-generate-card">
+              <div className="ai-card-header">
+                <div className="ai-card-badge">AI</div>
+                <h3 className="ai-card-title">{t('moltbook.post.aiGenerateSection')}</h3>
+              </div>
+
+              <div className="ai-card-body">
+                <textarea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder={t('moltbook.post.aiPromptPlaceholder')}
+                  className="ai-prompt-input"
+                  rows={3}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.metaKey) {
+                      handleAIGenerate()
+                    }
+                  }}
+                />
+
+                <div className="ai-model-select">
+                  <ModelSelector
+                    value={selectedModel}
+                    onChange={handleModelChange}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  className="ai-generate-btn"
+                  onClick={handleAIGenerate}
+                  disabled={aiLoading || !openrouterApiKey}
+                >
+                  {aiLoading ? (
+                    <>
+                      <span className="btn-spinner"></span>
+                      {t('moltbook.post.aiGenerating')}
+                    </>
+                  ) : (
+                    <>
+                      <span className="ai-btn-icon">✨</span>
+                      {t('moltbook.post.aiGenerate')}
+                    </>
+                  )}
+                </button>
+
+                {!openrouterApiKey && (
+                  <div className="ai-config-hint">
+                    <span className="hint-icon">💡</span>
+                    <span>
+                      {t('moltbook.post.aiConfigHint')}{' '}
+                      <Link to="/settings" className="hint-link">
+                        {t('moltbook.post.goToSettings')}
+                      </Link>
+                    </span>
+                  </div>
+                )}
+
+                {aiStatus && (
+                  <div className="ai-status-wrapper">
+                    <StatusMessage message={aiStatus.message} type={aiStatus.type} />
+                  </div>
+                )}
+
+                <div className="ai-shortcut-hint">
+                  <kbd>⌘</kbd> + <kbd>Enter</kbd> to generate
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Rate Limit Notice */}
+          <div className="post-notice">
+            <div className="notice-icon">ℹ️</div>
+            <div className="notice-content">{t('moltbook.post.rateLimit')}</div>
           </div>
-        )}
-
-        <Alert icon="ℹ️" title="" type="info">
-          {t('moltbook.post.rateLimit')}
-        </Alert>
-
-        <button className="btn-block" onClick={handleSubmit} disabled={loading}>
-          {loading ? t('moltbook.post.posting') : t('moltbook.post.submit')}
-        </button>
+        </div>
       </div>
     </div>
   )

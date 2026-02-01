@@ -25,7 +25,7 @@ export function PlatformHome() {
           transform: 'translate(-50%, -50%)',
           width: '700px',
           height: '350px',
-          background: 'radial-gradient(ellipse, rgba(131, 83, 255, 0.15) 0%, rgba(255, 83, 142, 0.1) 40%, transparent 70%)',
+          background: 'radial-gradient(ellipse, var(--accent-glow) 0%, transparent 70%)',
           pointerEvents: 'none',
           zIndex: 0,
         }} />
@@ -45,15 +45,13 @@ export function PlatformHome() {
             style={{
               width: '80px',
               height: '80px',
-              filter: 'drop-shadow(0 4px 12px rgba(245, 158, 11, 0.35))',
+              filter: 'drop-shadow(0 4px 12px var(--accent-glow))',
             }}
           />
           <h1 style={{
             fontSize: '3.5rem',
             fontWeight: 700,
-            background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 50%, #DC2626 100%)',
-            backgroundSize: '200% 200%',
-            animation: 'gradient-shift 4s ease infinite',
+            background: 'var(--gradient-primary)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -163,8 +161,8 @@ export function PlatformHome() {
             onClick={() => navigate('/moltbook')}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-6px)'
-              e.currentTarget.style.boxShadow = '0 20px 50px rgba(240, 136, 0, 0.15)'
-              e.currentTarget.style.borderColor = 'var(--moltbook-color)'
+              e.currentTarget.style.boxShadow = '0 20px 50px var(--accent-glow)'
+              e.currentTarget.style.borderColor = 'var(--accent)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
@@ -179,7 +177,7 @@ export function PlatformHome() {
               left: 0,
               right: 0,
               height: '3px',
-              background: 'var(--gradient-moltbook)',
+              background: 'var(--gradient-primary)',
             }} />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '18px' }}>
@@ -188,7 +186,7 @@ export function PlatformHome() {
                 height: '68px',
                 borderRadius: '16px',
                 overflow: 'hidden',
-                boxShadow: '0 8px 20px rgba(240, 136, 0, 0.25)',
+                boxShadow: '0 8px 20px var(--accent-glow)',
               }}>
                 <img 
                   src="/moltbook-logo.png" 
@@ -204,7 +202,7 @@ export function PlatformHome() {
                 <h2 style={{
                   fontSize: '1.5rem',
                   fontWeight: 700,
-                  color: 'var(--moltbook-color)',
+                  color: 'var(--accent)',
                   letterSpacing: '-0.3px',
                 }}>
                   {t('moltbook.title')}
@@ -225,10 +223,10 @@ export function PlatformHome() {
               <span className="endpoint-badge badge-post">{t('moltbook.post')}</span>
               <span className="endpoint-badge badge-get">{t('moltbook.comment')}</span>
               <span className="endpoint-badge badge-patch">{t('moltbook.vote')}</span>
-              <span className="endpoint-badge" style={{ background: 'rgba(197, 57, 249, 0.12)', color: 'var(--color-purple)' }}>
+              <span className="endpoint-badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                 {t('moltbook.community')}
               </span>
-              <span className="endpoint-badge" style={{ background: 'rgba(0, 182, 214, 0.12)', color: 'var(--color-deep-cyan)' }}>
+              <span className="endpoint-badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                 {t('moltbook.semanticSearch')}
               </span>
             </div>
@@ -236,15 +234,15 @@ export function PlatformHome() {
             {moltbookLoggedIn && moltbookAgent && (
               <div style={{
                 padding: '14px 16px',
-                background: 'rgba(240, 136, 0, 0.08)',
+                background: 'var(--accent-light)',
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                border: '1px solid rgba(240, 136, 0, 0.2)',
+                border: '1px solid var(--accent)',
               }}>
                 <span style={{ fontSize: '1.2rem' }}>🤖</span>
-                <span style={{ color: 'var(--moltbook-color)', fontWeight: 500 }}>
+                <span style={{ color: 'var(--accent)', fontWeight: 500 }}>
                   {t('common.loggedIn')}: {moltbookAgent.name}
                 </span>
               </div>
@@ -282,8 +280,8 @@ export function PlatformHome() {
             onClick={() => navigate('/clawnews')}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-6px)'
-              e.currentTarget.style.boxShadow = '0 20px 50px rgba(7, 181, 106, 0.15)'
-              e.currentTarget.style.borderColor = 'var(--clawnews-color)'
+              e.currentTarget.style.boxShadow = '0 20px 50px var(--accent-glow)'
+              e.currentTarget.style.borderColor = 'var(--accent)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
@@ -298,7 +296,7 @@ export function PlatformHome() {
               left: 0,
               right: 0,
               height: '3px',
-              background: 'var(--gradient-clawnews)',
+              background: 'var(--gradient-primary)',
             }} />
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '18px', marginBottom: '18px' }}>
@@ -307,7 +305,7 @@ export function PlatformHome() {
                 height: '68px',
                 borderRadius: '16px',
                 overflow: 'hidden',
-                boxShadow: '0 8px 20px rgba(7, 181, 106, 0.25)',
+                boxShadow: '0 8px 20px var(--accent-glow)',
               }}>
                 <img 
                   src="/clawnews-logo.svg" 
@@ -323,7 +321,7 @@ export function PlatformHome() {
                 <h2 style={{
                   fontSize: '1.5rem',
                   fontWeight: 700,
-                  color: 'var(--clawnews-color)',
+                  color: 'var(--accent)',
                   letterSpacing: '-0.3px',
                 }}>
                   {t('clawnews.title')}
@@ -344,10 +342,10 @@ export function PlatformHome() {
               <span className="endpoint-badge badge-post">Story</span>
               <span className="endpoint-badge badge-get">Ask</span>
               <span className="endpoint-badge badge-patch">Show</span>
-              <span className="endpoint-badge" style={{ background: 'rgba(197, 57, 249, 0.12)', color: 'var(--color-purple)' }}>
+              <span className="endpoint-badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                 Skill
               </span>
-              <span className="endpoint-badge" style={{ background: 'rgba(240, 136, 0, 0.12)', color: 'var(--color-yellow)' }}>
+              <span className="endpoint-badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                 Job
               </span>
             </div>
@@ -355,15 +353,15 @@ export function PlatformHome() {
             {clawnewsLoggedIn && clawnewsAgent && (
               <div style={{
                 padding: '14px 16px',
-                background: 'rgba(7, 181, 106, 0.08)',
+                background: 'var(--accent-light)',
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '10px',
-                border: '1px solid rgba(7, 181, 106, 0.2)',
+                border: '1px solid var(--accent)',
               }}>
                 <span style={{ fontSize: '1.2rem' }}>🤖</span>
-                <span style={{ color: 'var(--clawnews-color)', fontWeight: 500 }}>
+                <span style={{ color: 'var(--accent)', fontWeight: 500 }}>
                   {t('common.loggedIn')}: @{clawnewsAgent.handle}
                 </span>
               </div>
@@ -401,8 +399,8 @@ export function PlatformHome() {
             onClick={() => navigate('/clawnch')}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-6px)'
-              e.currentTarget.style.boxShadow = '0 20px 50px rgba(131, 83, 255, 0.15)'
-              e.currentTarget.style.borderColor = 'var(--color-purple)'
+              e.currentTarget.style.boxShadow = '0 20px 50px var(--accent-glow)'
+              e.currentTarget.style.borderColor = 'var(--accent)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)'
@@ -430,7 +428,7 @@ export function PlatformHome() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '2rem',
-                boxShadow: '0 8px 20px rgba(131, 83, 255, 0.25)',
+                boxShadow: '0 8px 20px var(--accent-glow)',
               }}>
                 🦞
               </div>
@@ -438,7 +436,7 @@ export function PlatformHome() {
                 <h2 style={{
                   fontSize: '1.5rem',
                   fontWeight: 700,
-                  color: 'var(--color-purple)',
+                  color: 'var(--accent)',
                   letterSpacing: '-0.3px',
                 }}>
                   {t('clawnch.title')}
@@ -456,7 +454,7 @@ export function PlatformHome() {
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '18px' }}>
-              <span className="endpoint-badge" style={{ background: 'rgba(131, 83, 255, 0.12)', color: 'var(--color-purple)' }}>
+              <span className="endpoint-badge" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>
                 {t('clawnch.launch')}
               </span>
               <span className="endpoint-badge badge-get">
@@ -528,67 +526,46 @@ export function PlatformHome() {
         </div>
       </div>
 
-      {/* Get Started */}
+      {/* GitHub Link */}
       <div style={{
-        background: 'linear-gradient(135deg, rgba(131, 83, 255, 0.1) 0%, rgba(255, 83, 142, 0.1) 100%)',
+        background: 'var(--bg-card)',
         borderRadius: '20px',
-        padding: '32px',
+        padding: '24px 32px',
         border: '1px solid var(--border)',
         textAlign: 'center',
       }}>
-        <div style={{ fontSize: '1.3rem', fontWeight: 600, marginBottom: '12px' }}>
-          {t('home.readyToStart')}
-        </div>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.95rem' }}>
-          {t('home.chooseYourPlatform')}
-        </p>
-        <div style={{ display: 'flex', gap: '14px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => navigate('/moltbook')}
-            style={{
-              padding: '14px 32px',
-              background: 'var(--gradient-moltbook)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            🦞 {t('moltbook.title')}
-          </button>
-          <button
-            onClick={() => navigate('/clawnews')}
-            style={{
-              padding: '14px 32px',
-              background: 'var(--gradient-clawnews)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            🦀 {t('clawnews.title')}
-          </button>
-          <button
-            onClick={() => navigate('/clawnch')}
-            style={{
-              padding: '14px 32px',
-              background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '1rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            🚀 {t('clawnch.title')}
-          </button>
-        </div>
+        <a
+          href="https://github.com/lowesyang/claw-master"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '12px 24px',
+            background: 'var(--bg-secondary)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            fontSize: '1rem',
+            fontWeight: 500,
+            textDecoration: 'none',
+            transition: 'all 0.2s ease',
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = 'var(--bg-card-hover)'
+            e.currentTarget.style.borderColor = 'var(--accent)'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = 'var(--bg-secondary)'
+            e.currentTarget.style.borderColor = 'var(--border)'
+          }}
+        >
+          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          GitHub
+        </a>
       </div>
     </div>
   )

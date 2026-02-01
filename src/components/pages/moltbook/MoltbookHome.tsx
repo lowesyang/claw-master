@@ -12,7 +12,7 @@ export function MoltbookHome() {
   return (
     <div>
       {/* Hero Header */}
-      <div style={{ 
+      <div style={{
         padding: '40px 0 50px',
         textAlign: 'center',
         position: 'relative',
@@ -25,10 +25,10 @@ export function MoltbookHome() {
           transform: 'translate(-50%, -50%)',
           width: '400px',
           height: '200px',
-          background: 'radial-gradient(ellipse, rgba(240, 136, 0, 0.1) 0%, transparent 70%)',
+          background: 'radial-gradient(ellipse, var(--accent-light) 0%, transparent 70%)',
           pointerEvents: 'none',
         }} />
-        
+
         <div style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -39,21 +39,21 @@ export function MoltbookHome() {
           background: 'var(--gradient-moltbook)',
           fontSize: '2.5rem',
           marginBottom: '20px',
-          boxShadow: '0 12px 36px rgba(240, 136, 0, 0.25)',
+          boxShadow: '0 12px 36px var(--accent-glow)',
           position: 'relative',
         }}>
-          <img 
-            src="/moltbook-logo.png" 
-            alt="Moltbook" 
-            style={{ 
-              width: '50px', 
+          <img
+            src="/moltbook-logo.png"
+            alt="Moltbook"
+            style={{
+              width: '50px',
               height: '50px'
-            }} 
+            }}
           />
         </div>
-        
-        <h1 style={{ 
-          fontSize: '2.4rem', 
+
+        <h1 style={{
+          fontSize: '2.4rem',
           fontWeight: 700,
           background: 'var(--gradient-moltbook)',
           WebkitBackgroundClip: 'text',
@@ -65,8 +65,8 @@ export function MoltbookHome() {
         }}>
           {t('moltbook.title')}
         </h1>
-        <p style={{ 
-          color: 'var(--text-secondary)', 
+        <p style={{
+          color: 'var(--text-secondary)',
           fontSize: '1.05rem',
           position: 'relative',
         }}>
@@ -85,16 +85,16 @@ export function MoltbookHome() {
             border: '1px solid var(--border)',
             textAlign: 'center',
           }}>
-            <div style={{ 
-              fontSize: '1.3rem', 
-              fontWeight: 600, 
+            <div style={{
+              fontSize: '1.3rem',
+              fontWeight: 600,
               marginBottom: '14px',
               color: 'var(--text-primary)',
             }}>
               {t('moltbook.home.welcome')}
             </div>
-            <p style={{ 
-              color: 'var(--text-secondary)', 
+            <p style={{
+              color: 'var(--text-secondary)',
               marginBottom: '24px',
               maxWidth: '500px',
               margin: '0 auto 24px',
@@ -134,7 +134,7 @@ export function MoltbookHome() {
                     href={agentInfo.claim_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ color: 'var(--moltbook-color)', wordBreak: 'break-all' }}
+                    style={{ color: 'var(--accent)', wordBreak: 'break-all' }}
                   >
                     {agentInfo.claim_url}
                   </a>
@@ -145,7 +145,14 @@ export function MoltbookHome() {
             </Alert>
           )}
 
-          {agentInfo && <AgentBanner agent={agentInfo} showSettingsButton />}
+          {agentInfo && (
+            <AgentBanner 
+              agent={agentInfo} 
+              platform="moltbook"
+              showSettingsButton 
+              showStartButton
+            />
+          )}
 
           <FeatureGrid
             items={[
@@ -182,10 +189,10 @@ export function MoltbookHome() {
           height: '2px',
           background: 'var(--gradient-moltbook)',
         }} />
-        
-        <div style={{ 
-          fontSize: '1.15rem', 
-          fontWeight: 600, 
+
+        <div style={{
+          fontSize: '1.15rem',
+          fontWeight: 600,
           marginBottom: '20px',
           display: 'flex',
           alignItems: 'center',
@@ -197,9 +204,9 @@ export function MoltbookHome() {
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '20px', lineHeight: '1.7' }}>
           {t('moltbook.home.aboutDesc')}
         </p>
-        <ul style={{ 
-          color: 'var(--text-secondary)', 
-          fontSize: '0.9rem', 
+        <ul style={{
+          color: 'var(--text-secondary)',
+          fontSize: '0.9rem',
           paddingLeft: '0',
           listStyle: 'none',
           display: 'grid',
@@ -222,8 +229,8 @@ export function MoltbookHome() {
               borderRadius: '10px',
               border: '1px solid var(--border)',
             }}>
-              <span style={{ 
-                color: 'var(--moltbook-color)',
+              <span style={{
+                color: 'var(--accent)',
                 fontWeight: 600,
               }}>
                 →

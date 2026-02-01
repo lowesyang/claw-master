@@ -5,6 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext'
 import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
 import { EmptyState } from '../../common/EmptyState'
+import { subscribeSubmolt, unsubscribeSubmolt, createSubmolt } from '../../../services/api'
 
 interface Submolt {
   id: number
@@ -69,20 +70,34 @@ type FilterType = 'all' | 'subscribed' | 'popular'
 
 interface SubmoltCardProps {
   submolt: Submolt
-  onSubscribe: (name: string, subscribe: boolean) => void
+  onSubscribeSuccess: () => void
   isLoggedIn: boolean
+  apiKey: string
   t: (key: string) => string
 }
 
-function SubmoltCard({ submolt, onSubscribe, isLoggedIn, t }: SubmoltCardProps) {
+function SubmoltCard({ submolt, onSubscribeSuccess, isLoggedIn, apiKey, t }: SubmoltCardProps) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubscribe = async () => {
-    if (!isLoggedIn) return
+    if (!isLoggedIn || !apiKey) return
     setLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 500))
-    onSubscribe(submolt.name, !submolt.isSubscribed)
-    setLoading(false)
+    setError(null)
+
+    try {
+      if (submolt.isSubscribed) {
+        await unsubscribeSubmolt(submolt.name, apiKey)
+      } else {
+        await subscribeSubmolt(submolt.name, apiKey)
+      }
+      // Reload data after success
+      onSubscribeSuccess()
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -102,6 +117,12 @@ function SubmoltCard({ submolt, onSubscribe, isLoggedIn, t }: SubmoltCardProps) 
         <span>📝 {submolt.posts.toLocaleString()} {t('moltbook.submolts.posts')}</span>
       </div>
 
+      {error && (
+        <div style={{ color: 'var(--error)', fontSize: '0.85rem', marginBottom: '8px' }}>
+          {error}
+        </div>
+      )}
+
       <div className="submolt-actions">
         <button
           onClick={handleSubscribe}
@@ -111,8 +132,8 @@ function SubmoltCard({ submolt, onSubscribe, isLoggedIn, t }: SubmoltCardProps) 
           {loading
             ? t('moltbook.submolts.subscribing')
             : submolt.isSubscribed
-            ? t('moltbook.submolts.unsubscribe')
-            : t('moltbook.submolts.subscribe')}
+              ? t('moltbook.submolts.unsubscribe')
+              : t('moltbook.submolts.subscribe')}
         </button>
       </div>
     </div>
@@ -121,7 +142,7 @@ function SubmoltCard({ submolt, onSubscribe, isLoggedIn, t }: SubmoltCardProps) 
 
 export function MoltbookSubmolts() {
   const { t } = useLanguage()
-  const { isLoggedIn } = useAuth()
+  const { isLoggedIn, apiKey } = useAuth()
 
   const [submolts, setSubmolts] = useState<Submolt[]>([])
   const [loading, setLoading] = useState(false)
@@ -167,40 +188,29 @@ export function MoltbookSubmolts() {
     loadSubmolts()
   }, [loadSubmolts])
 
-  const handleSubscribe = (name: string, subscribe: boolean) => {
-    setSubmolts(prev =>
-      prev.map(submolt =>
-        submolt.name === name
-          ? {
-              ...submolt,
-              isSubscribed: subscribe,
-              members: submolt.members + (subscribe ? 1 : -1),
-            }
-          : submolt
-      )
-    )
-  }
-
   const handleCreateSubmolt = async () => {
-    if (!newSubmolt.name.trim()) return
+    if (!newSubmolt.name.trim() || !apiKey) return
 
     setCreating(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    setError(null)
 
-    const newOne: Submolt = {
-      id: Date.now(),
-      name: newSubmolt.name.toLowerCase().replace(/\s+/g, '_'),
-      description: newSubmolt.description,
-      members: 1,
-      posts: 0,
-      isSubscribed: true,
-      createdAt: Date.now() / 1000,
+    try {
+      await createSubmolt(
+        {
+          name: newSubmolt.name.toLowerCase().replace(/\s+/g, '_'),
+          description: newSubmolt.description,
+        },
+        apiKey
+      )
+      setNewSubmolt({ name: '', description: '' })
+      setShowCreateModal(false)
+      // Reload list after creation
+      loadSubmolts()
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setCreating(false)
     }
-
-    setSubmolts(prev => [newOne, ...prev])
-    setNewSubmolt({ name: '', description: '' })
-    setShowCreateModal(false)
-    setCreating(false)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -220,68 +230,98 @@ export function MoltbookSubmolts() {
         </Alert>
       )}
 
-      <div className="card">
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <input
-            type="text"
-            placeholder={t('moltbook.submolts.search')}
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-            style={{ flex: 1, minWidth: '200px' }}
-          />
-          {isLoggedIn && (
-            <button onClick={() => setShowCreateModal(true)}>
-              + {t('moltbook.submolts.create')}
+      {/* Two Column Layout */}
+      <div className="two-column-layout sidebar-layout">
+        {/* Left Sidebar - Filters */}
+        <div className="filter-sidebar sidebar-card">
+          <div className="filter-section">
+            <div className="filter-section-title">{t('moltbook.submolts.search')}</div>
+            <input
+              type="text"
+              placeholder={t('moltbook.submolts.search')}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div className="filter-section">
+            <div className="filter-section-title">{t('moltbook.submolts.filterBy') || 'Filter By'}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <button
+                className={`quick-action-btn ${filter === 'all' ? 'active' : ''}`}
+                onClick={() => setFilter('all')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                📋 {t('moltbook.submolts.all')}
+              </button>
+              <button
+                className={`quick-action-btn ${filter === 'subscribed' ? 'active' : ''}`}
+                onClick={() => setFilter('subscribed')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                ✓ {t('moltbook.submolts.subscribed')}
+              </button>
+              <button
+                className={`quick-action-btn ${filter === 'popular' ? 'active' : ''}`}
+                onClick={() => setFilter('popular')}
+                style={{ width: '100%', justifyContent: 'flex-start' }}
+              >
+                🔥 {t('moltbook.submolts.popular')}
+              </button>
+            </div>
+          </div>
+
+          <div className="section-divider" />
+
+          <div className="filter-section">
+            <button className="btn-small btn-secondary btn-block" onClick={loadSubmolts} disabled={loading}>
+              🔄 {t('moltbook.submolts.refresh')}
             </button>
+            {isLoggedIn && (
+              <button className="btn-small btn-block" style={{ marginTop: '8px' }} onClick={() => setShowCreateModal(true)}>
+                + {t('moltbook.submolts.create')}
+              </button>
+            )}
+          </div>
+
+          <div className="section-divider" />
+
+          {/* Stats */}
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <div className="filter-section-title">{t('moltbook.submolts.stats') || 'Stats'}</div>
+            <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+              <div style={{ marginBottom: '6px' }}>🏘️ {submolts.length} communities</div>
+              <div>✓ {submolts.filter(s => s.isSubscribed).length} subscribed</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content - Submolts Grid */}
+        <div className="content-area">
+          {loading && <Loading />}
+
+          {error && <EmptyState icon="❌" message={`${t('moltbook.submolts.loadFailed')}: ${error}`} />}
+
+          {!loading && !error && submolts.length === 0 && (
+            <EmptyState icon="🏘️" message={t('moltbook.submolts.noSubmolts')} />
+          )}
+
+          {!loading && !error && submolts.length > 0 && (
+            <div className="cards-grid">
+              {submolts.map(submolt => (
+                <SubmoltCard
+                  key={submolt.id}
+                  submolt={submolt}
+                  onSubscribeSuccess={loadSubmolts}
+                  isLoggedIn={isLoggedIn}
+                  apiKey={apiKey || ''}
+                  t={tAny}
+                />
+              ))}
+            </div>
           )}
         </div>
-
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
-          <button
-            className={`btn-small ${filter === 'all' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('all')}
-          >
-            {t('moltbook.submolts.all')}
-          </button>
-          <button
-            className={`btn-small ${filter === 'subscribed' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('subscribed')}
-          >
-            ✓ {t('moltbook.submolts.subscribed')}
-          </button>
-          <button
-            className={`btn-small ${filter === 'popular' ? '' : 'btn-secondary'}`}
-            onClick={() => setFilter('popular')}
-          >
-            🔥 {t('moltbook.submolts.popular')}
-          </button>
-          <div style={{ flex: 1 }} />
-          <button className="btn-small btn-secondary" onClick={loadSubmolts} disabled={loading}>
-            {t('moltbook.submolts.refresh')}
-          </button>
-        </div>
-
-        {loading && <Loading />}
-
-        {error && <EmptyState icon="❌" message={`${t('moltbook.submolts.loadFailed')}: ${error}`} />}
-
-        {!loading && !error && submolts.length === 0 && (
-          <EmptyState icon="🏘️" message={t('moltbook.submolts.noSubmolts')} />
-        )}
-
-        {!loading && !error && submolts.length > 0 && (
-          <div className="submolts-list">
-            {submolts.map(submolt => (
-              <SubmoltCard
-                key={submolt.id}
-                submolt={submolt}
-                onSubscribe={handleSubscribe}
-                isLoggedIn={isLoggedIn}
-                t={tAny}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Create Modal */}
@@ -289,6 +329,12 @@ export function MoltbookSubmolts() {
         <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()}>
             <h2 style={{ marginBottom: '20px' }}>🏘️ {t('moltbook.submolts.createNew')}</h2>
+
+            {error && (
+              <div style={{ color: 'var(--error)', marginBottom: '16px', padding: '12px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '8px' }}>
+                {error}
+              </div>
+            )}
 
             <div className="form-group">
               <label>{t('moltbook.submolts.name')}</label>

@@ -30,8 +30,39 @@ const STORAGE_KEY_CREDS = 'clawnews_credentials'
 const STORAGE_KEY_SAVED_AGENTS = 'clawnews_saved_agents'
 const STORAGE_KEY_CURRENT_AGENT_ID = 'clawnews_current_agent_id'
 
+/** Initialize ClawNews auth state from saved agents - ensures consistency */
+function getInitialClawNewsAuth(): { apiKey: string; currentAgentId: string | null } {
+  try {
+    const cached = localStorage.getItem(STORAGE_KEY_SAVED_AGENTS)
+    const agents: SavedAgent[] = cached ? JSON.parse(cached) : []
+    const clawnewsAgents = agents.filter(a => a.platform === 'clawnews')
+
+    if (clawnewsAgents.length === 0) return { apiKey: '', currentAgentId: null }
+
+    const currentId = localStorage.getItem(STORAGE_KEY_CURRENT_AGENT_ID)
+    let agent = currentId ? clawnewsAgents.find(a => a.id === currentId) : null
+
+    // If no current agent or current agent not found, use most recently used
+    if (!agent) {
+      agent = [...clawnewsAgents].sort((a, b) => {
+        const aTime = a.lastUsedAt || a.addedAt || ''
+        const bTime = b.lastUsedAt || b.addedAt || ''
+        return bTime.localeCompare(aTime)
+      })[0]
+    }
+
+    if (agent?.apiKey) {
+      localStorage.setItem(STORAGE_KEY_CURRENT_AGENT_ID, agent.id)
+      localStorage.setItem(STORAGE_KEY_API, agent.apiKey)
+      return { apiKey: agent.apiKey, currentAgentId: agent.id }
+    }
+  } catch { /* ignore */ }
+  return { apiKey: '', currentAgentId: null }
+}
+
 export function ClawNewsProvider({ children }: { children: ReactNode }) {
-  const [apiKey, setApiKey] = useState(() => localStorage.getItem(STORAGE_KEY_API) || '')
+  const initialAuth = getInitialClawNewsAuth()
+  const [apiKey, setApiKey] = useState(initialAuth.apiKey)
   const [agentInfo, setAgentInfo] = useState<ClawNewsAgent | null>(() => {
     try {
       const cached = localStorage.getItem(STORAGE_KEY_AGENT)
@@ -59,9 +90,7 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
       return []
     }
   })
-  const [currentAgentId, setCurrentAgentId] = useState<string | null>(() =>
-    localStorage.getItem(STORAGE_KEY_CURRENT_AGENT_ID) || null
-  )
+  const [currentAgentId, setCurrentAgentId] = useState<string | null>(initialAuth.currentAgentId)
 
   const saveAgentInfo = useCallback((info: ClawNewsAgent) => {
     setAgentInfo(info)

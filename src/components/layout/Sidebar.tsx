@@ -140,11 +140,11 @@ export function Sidebar() {
             style={{ 
               width: '36px', 
               height: '36px',
-              filter: 'drop-shadow(0 2px 6px rgba(245, 158, 11, 0.3))',
+              filter: 'drop-shadow(0 2px 6px rgba(var(--accent-rgb), 0.3))',
             }} 
           />
           <span style={{
-            background: 'linear-gradient(135deg, #F59E0B 0%, #EF4444 50%, #DC2626 100%)',
+            background: 'var(--gradient-primary)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
@@ -159,7 +159,7 @@ export function Sidebar() {
           {t('app.subtitle')}
         </div>
 
-        {/* Theme & Language Controls */}
+        {/* Theme & Language & GitHub Controls */}
         <div style={{
           display: 'flex',
           gap: '8px',
@@ -186,7 +186,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-card-hover)'
-              e.currentTarget.style.borderColor = 'var(--color-purple)'
+              e.currentTarget.style.borderColor = 'var(--accent)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'var(--bg-card)'
@@ -195,8 +195,6 @@ export function Sidebar() {
           >
             <span>{theme === 'dark' ? '🌙' : '☀️'}</span>
           </button>
-
-          {/* Language Toggle */}
           <button
             onClick={toggleLanguage}
             style={{
@@ -217,7 +215,7 @@ export function Sidebar() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'var(--bg-card-hover)'
-              e.currentTarget.style.borderColor = 'var(--color-purple)'
+              e.currentTarget.style.borderColor = 'var(--accent)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'var(--bg-card)'
@@ -227,6 +225,41 @@ export function Sidebar() {
             <span>🌐</span>
             <span>{language === 'zh' ? '中' : 'EN'}</span>
           </button>
+          {/* GitHub Link */}
+          <a
+            href="https://github.com/lowesyang/claw-master"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              flex: 1,
+              padding: '10px 14px',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border)',
+              borderRadius: '10px',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              fontSize: '0.85rem',
+              transition: 'all 0.2s ease',
+              fontWeight: 500,
+              textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'var(--bg-card-hover)'
+              e.currentTarget.style.borderColor = 'var(--accent)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'var(--bg-card)'
+              e.currentTarget.style.borderColor = 'var(--border)'
+            }}
+          >
+            <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+          </a>
         </div>
 
         {/* Platform Selector */}
@@ -254,10 +287,10 @@ export function Sidebar() {
               onClick={() => handlePlatformChange('moltbook')}
               style={{
                 padding: '10px 12px',
-                background: selectedPlatform === 'moltbook' ? 'rgba(240, 136, 0, 0.12)' : 'transparent',
-                border: selectedPlatform === 'moltbook' ? '1px solid var(--moltbook-color)' : '1px solid transparent',
+                background: selectedPlatform === 'moltbook' ? 'var(--accent-light)' : 'transparent',
+                border: selectedPlatform === 'moltbook' ? '1px solid var(--accent)' : '1px solid transparent',
                 borderRadius: '8px',
-                color: selectedPlatform === 'moltbook' ? 'var(--moltbook-color)' : 'var(--text-secondary)',
+                color: selectedPlatform === 'moltbook' ? 'var(--accent)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 fontSize: '0.85rem',
                 fontWeight: 500,
@@ -281,10 +314,10 @@ export function Sidebar() {
               onClick={() => handlePlatformChange('clawnews')}
               style={{
                 padding: '10px 12px',
-                background: selectedPlatform === 'clawnews' ? 'rgba(7, 181, 106, 0.12)' : 'transparent',
-                border: selectedPlatform === 'clawnews' ? '1px solid var(--clawnews-color)' : '1px solid transparent',
+                background: selectedPlatform === 'clawnews' ? 'var(--accent-light)' : 'transparent',
+                border: selectedPlatform === 'clawnews' ? '1px solid var(--accent)' : '1px solid transparent',
                 borderRadius: '8px',
-                color: selectedPlatform === 'clawnews' ? 'var(--clawnews-color)' : 'var(--text-secondary)',
+                color: selectedPlatform === 'clawnews' ? 'var(--accent)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 fontSize: '0.85rem',
                 fontWeight: 500,
@@ -308,10 +341,10 @@ export function Sidebar() {
               onClick={() => handlePlatformChange('clawnch')}
               style={{
                 padding: '10px 12px',
-                background: selectedPlatform === 'clawnch' ? 'rgba(131, 83, 255, 0.12)' : 'transparent',
-                border: selectedPlatform === 'clawnch' ? '1px solid var(--color-purple)' : '1px solid transparent',
+                background: selectedPlatform === 'clawnch' ? 'var(--accent-light)' : 'transparent',
+                border: selectedPlatform === 'clawnch' ? '1px solid var(--accent)' : '1px solid transparent',
                 borderRadius: '8px',
-                color: selectedPlatform === 'clawnch' ? 'var(--color-purple)' : 'var(--text-secondary)',
+                color: selectedPlatform === 'clawnch' ? 'var(--accent)' : 'var(--text-secondary)',
                 cursor: 'pointer',
                 fontSize: '0.85rem',
                 fontWeight: 500,
@@ -333,23 +366,9 @@ export function Sidebar() {
           key={section.titleKey}
           className={`nav-section ${section.platform ? `platform-${section.platform}` : ''}`}
           style={{
-            ...(section.platform === 'moltbook' && {
-              borderLeft: '3px solid var(--moltbook-color)',
-              background: 'rgba(240, 136, 0, 0.06)',
-              borderRadius: '0 12px 12px 0',
-              marginRight: '8px',
-              transition: 'all 0.2s ease',
-            }),
-            ...(section.platform === 'clawnews' && {
-              borderLeft: '3px solid var(--clawnews-color)',
-              background: 'rgba(7, 181, 106, 0.06)',
-              borderRadius: '0 12px 12px 0',
-              marginRight: '8px',
-              transition: 'all 0.2s ease',
-            }),
-            ...(section.platform === 'clawnch' && {
-              borderLeft: '3px solid var(--color-purple)',
-              background: 'rgba(131, 83, 255, 0.06)',
+            ...(section.platform && {
+              borderLeft: '3px solid var(--accent)',
+              background: 'var(--accent-light)',
               borderRadius: '0 12px 12px 0',
               marginRight: '8px',
               transition: 'all 0.2s ease',
@@ -359,11 +378,7 @@ export function Sidebar() {
           {section.platform && (
             <div
               className="nav-section-title"
-              style={{
-                ...(section.platform === 'moltbook' && { color: 'var(--moltbook-color)' }),
-                ...(section.platform === 'clawnews' && { color: 'var(--clawnews-color)' }),
-                ...(section.platform === 'clawnch' && { color: 'var(--color-purple)' }),
-              }}
+              style={{ color: 'var(--accent)' }}
             >
               {section.titleIcon && (
                 typeof section.titleIcon === 'string' && section.titleIcon.startsWith('/') ? (
@@ -392,20 +407,10 @@ export function Sidebar() {
               to={item.path}
               className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               end={item.path === '/' || item.path === '/moltbook' || item.path === '/clawnews' || item.path === '/clawnch'}
-              style={({ isActive }) => ({
-                ...(section.platform === 'moltbook' && isActive && {
-                  background: 'rgba(240, 136, 0, 0.12)',
-                  color: 'var(--moltbook-color)',
-                }),
-                ...(section.platform === 'clawnews' && isActive && {
-                  background: 'rgba(7, 181, 106, 0.12)',
-                  color: 'var(--clawnews-color)',
-                }),
-                ...(section.platform === 'clawnch' && isActive && {
-                  background: 'rgba(131, 83, 255, 0.12)',
-                  color: 'var(--color-purple)',
-                }),
-              })}
+              style={({ isActive }) => (isActive ? {
+                background: 'var(--accent-light)',
+                color: 'var(--accent)',
+              } : {})}
             >
               <span className="nav-item-icon">{item.icon}</span>
               <span>{t(item.labelKey)}</span>

@@ -22,6 +22,42 @@ export interface SavedAgent {
   lastUsedAt?: string // ISO date string
 }
 
+// Platform Skill Configuration
+export interface PlatformSkill {
+  platform: 'moltbook' | 'clawnews'
+  skillUrl: string
+  heartbeatUrl?: string
+  enabled: boolean
+  heartbeatInterval: number // in hours
+  lastHeartbeat?: string // ISO date string
+  autoPost: boolean
+  autoComment: boolean
+  autoUpvote: boolean
+}
+
+export const PLATFORM_SKILLS: Record<string, PlatformSkill> = {
+  moltbook: {
+    platform: 'moltbook',
+    skillUrl: 'https://www.moltbook.com/skill.md',
+    heartbeatUrl: 'https://www.moltbook.com/heartbeat.md',
+    enabled: false,
+    heartbeatInterval: 4,
+    autoPost: false,
+    autoComment: true,
+    autoUpvote: true,
+  },
+  clawnews: {
+    platform: 'clawnews',
+    skillUrl: 'https://clawnews.dev/skill.md',
+    heartbeatUrl: 'https://clawnews.dev/heartbeat.md',
+    enabled: false,
+    heartbeatInterval: 4,
+    autoPost: false,
+    autoComment: true,
+    autoUpvote: true,
+  },
+}
+
 export interface Post {
   id: string
   title: string

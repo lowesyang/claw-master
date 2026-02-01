@@ -6,6 +6,7 @@ import { searchAgents, followAgent, ClawNewsAgent } from '../../../services/claw
 import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
 import { EmptyState } from '../../common/EmptyState'
+import { Select } from '../../common/Select'
 
 const CAPABILITY_FILTERS = [
   'research', 'code', 'browser', 'analysis', 'writing',
@@ -18,83 +19,6 @@ const MODEL_FILTERS = [
   'gemini-2.0-flash',
   'deepseek-chat',
 ]
-
-interface AgentCardProps {
-  agent: ClawNewsAgent
-  onFollow: (handle: string) => void
-  isLoggedIn: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: (key: any) => string
-}
-
-function AgentCard({ agent, onFollow, isLoggedIn, t }: AgentCardProps) {
-  return (
-    <div className="feed-item">
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-        <div
-          style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, var(--accent), #ff9f6b)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            flexShrink: 0,
-          }}
-        >
-          🤖
-        </div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-            <span style={{ fontWeight: 600, fontSize: '1.05rem' }}>@{agent.handle}</span>
-            {agent.verified && (
-              <span style={{ color: 'var(--success)', fontSize: '0.8rem' }}>✓ {t('clawnews.agents.verified')}</span>
-            )}
-            {agent.claimed && !agent.verified && (
-              <span style={{ color: 'var(--info)', fontSize: '0.8rem' }}>✓ {t('clawnews.agents.claimed')}</span>
-            )}
-          </div>
-          {agent.about && (
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '8px' }}>
-              {agent.about}
-            </p>
-          )}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
-            {agent.capabilities?.map(cap => (
-              <span
-                key={cap}
-                style={{
-                  padding: '2px 8px',
-                  background: 'var(--bg-secondary)',
-                  borderRadius: '4px',
-                  fontSize: '0.75rem',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                {cap}
-              </span>
-            ))}
-          </div>
-          <div className="feed-item-footer" style={{ marginTop: '8px' }}>
-            <span>Karma: {agent.karma}</span>
-            {agent.model && <span>{t('clawnews.agents.model')}: {agent.model}</span>}
-            {agent.follower_count !== undefined && <span>{agent.follower_count} {t('clawnews.agents.followers')}</span>}
-          </div>
-        </div>
-        {isLoggedIn && (
-          <button
-            className="btn-small btn-secondary"
-            onClick={() => onFollow(agent.handle)}
-          >
-            {t('clawnews.agents.follow')}
-          </button>
-        )}
-      </div>
-    </div>
-  )
-}
 
 export function ClawNewsAgents() {
   const { isLoggedIn, apiKey } = useClawNews()
@@ -158,96 +82,162 @@ export function ClawNewsAgents() {
         </Alert>
       )}
 
-      <div className="card">
-        <div className="card-title">{t('clawnews.agents.filters')}</div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-          <div className="form-group">
-            <label>{t('clawnews.agents.capability')}</label>
-            <select value={capability} onChange={(e) => setCapability(e.target.value)}>
-              <option value="">{t('clawnews.agents.all')}</option>
-              {CAPABILITY_FILTERS.map(cap => (
-                <option key={cap} value={cap}>{cap}</option>
-              ))}
-            </select>
+      {/* Two Column Layout */}
+      <div className="two-column-layout sidebar-layout">
+        {/* Left Sidebar - Filters */}
+        <div className="filter-sidebar sidebar-card">
+          <div className="filter-section">
+            <div className="filter-section-title">{t('clawnews.agents.capability')}</div>
+            <Select
+              value={capability}
+              onChange={setCapability}
+              placeholder={t('clawnews.agents.all')}
+              options={[
+                { value: '', label: t('clawnews.agents.all') },
+                ...CAPABILITY_FILTERS.map(cap => ({ value: cap, label: cap }))
+              ]}
+            />
           </div>
 
-          <div className="form-group">
-            <label>{t('clawnews.agents.modelLabel')}</label>
-            <select value={model} onChange={(e) => setModel(e.target.value)}>
-              <option value="">{t('clawnews.agents.all')}</option>
-              {MODEL_FILTERS.map(m => (
-                <option key={m} value={m}>{m}</option>
-              ))}
-            </select>
+          <div className="filter-section">
+            <div className="filter-section-title">{t('clawnews.agents.modelLabel')}</div>
+            <Select
+              value={model}
+              onChange={setModel}
+              placeholder={t('clawnews.agents.all')}
+              options={[
+                { value: '', label: t('clawnews.agents.all') },
+                ...MODEL_FILTERS.map(m => ({ value: m, label: m }))
+              ]}
+            />
           </div>
 
-          <div className="form-group">
-            <label>{t('clawnews.agents.minKarma')}</label>
+          <div className="filter-section">
+            <div className="filter-section-title">{t('clawnews.agents.minKarma')}</div>
             <input
               type="number"
               value={minKarma}
               onChange={(e) => setMinKarma(e.target.value)}
               placeholder="0"
               min="0"
+              style={{ width: '100%' }}
             />
           </div>
-        </div>
 
-        <button onClick={handleSearch} disabled={loading}>
-          {loading ? t('clawnews.agents.searching') : t('clawnews.agents.search')}
-        </button>
-      </div>
+          <button onClick={handleSearch} disabled={loading} className="btn-block" style={{ marginTop: '8px' }}>
+            {loading ? t('clawnews.agents.searching') : t('clawnews.agents.search')}
+          </button>
 
-      <div className="card">
-        <div className="card-title">
-          {t('clawnews.agents.agentList')}
-          {agents.length > 0 && <span style={{ fontWeight: 'normal', color: 'var(--text-secondary)' }}> ({agents.length})</span>}
-        </div>
+          <div className="section-divider" />
 
-        {loading && <Loading />}
-
-        {error && <EmptyState icon="❌" message={`${t('clawnews.agents.loadFailed')}: ${error}`} />}
-
-        {!loading && !error && agents.length === 0 && (
-          <EmptyState icon="🔍" message={t('clawnews.agents.noAgentsFound')} />
-        )}
-
-        {!loading && !error && agents.length > 0 && (
-          <div>
-            {agents.map(agent => (
-              <AgentCard
-                key={agent.handle}
-                agent={agent}
-                onFollow={handleFollow}
-                isLoggedIn={isLoggedIn}
-                t={t}
-              />
-            ))}
+          {/* Karma System Info */}
+          <div className="filter-section" style={{ marginBottom: 0 }}>
+            <div className="filter-section-title">{t('clawnews.agents.karmaSystem')}</div>
+            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                <span>0</span><span>{t('clawnews.agents.karma0')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                <span>30</span><span>{t('clawnews.agents.karma30')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                <span>100</span><span>{t('clawnews.agents.karma100')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0' }}>
+                <span>500+</span><span>{t('clawnews.agents.karma500')}</span>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
 
-      <div className="card">
-        <div className="card-title">{t('clawnews.agents.karmaSystem')}</div>
-        <table className="api-table">
-          <thead>
-            <tr>
-              <th>Karma</th>
-              <th>{t('clawnews.agents.unlockFeature')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>0</td><td>{t('clawnews.agents.karma0')}</td></tr>
-            <tr><td>30</td><td>{t('clawnews.agents.karma30')}</td></tr>
-            <tr><td>100</td><td>{t('clawnews.agents.karma100')}</td></tr>
-            <tr><td>500</td><td>{t('clawnews.agents.karma500')}</td></tr>
-            <tr><td>1000</td><td>{t('clawnews.agents.karma1000')}</td></tr>
-          </tbody>
-        </table>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginTop: '12px' }}>
-          {t('clawnews.agents.karmaHint')}
-        </p>
+        {/* Right Content - Agent List */}
+        <div className="content-area">
+          {loading && <Loading />}
+
+          {error && <EmptyState icon="❌" message={`${t('clawnews.agents.loadFailed')}: ${error}`} />}
+
+          {!loading && !error && agents.length === 0 && (
+            <EmptyState icon="🔍" message={t('clawnews.agents.noAgentsFound')} />
+          )}
+
+          {!loading && !error && agents.length > 0 && (
+            <>
+              <div style={{ marginBottom: '16px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                {agents.length} {t('clawnews.agents.agentList')}
+              </div>
+              <div className="cards-grid">
+                {agents.map(agent => (
+                  <div key={agent.handle} className="card" style={{ marginBottom: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px' }}>
+                      <div
+                        style={{
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '12px',
+                          background: 'var(--gradient-primary)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '1.5rem',
+                          flexShrink: 0,
+                        }}
+                      >
+                        🤖
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 600, fontSize: '1rem' }}>@{agent.handle}</span>
+                          {agent.verified && (
+                            <span style={{ color: 'var(--success)', fontSize: '0.75rem', background: 'rgba(7, 181, 106, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>✓ {t('clawnews.agents.verified')}</span>
+                          )}
+                        </div>
+                        {agent.about && (
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '8px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                            {agent.about}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {agent.capabilities && agent.capabilities.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+                        {agent.capabilities.slice(0, 4).map(cap => (
+                          <span
+                            key={cap}
+                            style={{
+                              padding: '3px 8px',
+                              background: 'var(--bg-secondary)',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              color: 'var(--text-secondary)',
+                            }}
+                          >
+                            {cap}
+                          </span>
+                        ))}
+                        {agent.capabilities.length > 4 && (
+                          <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>+{agent.capabilities.length - 4}</span>
+                        )}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', paddingTop: '14px', borderTop: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+                        <span>⭐ {agent.karma}</span>
+                        {agent.follower_count !== undefined && <span>👥 {agent.follower_count}</span>}
+                      </div>
+                      {isLoggedIn && (
+                        <button className="btn-small" onClick={() => handleFollow(agent.handle)}>
+                          {t('clawnews.agents.follow')}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
