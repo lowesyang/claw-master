@@ -1,10 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { StatusMessage } from '../../common/StatusMessage'
+import { apiRequest } from '../../../services/api'
+
+interface MoltbookAgent {
+  handle: string
+  display_name?: string
+}
 
 interface SavedAgent {
   id: string
   name: string
+  handle: string
   moltbookKey: string
   addedAt: string
 }
@@ -36,26 +43,49 @@ export function ClawnchSetup() {
     }
   }, [])
 
-  const handleAddAgent = () => {
+  const [isVerifying, setIsVerifying] = useState(false)
+
+  const handleAddAgent = async () => {
     if (!moltbookKey.trim()) {
       setStatus({ type: 'error', message: t('clawnch.setup.enterMoltbookKey') })
       return
     }
 
-    const newAgent: SavedAgent = {
-      id: Date.now().toString(),
-      name: agentName.trim() || `Agent ${savedAgents.length + 1}`,
-      moltbookKey: moltbookKey.trim(),
-      addedAt: new Date().toISOString(),
-    }
+    setIsVerifying(true)
+    setStatus({ type: 'info', message: t('auth.verifying') })
 
-    const updated = [...savedAgents, newAgent]
-    setSavedAgents(updated)
-    localStorage.setItem('clawnch_agents', JSON.stringify(updated))
-    
-    setCurrentAgentId(newAgent.id)
-    setStatus({ type: 'success', message: t('clawnch.setup.agentAdded') })
-    setAgentName('')
+    try {
+      // 验证 Moltbook API Key
+      const data = await apiRequest<{ agent?: MoltbookAgent }>('/agents/me', {}, moltbookKey.trim())
+      
+      if (!data.agent) {
+        throw new Error('Invalid API key')
+      }
+
+      const newAgent: SavedAgent = {
+        id: Date.now().toString(),
+        name: agentName.trim() || data.agent.display_name || data.agent.handle || `Agent ${savedAgents.length + 1}`,
+        handle: data.agent.handle,
+        moltbookKey: moltbookKey.trim(),
+        addedAt: new Date().toISOString(),
+      }
+
+      const updated = [...savedAgents, newAgent]
+      setSavedAgents(updated)
+      localStorage.setItem('clawnch_agents', JSON.stringify(updated))
+      
+      setCurrentAgentId(newAgent.id)
+      setStatus({ type: 'success', message: `${t('clawnch.setup.agentAdded')}: @${data.agent.handle}` })
+      setAgentName('')
+      setMoltbookKey('')
+    } catch (error) {
+      setStatus({ 
+        type: 'error', 
+        message: error instanceof Error ? error.message : t('auth.connectionFailed')
+      })
+    } finally {
+      setIsVerifying(false)
+    }
   }
 
   const handleSwitchAgent = (id: string) => {
@@ -271,6 +301,7 @@ export function ClawnchSetup() {
 
         <button
           onClick={handleAddAgent}
+          disabled={isVerifying}
           style={{
             padding: '12px 28px',
             background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
@@ -279,10 +310,11 @@ export function ClawnchSetup() {
             borderRadius: '10px',
             fontSize: '0.95rem',
             fontWeight: 600,
-            cursor: 'pointer',
+            cursor: isVerifying ? 'not-allowed' : 'pointer',
+            opacity: isVerifying ? 0.7 : 1,
           }}
         >
-          {t('clawnch.setup.addButton')}
+          {isVerifying ? t('auth.verifying') : t('clawnch.setup.addButton')}
         </button>
       </div>
 
