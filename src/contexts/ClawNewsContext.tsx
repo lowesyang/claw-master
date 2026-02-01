@@ -78,7 +78,12 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
 
     try {
       const agent = await getMyProfile(apiKey)
-      saveAgentInfo(agent)
+      // ClawNews API 返回 id 字段作为用户名，需要映射到 handle
+      const normalizedAgent = {
+        ...agent,
+        handle: agent.handle || agent.id || '',
+      }
+      saveAgentInfo(normalizedAgent)
 
       const status = await getAuthStatus(apiKey)
       setAuthStatus({ claimed: status.claimed, verified: status.verified })
@@ -87,7 +92,7 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
       if (status.claim_url && !credentials?.claim_url) {
         saveCredentials({
           ...credentials,
-          agent_id: credentials?.agent_id || '',
+          agent_id: credentials?.agent_id || agent.id || '',
           api_key: apiKey,
           claim_url: status.claim_url,
           claim_code: credentials?.claim_code || '',
@@ -102,9 +107,14 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
   const login = async (key: string) => {
     // Verify the key by fetching profile
     const agent = await getMyProfile(key)
+    // ClawNews API 返回 id 字段作为用户名，需要映射到 handle
+    const normalizedAgent = {
+      ...agent,
+      handle: agent.handle || agent.id || '',
+    }
     setApiKey(key)
     localStorage.setItem(STORAGE_KEY_API, key)
-    saveAgentInfo(agent)
+    saveAgentInfo(normalizedAgent)
 
     const status = await getAuthStatus(key)
     setAuthStatus({ claimed: status.claimed, verified: status.verified })
@@ -112,7 +122,7 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
     // 如果 API 返回了 claim_url，保存到 credentials 中
     if (status.claim_url) {
       saveCredentials({
-        agent_id: '',
+        agent_id: agent.id || '',
         api_key: key,
         claim_url: status.claim_url,
         claim_code: '',
@@ -139,6 +149,8 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
   const addAgent = useCallback(async (apiKey: string, customName?: string): Promise<SavedAgent> => {
     // Verify the key and get agent info
     const agent = await getMyProfile(apiKey)
+    // ClawNews API 返回 id 字段作为用户名
+    const agentHandle = agent.handle || (agent as { id?: string }).id || ''
 
     // Check if agent already exists
     const existingIndex = savedAgents.findIndex(a => a.apiKey === apiKey)
@@ -147,8 +159,8 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
       const updated = [...savedAgents]
       updated[existingIndex] = {
         ...updated[existingIndex],
-        name: customName || agent.handle || updated[existingIndex].name,
-        handle: agent.handle,
+        name: customName || agentHandle || updated[existingIndex].name,
+        handle: agentHandle,
         lastUsedAt: new Date().toISOString(),
       }
       saveSavedAgents(updated)
@@ -159,8 +171,8 @@ export function ClawNewsProvider({ children }: { children: ReactNode }) {
     const newAgent: SavedAgent = {
       id: `clawnews_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       apiKey,
-      name: customName || agent.handle || 'Unnamed Agent',
-      handle: agent.handle,
+      name: customName || agentHandle || 'Unnamed Agent',
+      handle: agentHandle,
       platform: 'clawnews',
       addedAt: new Date().toISOString(),
       lastUsedAt: new Date().toISOString(),

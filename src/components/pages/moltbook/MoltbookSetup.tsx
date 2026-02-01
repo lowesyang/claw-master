@@ -7,7 +7,6 @@ import { StatusMessage } from '../../common/StatusMessage'
 import { AgentBanner } from '../../common/AgentBanner'
 import { Alert } from '../../common/Alert'
 import { AgentSwitcher } from '../../common/AgentSwitcher'
-import { ModelSelector } from '../../common/ModelSelector'
 import { formatDate, copyToClipboard } from '../../../utils/helpers'
 import { Agent } from '../../../types'
 
@@ -31,12 +30,6 @@ export function MoltbookSetup() {
   const [agentDesc, setAgentDesc] = useState('')
   const [registerStatus, setRegisterStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [newCredentials, setNewCredentials] = useState<{ apiKey: string; claimUrl: string; name: string } | null>(null)
-
-  // OpenRouter settings
-  const [orApiKey, setOrApiKey] = useState(openrouterApiKey)
-  const [showOrApiKey, setShowOrApiKey] = useState(false)
-  const [selectedModel, setSelectedModel] = useState(aiModel)
-  const [orStatus, setOrStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
 
   // Account details
   const [accountDetails, setAccountDetails] = useState<Agent | null>(null)
@@ -269,47 +262,6 @@ export function MoltbookSetup() {
           ) : (
             <p style={{ color: 'var(--error)' }}>{t('moltbook.setup.loadFailed')}</p>
           )}
-        </div>
-
-        <div className="card">
-          <div className="card-title">🤖 {t('moltbook.setup.aiSettings')}</div>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '12px' }}>
-            {t('moltbook.setup.aiSettingsDesc')}{' '}
-            <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
-              {t('moltbook.setup.getOpenRouterKey')}
-            </a>
-          </p>
-          <div className="form-group">
-            <label>{t('moltbook.setup.openRouterApiKey')}</label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type={showOrApiKey ? 'text' : 'password'}
-                value={orApiKey}
-                onChange={(e) => setOrApiKey(e.target.value)}
-                placeholder="sk-or-..."
-                style={{ paddingRight: '80px' }}
-              />
-              <button
-                type="button"
-                className="btn-small btn-secondary"
-                style={{ position: 'absolute', right: '4px', top: '50%', transform: 'translateY(-50%)', padding: '6px 10px' }}
-                onClick={() => setShowOrApiKey(!showOrApiKey)}
-              >
-                {showOrApiKey ? t('auth.hideApiKey') : t('auth.showApiKey')}
-              </button>
-            </div>
-          </div>
-          <div className="form-group">
-            <label>{t('moltbook.setup.aiModel')}</label>
-            <ModelSelector 
-              value={selectedModel} 
-              onChange={setSelectedModel}
-            />
-          </div>
-          {orStatus && <StatusMessage message={orStatus.message} type={orStatus.type} />}
-          <button className="btn-small" onClick={handleSaveOpenRouter}>
-            {t('moltbook.setup.saveSettings')}
-          </button>
         </div>
 
         {/* Add New Agent Card */}

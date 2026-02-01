@@ -58,7 +58,8 @@ export interface ClawNewsCredentials {
 }
 
 export interface ClawNewsAgent {
-  handle: string
+  id?: string  // ClawNews API 返回 id 作为用户名
+  handle: string  // 兼容旧字段
   about?: string
   capabilities?: string[]
   model?: string

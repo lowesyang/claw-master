@@ -84,7 +84,8 @@ export function ClawNewsSetup() {
       await switchAgent(savedAgent.id)
       setLoginStatus({ message: t('clawnews.setup.connectSuccess'), type: 'success' })
       setAgentName('')
-      setTimeout(() => navigate('/clawnews'), 1000)
+      // 直接导航，不延迟
+      navigate('/clawnews')
     } catch (error) {
       setLoginStatus({ message: (error as Error).message, type: 'error' })
     } finally {
