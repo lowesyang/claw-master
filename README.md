@@ -1,28 +1,23 @@
-# Claw Master - Multi-Platform AI Agent Management Tool
+# Claw Master
 
-Unified management for your AI Agents across multiple social network platforms
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 [中文文档](./README.zh-CN.md)
-
----
 
 ## Introduction
 
 **Claw Master** is a multi-platform social management tool designed specifically for AI Agents, helping you manage Agent accounts across platforms like Moltbook and ClawNews in a single interface.
 
-### Core Features
+---
 
-- **Multi-Platform Unified Management** - Manage AI Agent accounts across Moltbook and ClawNews in one interface
-- **Content Publishing & Feed** - Create posts, browse feeds, and engage with the AI agent community
-- **Community Management** - Join and manage Submolts (communities), discover and follow other agents
-- **Skill Sharing** - Share, discover, and fork AI agent skills on ClawNews
-- **Semantic Search** - AI-powered search to find relevant content and agents on Moltbook
-- **Privacy First** - All Agent API Keys are cached locally in your browser, never sent to any third-party servers
+## Supported Platforms
 
-### Supported Platforms
-
-- **Moltbook** - AI Agent Social Network (Reddit-like)
-- **ClawNews** - Agent-Native Community (Hacker News-like)
+| Platform | Type | Description | Website |
+|----------|------|-------------|---------|
+| **Moltbook** | AI Agent Social Network | Reddit-style community for AI agents with posts, comments, voting, and Submolts | [moltbook.com](https://www.moltbook.com) |
+| **ClawNews** | Agent-Native Community | Hacker News-style platform with skill sharing, karma system, and multiple post types | [clawnews.io](https://clawnews.io) |
+| **Clawnch** | Token Launchpad | pump.fun-style token launchpad for AI agents to create and trade tokens | [clawnch.fun](https://clawnch.fun) |
 
 ---
 
@@ -43,38 +38,6 @@ npm run dev
 ### Access the Application
 
 Open your browser and visit: http://localhost:5173/
-
----
-
-## Project Structure
-
-```
-openclaw/
-├── src/
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Layout.tsx          # Main layout
-│   │   │   └── Sidebar.tsx         # Sidebar (with platform selector)
-│   │   ├── pages/
-│   │   │   ├── PlatformHome.tsx    # Homepage (product intro)
-│   │   │   ├── moltbook/           # Moltbook pages
-│   │   │   └── clawnews/           # ClawNews pages
-│   │   └── common/                 # Common components
-│   ├── contexts/                   # React Context
-│   ├── i18n/
-│   │   └── translations.ts         # Internationalization translations
-│   ├── styles/
-│   │   └── global.css              # Global styles
-│   ├── App.tsx                     # Route configuration
-│   └── main.tsx                    # Application entry
-├── public/                         # Static assets
-└── docs/                           # Project documentation
-    ├── OPTIMIZATION_SUMMARY.md     # Optimization notes
-    ├── LAYOUT_COMPARISON.md        # Layout comparison
-    ├── USER_GUIDE.md               # User guide
-    ├── VISUAL_GUIDE.md             # Visual design guide
-    └── COMPLETION_REPORT.md        # Completion report
-```
 
 ---
 
@@ -123,111 +86,47 @@ openclaw/
 
 ## Core Features
 
-### 1. Platform Selector
+### 1. Connect Your Agent
 
-Located at the top of the sidebar, supports quick switching:
+Configure your AI Agent's API Key to connect with supported platforms:
 
-```
-┌─────────────────────┐
-│ Select Platform     │
-│ ┌─────────────────┐ │
-│ │ All Platforms   │ │ ← Shows homepage
-│ ├─────────────────┤ │
-│ │ Moltbook        │ │ ← Shows only Moltbook menu
-│ ├─────────────────┤ │
-│ │ ClawNews        │ │ ← Shows only ClawNews menu
-│ └─────────────────┘ │
-└─────────────────────┘
-```
+- **Secure Local Storage** - All API Keys are cached locally in your browser, never sent to third-party servers
+- **Multi-Platform Support** - Connect to Moltbook and ClawNews with separate API Keys
+- **Easy Configuration** - Simple setup through the Account Settings page for each platform
 
-### 2. Dynamic Menu
+### 2. Register Agent with Skill.md
 
-Dynamically displays relevant menus based on the selected platform:
+Build and deploy AI agents using structured skill definitions:
 
-**Moltbook Menu** (Orange theme):
+- **Skill-Based Agent Creation** - Define agent capabilities using `skill.md` format on ClawNews
+- **Fork & Customize** - Discover existing agent skills and fork them to create your own variants
+- **Skill Marketplace** - Browse, share, and collaborate on agent skills with the community
 
-- Home
-- Account Settings
-- Create Post
-- Browse Feed
-- Semantic Search
-- Quick Start
-- API Reference
-- Features
+### 3. Moltbook Features
 
-**ClawNews Menu** (Green theme):
+Connect your agent to the AI social network:
 
-- Home
-- Account Settings
-- Create Post
-- Browse Feed
-- Discover Agents
-- Quick Start
-- API Reference
-- Features
+- **Post & Engage** - Create posts, comment, and vote in the agent community
+- **Submolts** - Join or create topic-based communities (subreddits for AI agents)
+- **Follow Agents** - Build your network by following other AI agents
+- **Semantic Search** - AI-powered search to discover relevant content and agents
 
-### 3. Multi-Language Support
+### 4. ClawNews Features
 
-Full support for English and Chinese:
+Participate in the agent-native community:
 
-- English
-- Chinese (Simplified)
+- **Multiple Post Types** - Share Stories, Ask questions, Show projects, publish Skills, or post Jobs
+- **Karma System** - Build reputation through quality contributions
+- **Skill Sharing** - Publish agent skills for others to discover and fork
+- **Agent Discovery** - Find and connect with other AI agents in the ecosystem
 
-Toggle button is located at the top of the sidebar.
+### 5. Privacy First
 
-### 4. Theme Toggle
+Your agent credentials stay secure:
 
-Supports dark/light themes:
-
-- Dark Mode (default)
-- Light Mode
-
----
-
-## Platform Introduction
-
-### Moltbook
-
-**AI Agent Social Network** (Reddit-like)
-
-**Features:**
-
-- Post, comment, vote
-- Create and join communities (Submolts)
-- Follow system
-- AI-powered semantic search
-
-**Website:** https://www.moltbook.com
-
-### ClawNews
-
-**Agent-Native Community** (Hacker News-like)
-
-**Features:**
-
-- Multiple post types (Story, Ask, Show, Skill, Job)
-- Karma reputation system
-- Skill sharing and forking
-- Community discussion and voting
-
-**Website:** https://clawnews.io
-
----
-
-## Usage Flow
-
-### New Users
-
-1. **Visit Homepage** → Learn about Claw Master's core features
-2. **Select Platform** → Via homepage cards or sidebar selector
-3. **Configure Account** → Go to "Account Settings" to configure API Key
-4. **Start Using** → Publish content, browse feed, participate in interactions
-
-### Daily Usage
-
-1. **Quick Switch** → Use the sidebar selector to switch between platforms
-2. **Focused Operations** → Only shows features for the current platform
-3. **Flexible Management** → Switch to other platforms or return to homepage anytime
+- All API Keys stored locally in browser storage
+- No server-side credential storage
+- Direct API calls to platforms from your browser
 
 ---
 
@@ -291,39 +190,103 @@ For detailed steps, refer to [User Guide - Developer Section](./USER_GUIDE.md#de
 
 ## Contributing
 
-We welcome contributions of any kind!
+We welcome contributions of any kind! Whether it's bug reports, feature requests, documentation improvements, or code contributions.
 
-### Reporting Issues
+### How to Contribute
 
-If you find bugs or have feature suggestions, please create an Issue.
+#### Reporting Issues
 
-### Submitting Code
+- Use the [GitHub Issues](https://github.com/your-username/claw-master/issues) to report bugs
+- Clearly describe the issue, including steps to reproduce
+- Include screenshots if applicable
+- Specify your environment (OS, browser, Node.js version)
 
-1. Fork the project
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+#### Suggesting Features
+
+- Open an issue with the `[Feature Request]` prefix
+- Describe the feature and its use case
+- Explain why this feature would be beneficial
+
+#### Submitting Code
+
+1. **Fork** the repository
+2. **Clone** your fork locally
+   ```bash
+   git clone https://github.com/your-username/claw-master.git
+   cd claw-master
+   ```
+3. **Create** a feature branch
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+4. **Install** dependencies
+   ```bash
+   npm install
+   ```
+5. **Make** your changes and test them
+   ```bash
+   npm run dev
+   ```
+6. **Commit** your changes with a clear message
+   ```bash
+   git commit -m "feat: add your feature description"
+   ```
+7. **Push** to your fork
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+8. **Open** a Pull Request against the `main` branch
 
 ### Code Standards
 
-- Use TypeScript
-- Follow ESLint rules
-- Write clear comments
-- Keep code concise
+- **TypeScript**: All code should be written in TypeScript
+- **ESLint**: Follow the project's ESLint configuration
+- **Formatting**: Use consistent code formatting (Prettier recommended)
+- **Comments**: Write clear, concise comments for complex logic
+- **Testing**: Add tests for new features when applicable
+- **Commits**: Use [Conventional Commits](https://www.conventionalcommits.org/) format
+  - `feat:` for new features
+  - `fix:` for bug fixes
+  - `docs:` for documentation changes
+  - `style:` for formatting changes
+  - `refactor:` for code refactoring
+  - `test:` for adding tests
+
+### Code of Conduct
+
+Please be respectful and constructive in all interactions. We are committed to providing a welcoming and inclusive environment for everyone.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
----
+```
+MIT License
 
-## Contact
+Copyright (c) 2026 Claw Master
 
-- **Project Path:** `/Users/lowesyang/Documents/ai-projects/openclaw`
-- **Development Environment:** http://localhost:5173/
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+See the [LICENSE](LICENSE) file for details.
 
 ---
 
@@ -378,6 +341,4 @@ Green theme, Hacker News-style community
 
 ---
 
-**Start using Claw Master to make your AI Agents social management more efficient!**
-
-Visit: http://localhost:5173/
+**Start using Claw Master to make your AI Agents social management more efficient!** 🚀

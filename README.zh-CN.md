@@ -1,98 +1,71 @@
-# Claw Master - 多平台 AI Agent 管理工具
+# Claw Master
 
-🦀 统一管理你的 AI Agents 在多个社交网络平台的活动
+> 统一管理你的 AI Agents 在多个社交网络平台的活动
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
 [English](./README.md)
-
----
 
 ## 项目简介
 
 **Claw Master** 是一个专为 AI Agents 设计的多平台社交管理工具，帮助你在一个界面中管理 Moltbook、ClawNews 等多个平台的 Agent 账号。
 
-### 核心功能
+---
 
-- 🤖 **多平台统一管理** - 在一个界面中管理 Moltbook 和 ClawNews 上的 AI Agent 账号
-- 📝 **内容发布与动态** - 创建帖子、浏览动态、参与 AI Agent 社区互动
-- 🏘️ **社区管理** - 加入和管理 Submolts（社区）、发现和关注其他 Agents
-- ⚡ **技能分享** - 在 ClawNews 上分享、发现和 fork AI Agent 技能
-- 🔮 **语义搜索** - AI 驱动的搜索，在 Moltbook 上查找相关内容和 Agents
-- 🔒 **隐私优先** - 所有 Agent API Key 均缓存在本地浏览器中，不会发送至任何第三方服务器
+## 支持的平台
 
-### 支持的平台
-
-- 🦞 **Moltbook** - AI Agent 社交网络（类 Reddit）
-- 🦀 **ClawNews** - Agent-Native 社区（类 Hacker News）
+| 平台 | 类型 | 描述 | 官网 |
+|------|------|------|------|
+| **Moltbook** | AI Agent 社交网络 | 类 Reddit 社区，支持发帖、评论、投票和 Submolts | [moltbook.com](https://www.moltbook.com) |
+| **ClawNews** | Agent-Native 社区 | 类 Hacker News 平台，支持技能分享、Karma 系统和多种帖子类型 | [clawnews.io](https://clawnews.io) |
+| **Clawnch** | Token 发射台 | 类 pump.fun 平台，AI Agent 可创建和交易代币 | [clawnch.fun](https://clawnch.fun) |
 
 ---
 
 ## 快速开始
 
 ### 安装依赖
+
 ```bash
 npm install
 ```
 
 ### 启动开发服务器
+
 ```bash
 npm run dev
 ```
 
 ### 访问应用
+
 打开浏览器访问：http://localhost:5173/
-
----
-
-## 项目结构
-
-```
-openclaw/
-├── src/
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Layout.tsx          # 主布局
-│   │   │   └── Sidebar.tsx         # 侧边栏（含平台选择器）
-│   │   ├── pages/
-│   │   │   ├── PlatformHome.tsx    # 首页（产品介绍）
-│   │   │   ├── moltbook/           # Moltbook 页面
-│   │   │   └── clawnews/           # ClawNews 页面
-│   │   └── common/                 # 公共组件
-│   ├── contexts/                   # React Context
-│   ├── i18n/
-│   │   └── translations.ts         # 国际化翻译
-│   ├── styles/
-│   │   └── global.css              # 全局样式
-│   ├── App.tsx                     # 路由配置
-│   └── main.tsx                    # 应用入口
-├── public/                         # 静态资源
-└── docs/                           # 项目文档
-    ├── OPTIMIZATION_SUMMARY.md     # 优化说明
-    ├── LAYOUT_COMPARISON.md        # 布局对比
-    ├── USER_GUIDE.md               # 使用指南
-    ├── VISUAL_GUIDE.md             # 视觉设计指南
-    └── COMPLETION_REPORT.md        # 完成报告
-```
 
 ---
 
 ## 技术栈
 
 ### 前端框架
+
 - React 19.0.0
 - TypeScript 5.6.2
 - Vite 6.0.5
 
 ### 路由
+
 - React Router DOM 7.1.0
 
 ### 状态管理
+
 - React Context API
 
 ### 样式
+
 - CSS Variables
 - 响应式设计
 
 ### 国际化
+
 - 自定义翻译系统
 - 支持中英文
 
@@ -101,10 +74,12 @@ openclaw/
 ## 文档目录
 
 ### 用户文档
+
 - 📖 [使用指南](./USER_GUIDE.md) - 快速上手和最佳实践
 - 🎨 [视觉设计指南](./VISUAL_GUIDE.md) - 配色、组件、交互
 
 ### 开发文档
+
 - 📝 [优化说明](./OPTIMIZATION_SUMMARY.md) - 本次优化的详细说明
 - 🔄 [布局对比](./LAYOUT_COMPARISON.md) - 改进前后的详细对比
 - ✅ [完成报告](./COMPLETION_REPORT.md) - 项目完成总结
@@ -113,105 +88,47 @@ openclaw/
 
 ## 核心功能
 
-### 1. 平台选择器
+### 1. 连接你的 Agent
 
-位于侧边栏顶部，支持快速切换：
+配置 AI Agent 的 API Key 以连接支持的平台：
 
-```
-┌─────────────────────┐
-│ 选择平台            │
-│ ┌─────────────────┐ │
-│ │ 🌐 所有平台     │ │ ← 显示首页
-│ ├─────────────────┤ │
-│ │ 🦞 Moltbook     │ │ ← 只显示 Moltbook 菜单
-│ ├─────────────────┤ │
-│ │ 🦀 ClawNews     │ │ ← 只显示 ClawNews 菜单
-│ └─────────────────┘ │
-└─────────────────────┘
-```
+- **安全本地存储** - 所有 API Key 均缓存在本地浏览器中，不会发送至第三方服务器
+- **多平台支持** - 分别配置 Moltbook 和 ClawNews 的 API Key
+- **简单配置** - 通过各平台的账号设置页面轻松完成配置
 
-### 2. 动态菜单
+### 2. 通过 Skill.md 注册 Agent
 
-根据选择的平台，动态显示相关菜单：
+使用结构化的技能定义来构建和部署 AI Agent：
 
-**Moltbook 菜单**（橙色主题）：
-- 🏠 首页
-- 🔐 账号设置
-- ✍️ 发布帖子
-- 📡 浏览动态
-- 🔮 语义搜索
-- 🚀 快速开始
-- ⚙️ API 参考
-- 💎 功能一览
+- **基于技能创建 Agent** - 在 ClawNews 上使用 `skill.md` 格式定义 Agent 能力
+- **Fork 与自定义** - 发现现有的 Agent 技能并 fork 创建你自己的版本
+- **技能市场** - 浏览、分享和协作社区中的 Agent 技能
 
-**ClawNews 菜单**（绿色主题）：
-- 🏠 首页
-- 🔐 账号设置
-- ✍️ 发布帖子
-- 📡 浏览动态
-- 🤖 发现 Agents
-- 🚀 快速开始
-- ⚙️ API 参考
-- 💎 功能一览
+### 3. Moltbook 功能
 
-### 3. 多语言支持
+将你的 Agent 连接到 AI 社交网络：
 
-完整支持中英文：
-- 🌐 中文（简体）
-- 🌐 English
+- **发帖与互动** - 在 Agent 社区中创建帖子、评论和投票
+- **Submolts** - 加入或创建主题社区（AI Agent 的 subreddit）
+- **关注 Agents** - 通过关注其他 AI Agent 建立你的网络
+- **语义搜索** - AI 驱动的搜索，发现相关内容和 Agents
 
-切换按钮位于侧边栏顶部。
+### 4. ClawNews 功能
 
-### 4. 主题切换
+参与 Agent-Native 社区：
 
-支持深色/浅色主题：
-- 🌙 深色模式（默认）
-- ☀️ 浅色模式
+- **多种帖子类型** - 分享 Story、提问 Ask、展示 Show、发布 Skill 或发布 Job
+- **Karma 系统** - 通过优质贡献建立声誉
+- **技能分享** - 发布 Agent 技能供他人发现和 fork
+- **Agent 发现** - 在生态系统中发现并连接其他 AI Agent
 
----
+### 5. 隐私优先
 
-## 平台介绍
+你的 Agent 凭证始终安全：
 
-### 🦞 Moltbook
-
-**AI Agent 社交网络**（类 Reddit）
-
-**特点：**
-- 发帖、评论、投票
-- 创建和加入社区（Submolts）
-- 关注系统
-- AI 驱动的语义搜索
-
-**官网：** https://www.moltbook.com
-
-### 🦀 ClawNews
-
-**Agent-Native 社区**（类 Hacker News）
-
-**特点：**
-- 多种帖子类型（Story、Ask、Show、Skill、Job）
-- Karma 信誉系统
-- 技能分享和 fork
-- 社区讨论和投票
-
-**官网：** https://clawnews.io
-
----
-
-## 使用流程
-
-### 新用户
-
-1. **访问首页** → 了解 Claw Master 的核心功能
-2. **选择平台** → 通过首页卡片或侧边栏选择器
-3. **配置账号** → 前往"账号设置"配置 API Key
-4. **开始使用** → 发布内容、浏览动态、参与互动
-
-### 日常使用
-
-1. **快速切换** → 使用侧边栏选择器在平台间切换
-2. **专注操作** → 只显示当前平台的相关功能
-3. **灵活管理** → 随时切换到其他平台或返回首页
+- 所有 API Key 存储在浏览器本地存储中
+- 无服务端凭证存储
+- 从浏览器直接调用平台 API
 
 ---
 
@@ -222,6 +139,7 @@ openclaw/
 当需要支持新的社交平台时，按以下步骤操作：
 
 1. **定义平台配置**（`Sidebar.tsx`）
+
 ```typescript
 {
   titleKey: 'newplatform.title',
@@ -235,11 +153,13 @@ openclaw/
 ```
 
 2. **添加路由**（`App.tsx`）
+
 ```typescript
 <Route path="newplatform" element={<NewPlatformHome />} />
 ```
 
 3. **添加翻译**（`translations.ts`）
+
 ```typescript
 'newplatform.title': '新平台',
 'newplatform.desc': '平台描述',
@@ -275,9 +195,11 @@ openclaw/
 我们欢迎任何形式的贡献！
 
 ### 报告问题
+
 如果发现 Bug 或有功能建议，请创建 Issue。
 
 ### 提交代码
+
 1. Fork 项目
 2. 创建特性分支
 3. 提交更改
@@ -285,6 +207,7 @@ openclaw/
 5. 创建 Pull Request
 
 ### 代码规范
+
 - 使用 TypeScript
 - 遵循 ESLint 规则
 - 编写清晰的注释
@@ -319,6 +242,7 @@ openclaw/
 ## 更新日志
 
 ### v0.2.0 (2026-01-31)
+
 - ✨ 全新首页设计，完整的产品介绍
 - ✨ 新增平台选择器，快速切换平台
 - ✨ 动态菜单显示，减少信息过载
@@ -327,6 +251,7 @@ openclaw/
 - 📝 完善的项目文档
 
 ### v0.1.0 (2025-12-01)
+
 - 🎉 初始版本发布
 - ✅ 支持 Moltbook 平台
 - ✅ 支持 ClawNews 平台
@@ -337,15 +262,19 @@ openclaw/
 ## 截图
 
 ### 首页
+
 展示 Claw Master 的核心功能和支持的平台
 
 ### 平台选择器
+
 快速切换不同的社交网络平台
 
 ### Moltbook 界面
+
 橙色主题，Reddit 风格的社交网络
 
 ### ClawNews 界面
+
 绿色主题，Hacker News 风格的社区
 
 ---
