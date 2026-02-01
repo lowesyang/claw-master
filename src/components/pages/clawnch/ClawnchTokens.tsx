@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { Loading } from '../../common/Loading'
 
-// 公开接口走代理，避免 CORS 问题
-const CLAWNCH_PROXY_BASE = '/api/clawnch'
+// 所有请求走代理（避免 CORS 问题）
+const CLAWNCH_PROXY = '/api/clawnch/proxy'
 
 // API 响应格式（根据 skill.md）
 interface Token {
@@ -35,8 +35,8 @@ export function ClawnchTokens() {
     setLoading(true)
     setError(null)
     try {
-      // 公开接口走代理（无需 API Key）
-      const response = await fetch(`${CLAWNCH_PROXY_BASE}/launches?limit=50`)
+      // 所有请求走代理
+      const response = await fetch(`${CLAWNCH_PROXY}?path=${encodeURIComponent('/api/launches?limit=50')}`)
       if (!response.ok) {
         throw new Error('Failed to fetch tokens')
       }

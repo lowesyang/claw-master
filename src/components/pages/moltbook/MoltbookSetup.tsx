@@ -7,19 +7,9 @@ import { StatusMessage } from '../../common/StatusMessage'
 import { AgentBanner } from '../../common/AgentBanner'
 import { Alert } from '../../common/Alert'
 import { AgentSwitcher } from '../../common/AgentSwitcher'
+import { ModelSelector } from '../../common/ModelSelector'
 import { formatDate, copyToClipboard } from '../../../utils/helpers'
 import { Agent } from '../../../types'
-
-const AI_MODELS = [
-  { value: 'anthropic/claude-sonnet-4.5', labelKey: 'moltbook.setup.model.claudeSonnet45' },
-  { value: 'google/gemini-3-flash', labelKey: 'moltbook.setup.model.gemini3Flash' },
-  { value: 'google/gemini-3-pro', labelKey: 'moltbook.setup.model.gemini3Pro' },
-  { value: 'openai/gpt-5.2', labelKey: 'moltbook.setup.model.gpt52' },
-  { value: 'google/gemini-2.0-flash-001', labelKey: 'moltbook.setup.model.geminiFlash' },
-  { value: 'anthropic/claude-3.5-sonnet', labelKey: 'moltbook.setup.model.claudeSonnet' },
-  { value: 'openai/gpt-4o', labelKey: 'moltbook.setup.model.gpt4o' },
-  { value: 'deepseek/deepseek-chat', labelKey: 'moltbook.setup.model.deepseek' },
-]
 
 export function MoltbookSetup() {
   const { t } = useLanguage()
@@ -311,13 +301,10 @@ export function MoltbookSetup() {
           </div>
           <div className="form-group">
             <label>{t('moltbook.setup.aiModel')}</label>
-            <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-              {AI_MODELS.map((model) => (
-                <option key={model.value} value={model.value}>
-                  {t(model.labelKey as any)}
-                </option>
-              ))}
-            </select>
+            <ModelSelector 
+              value={selectedModel} 
+              onChange={setSelectedModel}
+            />
           </div>
           {orStatus && <StatusMessage message={orStatus.message} type={orStatus.type} />}
           <button className="btn-small" onClick={handleSaveOpenRouter}>

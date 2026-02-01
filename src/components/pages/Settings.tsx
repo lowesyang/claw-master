@@ -2,17 +2,7 @@ import { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 import { useLanguage } from '../../contexts/LanguageContext'
 import { StatusMessage } from '../common/StatusMessage'
-
-const AI_MODELS = [
-  { value: 'anthropic/claude-sonnet-4.5', labelKey: 'settings.model.claudeSonnet45' },
-  { value: 'google/gemini-3-flash', labelKey: 'settings.model.gemini3Flash' },
-  { value: 'google/gemini-3-pro', labelKey: 'settings.model.gemini3Pro' },
-  { value: 'openai/gpt-5.2', labelKey: 'settings.model.gpt52' },
-  { value: 'google/gemini-2.0-flash-001', labelKey: 'settings.model.geminiFlash' },
-  { value: 'anthropic/claude-3.5-sonnet', labelKey: 'settings.model.claudeSonnet' },
-  { value: 'openai/gpt-4o', labelKey: 'settings.model.gpt4o' },
-  { value: 'deepseek/deepseek-chat', labelKey: 'settings.model.deepseek' },
-]
+import { ModelSelector } from '../common/ModelSelector'
 
 export function Settings() {
   const { t } = useLanguage()
@@ -22,6 +12,10 @@ export function Settings() {
   const [showOrApiKey, setShowOrApiKey] = useState(false)
   const [selectedModel, setSelectedModel] = useState(aiModel)
   const [status, setStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+
+  // Check if settings have changed
+  const hasChanges = orApiKey.trim() !== openrouterApiKey || selectedModel !== aiModel
+  const canSave = orApiKey.trim() !== '' && hasChanges
 
   const handleSaveSettings = () => {
     if (!orApiKey.trim()) {
@@ -43,6 +37,19 @@ export function Settings() {
       <div className="page-header">
         <h1 className="page-title">⚙️ {t('settings.title')}</h1>
         <p className="page-desc">{t('settings.subtitle')}</p>
+      </div>
+
+      {/* AI Features Info */}
+      <div className="card">
+        <div className="card-title">✨ {t('settings.aiFeaturesTitle')}</div>
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '12px' }}>
+          {t('settings.aiFeaturesDesc')}
+        </p>
+        <ul style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', paddingLeft: '20px', margin: 0 }}>
+          <li style={{ marginBottom: '8px' }}>{t('settings.aiFeature1')}</li>
+          <li style={{ marginBottom: '8px' }}>{t('settings.aiFeature2')}</li>
+          <li>{t('settings.aiFeature3')}</li>
+        </ul>
       </div>
 
       {/* OpenRouter Settings */}
@@ -80,17 +87,23 @@ export function Settings() {
 
         <div className="form-group">
           <label>{t('settings.modelLabel')}</label>
-          <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}>
-            {AI_MODELS.map((model) => (
-              <option key={model.value} value={model.value}>
-                {t(model.labelKey as any)}
-              </option>
-            ))}
-          </select>
+          <ModelSelector 
+            value={selectedModel} 
+            onChange={setSelectedModel}
+            showProvider={true}
+          />
         </div>
 
         <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-          <button className="btn-small" onClick={handleSaveSettings}>
+          <button 
+            className="btn-small" 
+            onClick={handleSaveSettings}
+            disabled={!canSave}
+            style={{
+              opacity: canSave ? 1 : 0.5,
+              cursor: canSave ? 'pointer' : 'not-allowed',
+            }}
+          >
             {t('settings.save')}
           </button>
           {openrouterApiKey && (
@@ -99,55 +112,11 @@ export function Settings() {
             </button>
           )}
         </div>
-      </div>
-
-      {/* AI Features Info */}
-      <div className="card">
-        <div className="card-title">✨ {t('settings.aiFeaturesTitle')}</div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '12px' }}>
-          {t('settings.aiFeaturesDesc')}
-        </p>
-        <ul style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', paddingLeft: '20px', margin: 0 }}>
-          <li style={{ marginBottom: '8px' }}>{t('settings.aiFeature1')}</li>
-          <li style={{ marginBottom: '8px' }}>{t('settings.aiFeature2')}</li>
-          <li>{t('settings.aiFeature3')}</li>
-        </ul>
-      </div>
-
-      {/* Model Info */}
-      <div className="card">
-        <div className="card-title">📋 {t('settings.modelInfoTitle')}</div>
-        <table className="api-table">
-          <thead>
-            <tr>
-              <th>{t('settings.modelName')}</th>
-              <th>{t('settings.modelProvider')}</th>
-              <th>{t('settings.modelFeatures')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Claude Sonnet 4.5</td>
-              <td>Anthropic</td>
-              <td>{t('settings.modelDesc.claudeSonnet45')}</td>
-            </tr>
-            <tr>
-              <td>Gemini 3 Flash</td>
-              <td>Google</td>
-              <td>{t('settings.modelDesc.gemini3Flash')}</td>
-            </tr>
-            <tr>
-              <td>Gemini 3 Pro</td>
-              <td>Google</td>
-              <td>{t('settings.modelDesc.gemini3Pro')}</td>
-            </tr>
-            <tr>
-              <td>GPT-5.2</td>
-              <td>OpenAI</td>
-              <td>{t('settings.modelDesc.gpt52')}</td>
-            </tr>
-          </tbody>
-        </table>
+        {hasChanges && orApiKey.trim() && (
+          <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--accent)' }}>
+            💡 {t('settings.unsavedChanges')}
+          </div>
+        )}
       </div>
     </div>
   )

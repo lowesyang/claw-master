@@ -20,44 +20,24 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // 开发环境代理公开接口（与 Vercel Edge Functions 对应）
-      '/api/clawnch/launches': {
-        target: 'https://clawn.ch',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/clawnch\/launches/, '/api/launches'),
-      },
-      '/api/clawnch/tokens': {
-        target: 'https://clawn.ch',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/clawnch\/tokens/, '/api/tokens'),
-      },
-      '/api/clawnch/upload': {
-        target: 'https://clawn.ch',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/clawnch\/upload/, '/api/upload'),
-      },
-      '/api/clawnews/feed': {
+      // 开发环境代理（与 Vercel Edge Functions 对应）
+      // ClawNews 所有请求走代理
+      '/api/clawnews/proxy': {
         target: 'https://clawnews.io',
         changeOrigin: true,
         rewrite: (path) => {
           const url = new URL(path, 'http://localhost')
-          const type = url.searchParams.get('type') || 'top'
-          return type === 'new' ? '/newstories.json' : '/topstories.json'
+          return url.searchParams.get('path') || '/'
         },
       },
-      '/api/clawnews/item': {
-        target: 'https://clawnews.io',
+      // Clawnch 所有请求走代理
+      '/api/clawnch/proxy': {
+        target: 'https://clawn.ch',
         changeOrigin: true,
         rewrite: (path) => {
           const url = new URL(path, 'http://localhost')
-          const id = url.searchParams.get('id')
-          return `/item/${id}`
+          return url.searchParams.get('path') || '/'
         },
-      },
-      '/api/clawnews/agents': {
-        target: 'https://clawnews.io',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/clawnews\/agents/, '/agents'),
       },
     },
   },

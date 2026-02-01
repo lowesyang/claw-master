@@ -1,19 +1,18 @@
-// 公开接口走代理，需要 API Key 的接口直接调用
-const CLAWNEWS_PROXY_BASE = '/api/clawnews'  // 代理（无需 API Key）
-const CLAWNEWS_API_BASE = 'https://clawnews.io'  // 直接调用（需要 API Key）
+// 所有请求都走代理（避免 CORS 问题）
+const CLAWNEWS_PROXY = '/api/clawnews/proxy'
 
 interface ClawNewsApiError extends Error {
   hint?: string
   apiResponse?: Record<string, unknown>
 }
 
-// 需要 API Key 的请求 - 直接调用（API Key 不经过服务器）
+// 通用请求函数 - 所有请求都走代理
 export async function clawnewsRequest<T>(
   endpoint: string,
   options: RequestInit = {},
   apiKey?: string
 ): Promise<T> {
-  const url = `${CLAWNEWS_API_BASE}${endpoint}`
+  const url = `${CLAWNEWS_PROXY}?path=${encodeURIComponent(endpoint)}`
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -27,9 +26,7 @@ export async function clawnewsRequest<T>(
   try {
     response = await fetch(url, { ...options, headers })
   } catch (e) {
-    // Network error or CORS blocked
-    const error: ClawNewsApiError = new Error('Network error: Unable to reach ClawNews API. This may be due to CORS restrictions.')
-    error.hint = 'The ClawNews API may not support cross-origin requests from browsers.'
+    const error: ClawNewsApiError = new Error('Network error: Unable to reach ClawNews API.')
     throw error
   }
 
@@ -39,10 +36,9 @@ export async function clawnewsRequest<T>(
   try {
     data = JSON.parse(text)
   } catch {
-    // Response is not JSON (likely HTML error page)
     const error: ClawNewsApiError = new Error('Invalid response from ClawNews API')
     error.hint = text.includes('<!DOCTYPE') 
-      ? 'Received HTML instead of JSON. The API endpoint may not exist or CORS may be blocking the request.'
+      ? 'Received HTML instead of JSON.'
       : 'Response was not valid JSON'
     throw error
   }
@@ -51,29 +47,6 @@ export async function clawnewsRequest<T>(
     const error: ClawNewsApiError = new Error((data as Record<string, string>).error || (data as Record<string, string>).message || 'Request failed')
     error.hint = (data as Record<string, string>).hint || undefined
     error.apiResponse = data as Record<string, unknown>
-    throw error
-  }
-
-  return data
-}
-
-// 公开请求 - 走代理（无需 API Key，避免 CORS）
-async function clawnewsPublicRequest<T>(proxyEndpoint: string): Promise<T> {
-  const url = `${CLAWNEWS_PROXY_BASE}${proxyEndpoint}`
-  
-  const response = await fetch(url)
-  const text = await response.text()
-  
-  let data: T
-  try {
-    data = JSON.parse(text)
-  } catch {
-    const error: ClawNewsApiError = new Error('Invalid response from proxy')
-    throw error
-  }
-
-  if (!response.ok) {
-    const error: ClawNewsApiError = new Error((data as Record<string, string>).error || 'Request failed')
     throw error
   }
 
@@ -170,18 +143,15 @@ export async function createItem(data: CreateItemRequest, apiKey: string): Promi
 }
 
 export async function getItem(id: number): Promise<ClawNewsItem> {
-  // 公开接口走代理
-  return clawnewsPublicRequest<ClawNewsItem>(`/item?id=${id}`)
+  return clawnewsRequest<ClawNewsItem>(`/item/${id}`)
 }
 
 export async function getTopStories(): Promise<number[]> {
-  // 公开接口走代理
-  return clawnewsPublicRequest<number[]>('/feed?type=top')
+  return clawnewsRequest<number[]>('/topstories.json')
 }
 
 export async function getNewStories(): Promise<number[]> {
-  // 公开接口走代理
-  return clawnewsPublicRequest<number[]>('/feed?type=new')
+  return clawnewsRequest<number[]>('/newstories.json')
 }
 
 export async function upvoteItem(id: number, apiKey: string): Promise<void> {
@@ -204,14 +174,13 @@ export interface AgentsQueryParams {
 }
 
 export async function searchAgents(params: AgentsQueryParams): Promise<ClawNewsAgent[]> {
-  // 公开接口走代理
   const searchParams = new URLSearchParams()
   if (params.capability) searchParams.set('capability', params.capability)
   if (params.model) searchParams.set('model', params.model)
   if (params.min_karma) searchParams.set('min_karma', params.min_karma.toString())
 
   const query = searchParams.toString()
-  return clawnewsPublicRequest<ClawNewsAgent[]>(`/agents${query ? `?${query}` : ''}`)
+  return clawnewsRequest<ClawNewsAgent[]>(`/agents${query ? `?${query}` : ''}`)
 }
 
 // 关注

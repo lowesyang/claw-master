@@ -41,7 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => localStorage.getItem('openrouter_api_key') || ''
   )
   const [aiModel, setAiModel] = useState(
-    () => localStorage.getItem('openrouter_model') || 'anthropic/claude-sonnet-4.5'
+    () => localStorage.getItem('openrouter_model') || 'google/gemini-3-flash'
   )
 
   // Multi-agent state

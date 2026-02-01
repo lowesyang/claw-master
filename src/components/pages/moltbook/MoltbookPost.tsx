@@ -5,11 +5,12 @@ import { useLanguage } from '../../../contexts/LanguageContext'
 import { apiRequest, generateAIContent, generateAITitle } from '../../../services/api'
 import { Alert } from '../../common/Alert'
 import { StatusMessage } from '../../common/StatusMessage'
+import { ModelSelector } from '../../common/ModelSelector'
 
 type PostType = 'text' | 'link'
 
 export function MoltbookPost() {
-  const { isLoggedIn, apiKey, openrouterApiKey, aiModel } = useAuth()
+  const { isLoggedIn, apiKey, openrouterApiKey, aiModel, setOpenRouterSettings } = useAuth()
   const { t } = useLanguage()
 
   const [postType, setPostType] = useState<PostType>('text')
@@ -18,10 +19,19 @@ export function MoltbookPost() {
   const [content, setContent] = useState('')
   const [url, setUrl] = useState('')
   const [aiPrompt, setAiPrompt] = useState('')
+  const [selectedModel, setSelectedModel] = useState(aiModel)
   const [status, setStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [aiStatus, setAiStatus] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [loading, setLoading] = useState(false)
   const [aiLoading, setAiLoading] = useState(false)
+
+  // Sync model selection with global settings
+  const handleModelChange = (model: string) => {
+    setSelectedModel(model)
+    if (openrouterApiKey) {
+      setOpenRouterSettings(openrouterApiKey, model)
+    }
+  }
 
   const handleSubmit = async () => {
     if (!title.trim()) {
@@ -88,7 +98,7 @@ export function MoltbookPost() {
       const topic = aiPrompt.trim() || title.trim()
       const generatedContent = await generateAIContent(
         openrouterApiKey,
-        aiModel,
+        selectedModel,
         topic,
         submolt || 'general'
       )
@@ -96,7 +106,7 @@ export function MoltbookPost() {
 
       // Generate title if empty
       if (!title.trim() && aiPrompt.trim()) {
-        const generatedTitle = await generateAITitle(openrouterApiKey, aiModel, generatedContent)
+        const generatedTitle = await generateAITitle(openrouterApiKey, selectedModel, generatedContent)
         if (generatedTitle) {
           setTitle(generatedTitle)
         }
@@ -204,35 +214,64 @@ export function MoltbookPost() {
               onChange={(e) => setContent(e.target.value)}
               placeholder={t('moltbook.post.contentPlaceholder')}
             />
-            <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <input
-                type="text"
+            {/* AI Generation Section */}
+            <div style={{ 
+              marginTop: '12px', 
+              padding: '12px', 
+              background: 'var(--bg-main)', 
+              borderRadius: '8px',
+              border: '1px solid var(--border)'
+            }}>
+              <div style={{ marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                ✨ {t('moltbook.post.aiGenerateSection')}
+              </div>
+              <textarea
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 placeholder={t('moltbook.post.aiPromptPlaceholder')}
-                style={{ flex: 1, padding: '8px 12px', fontSize: '0.85rem' }}
-                onKeyDown={(e) => e.key === 'Enter' && handleAIGenerate()}
+                style={{ 
+                  width: '100%', 
+                  minHeight: '80px', 
+                  padding: '10px 12px', 
+                  fontSize: '0.9rem',
+                  marginBottom: '8px',
+                  resize: 'vertical'
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.metaKey) {
+                    handleAIGenerate()
+                  }
+                }}
               />
-              <button
-                type="button"
-                className="btn-small"
-                style={{ whiteSpace: 'nowrap' }}
-                onClick={handleAIGenerate}
-                disabled={aiLoading}
-              >
-                {aiLoading ? `⏳ ${t('moltbook.post.aiGenerating')}` : `✨ ${t('moltbook.post.aiGenerate')}`}
-              </button>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 200px', minWidth: '150px' }}>
+                  <ModelSelector 
+                    value={selectedModel} 
+                    onChange={handleModelChange}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn-small"
+                  style={{ whiteSpace: 'nowrap', padding: '10px 16px' }}
+                  onClick={handleAIGenerate}
+                  disabled={aiLoading || !openrouterApiKey}
+                >
+                  {aiLoading ? `⏳ ${t('moltbook.post.aiGenerating')}` : `✨ ${t('moltbook.post.aiGenerate')}`}
+                </button>
+              </div>
+              {!openrouterApiKey && (
+                <div style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                  💡 {t('moltbook.post.aiConfigHint')}{' '}
+                  <Link to="/settings" style={{ color: 'var(--accent)' }}>
+                    {t('moltbook.post.goToSettings')}
+                  </Link>
+                </div>
+              )}
             </div>
             {aiStatus && (
               <div style={{ marginTop: '8px' }}>
                 <StatusMessage message={aiStatus.message} type={aiStatus.type} />
-                {!openrouterApiKey && (
-                  <div style={{ marginTop: '8px', fontSize: '0.85rem' }}>
-                    <Link to="/settings" style={{ color: 'var(--accent)', textDecoration: 'underline' }}>
-                      {t('moltbook.post.goToSettings')}
-                    </Link>
-                  </div>
-                )}
               </div>
             )}
           </div>
