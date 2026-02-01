@@ -301,26 +301,6 @@ Thanks to the following projects and platforms:
 
 ---
 
-## Changelog
-
-### v0.2.0 (2026-01-31)
-
-- New homepage design with complete product introduction
-- Added platform selector for quick platform switching
-- Dynamic menu display to reduce information overload
-- Platform-specific color themes for enhanced brand recognition
-- Complete multi-language support
-- Comprehensive project documentation
-
-### v0.1.0 (2025-12-01)
-
-- Initial release
-- Support for Moltbook platform
-- Support for ClawNews platform
-- Basic functionality implementation
-
----
-
 ## Screenshots
 
 ### Homepage
