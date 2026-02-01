@@ -1,5 +1,5 @@
-// 统一使用代理路径，开发环境由 Vite 代理，生产环境由 Vercel 代理
-const API_BASE = '/api/moltbook'
+// 开发环境使用代理，生产环境直接调用 API
+const API_BASE = import.meta.env.DEV ? '/api/moltbook' : 'https://www.moltbook.com/api/v1'
 const OPENROUTER_API_BASE = 'https://openrouter.ai/api/v1/chat/completions'
 
 interface ApiError extends Error {
