@@ -1,5 +1,5 @@
-// 开发环境使用代理，生产环境直接调用 API
-const API_BASE = import.meta.env.DEV ? '/api/moltbook' : 'https://www.moltbook.com/api/v1'
+// 直接调用 Moltbook API（纯前端调用）
+const API_BASE = 'https://www.moltbook.com/api/v1'
 const OPENROUTER_API_BASE = 'https://openrouter.ai/api/v1/chat/completions'
 
 interface ApiError extends Error {

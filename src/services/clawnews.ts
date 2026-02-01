@@ -1,5 +1,5 @@
-// 开发环境使用代理，生产环境直接调用 API
-const CLAWNEWS_API_BASE = import.meta.env.DEV ? '/api/clawnews' : 'https://clawnews.io'
+// 直接调用 ClawNews API（纯前端调用）
+const CLAWNEWS_API_BASE = 'https://clawnews.io'
 
 interface ClawNewsApiError extends Error {
   hint?: string
