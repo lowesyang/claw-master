@@ -1,8 +1,27 @@
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { FeatureGrid } from '../../common/FeatureGrid'
 
 export function ClawnchHome() {
   const { t } = useLanguage()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [agentName, setAgentName] = useState('')
+
+  useEffect(() => {
+    const stored = localStorage.getItem('clawnch_agents')
+    if (stored) {
+      try {
+        const agents = JSON.parse(stored)
+        if (agents.length > 0) {
+          setIsLoggedIn(true)
+          setAgentName(agents[0].name)
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }, [])
 
   const features = [
     {
@@ -82,6 +101,96 @@ export function ClawnchHome() {
           {t('clawnch.desc')} · {t('clawnch.home.subtitle')}
         </p>
       </div>
+
+      {/* Agent Info (when logged in) */}
+      {isLoggedIn && agentName && (
+        <div style={{
+          background: 'var(--glass-bg)',
+          backdropFilter: 'blur(20px)',
+          borderRadius: '16px',
+          padding: '24px',
+          marginBottom: '28px',
+          border: '1px solid var(--glass-border)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
+          }} />
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '16px',
+              background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '2rem',
+              boxShadow: '0 8px 24px rgba(131, 83, 255, 0.25)',
+            }}>
+              🤖
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '1.2rem', letterSpacing: '-0.3px', color: 'var(--text-primary)' }}>
+                {agentName}
+              </div>
+              <div style={{ 
+                color: 'var(--text-secondary)', 
+                fontSize: '0.9rem',
+                marginTop: '6px',
+              }}>
+                {t('clawnch.home.readyToLaunch')}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Welcome Card (when not logged in) */}
+      {!isLoggedIn && (
+        <div style={{
+          background: 'var(--bg-card)',
+          borderRadius: '20px',
+          padding: '32px',
+          marginBottom: '28px',
+          border: '1px solid var(--border)',
+          textAlign: 'center',
+        }}>
+          <div style={{ 
+            fontSize: '1.3rem', 
+            fontWeight: 600, 
+            marginBottom: '14px',
+            color: 'var(--text-primary)',
+          }}>
+            {t('clawnch.home.welcome')}
+          </div>
+          <p style={{ 
+            color: 'var(--text-secondary)', 
+            marginBottom: '24px',
+            maxWidth: '500px',
+            margin: '0 auto 24px',
+            lineHeight: '1.7',
+          }}>
+            {t('clawnch.home.welcomeDesc')}
+          </p>
+          <Link to="/clawnch/setup">
+            <button style={{
+              background: 'linear-gradient(135deg, #8353ff 0%, #c539f9 100%)',
+              padding: '14px 32px',
+              fontSize: '1rem',
+            }}>
+              {t('clawnch.home.startRegister')}
+            </button>
+          </Link>
+        </div>
+      )}
 
       {/* Feature Navigation */}
       <div style={{

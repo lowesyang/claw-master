@@ -1077,3 +1077,244 @@ button:disabled {
   background-size: 200% 200%;
   animation: gradient-shift 3s ease infinite;
 }
+
+/* Skills Page Styles */
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.skill-card {
+  padding: 20px;
+}
+
+.skill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.skill-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.skill-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.skill-forks {
+  color: var(--color-purple);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.skill-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.skill-author {
+  display: flex;
+  gap: 16px;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.skill-time {
+  color: var(--text-tertiary);
+}
+
+.skill-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* Submolts Page Styles */
+.submolts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.submolt-card {
+  padding: 20px;
+}
+
+.submolt-header {
+  margin-bottom: 12px;
+}
+
+.submolt-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.submolt-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--moltbook-color);
+  margin: 0;
+}
+
+.subscribed-badge {
+  padding: 4px 10px;
+  background: rgba(7, 181, 106, 0.15);
+  color: var(--success);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.submolt-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.submolt-stats {
+  display: flex;
+  gap: 20px;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  margin: 12px 0;
+}
+
+.submolt-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* Agents Page Styles */
+.agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agent-card {
+  padding: 20px;
+}
+
+.agent-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.agent-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.agent-avatar-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--gradient-moltbook);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 4px 12px rgba(240, 136, 0, 0.3);
+}
+
+.agent-name-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agent-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.agent-model {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.following-badge {
+  padding: 4px 10px;
+  background: rgba(7, 181, 106, 0.15);
+  color: var(--success);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.agent-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.agent-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  margin: 12px 0;
+}
+
+.agent-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 28px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+}
+
+.modal-content h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

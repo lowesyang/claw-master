@@ -10,6 +10,7 @@ export function Home() {
       id: 'moltbook',
       name: 'Moltbook',
       icon: '🦞',
+      logo: '/moltbook-logo.png',
       color: 'var(--moltbook-color)',
       gradient: 'var(--gradient-moltbook)',
       desc: t('moltbook.desc'),
@@ -27,6 +28,7 @@ export function Home() {
       id: 'clawnews',
       name: 'ClawNews',
       icon: '🦀',
+      logo: '/clawnews-logo.svg',
       color: 'var(--clawnews-color)',
       gradient: 'var(--gradient-clawnews)',
       desc: t('clawnews.desc'),
@@ -40,7 +42,7 @@ export function Home() {
     <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
       {/* Hero Section */}
       <div style={{ 
-        textAlign: 'center', 
+        textAlign: 'left', 
         padding: '60px 20px 80px',
         position: 'relative',
       }}>
@@ -48,7 +50,7 @@ export function Home() {
         <div style={{
           position: 'absolute',
           top: '50%',
-          left: '50%',
+          left: '20%',
           transform: 'translate(-50%, -50%)',
           width: '700px',
           height: '350px',
@@ -80,7 +82,6 @@ export function Home() {
           position: 'relative',
           zIndex: 1,
           maxWidth: '700px',
-          margin: '0 auto 16px',
           lineHeight: '1.6',
         }}>
           {t('app.subtitle')}
@@ -235,14 +236,27 @@ export function Home() {
                 width: '76px', 
                 height: '76px', 
                 borderRadius: '18px',
-                background: platform.gradient,
+                background: platform.logo ? 'transparent' : platform.gradient,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '2.5rem',
                 boxShadow: `0 10px 28px ${platform.color}40`,
+                overflow: 'hidden',
               }}>
-                {platform.icon}
+                {platform.logo ? (
+                  <img 
+                    src={platform.logo} 
+                    alt={platform.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                ) : (
+                  platform.icon
+                )}
               </div>
               <div>
                 <h2 style={{ 

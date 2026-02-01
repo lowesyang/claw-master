@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
 import { Alert } from '../../common/Alert'
@@ -75,9 +76,42 @@ export function MoltbookHome() {
 
       {!isLoggedIn ? (
         <>
-          <Alert icon="💡" title={t('moltbook.home.getStarted')} type="info">
-            {t('moltbook.home.getStartedHint')}
-          </Alert>
+          {/* Welcome Card */}
+          <div style={{
+            background: 'var(--bg-card)',
+            borderRadius: '20px',
+            padding: '32px',
+            marginBottom: '28px',
+            border: '1px solid var(--border)',
+            textAlign: 'center',
+          }}>
+            <div style={{ 
+              fontSize: '1.3rem', 
+              fontWeight: 600, 
+              marginBottom: '14px',
+              color: 'var(--text-primary)',
+            }}>
+              {t('moltbook.home.welcome')}
+            </div>
+            <p style={{ 
+              color: 'var(--text-secondary)', 
+              marginBottom: '24px',
+              maxWidth: '500px',
+              margin: '0 auto 24px',
+              lineHeight: '1.7',
+            }}>
+              {t('moltbook.home.welcomeDesc')}
+            </p>
+            <Link to="/moltbook/setup">
+              <button style={{
+                background: 'var(--gradient-moltbook)',
+                padding: '14px 32px',
+                fontSize: '1rem',
+              }}>
+                {t('moltbook.home.startRegister')}
+              </button>
+            </Link>
+          </div>
 
           <FeatureGrid
             items={[

@@ -7,6 +7,8 @@ import { MoltbookSetup } from './components/pages/moltbook/MoltbookSetup'
 import { MoltbookPost } from './components/pages/moltbook/MoltbookPost'
 import { MoltbookFeed } from './components/pages/moltbook/MoltbookFeed'
 import { MoltbookSearch } from './components/pages/moltbook/MoltbookSearch'
+import { MoltbookSubmolts } from './components/pages/moltbook/MoltbookSubmolts'
+import { MoltbookAgents } from './components/pages/moltbook/MoltbookAgents'
 import { MoltbookQuickStart } from './components/pages/moltbook/docs/MoltbookQuickStart'
 import { MoltbookApiReference } from './components/pages/moltbook/docs/MoltbookApiReference'
 import { MoltbookFeatures } from './components/pages/moltbook/docs/MoltbookFeatures'
@@ -16,6 +18,7 @@ import { ClawNewsSetup } from './components/pages/clawnews/ClawNewsSetup'
 import { ClawNewsPost } from './components/pages/clawnews/ClawNewsPost'
 import { ClawNewsFeed } from './components/pages/clawnews/ClawNewsFeed'
 import { ClawNewsAgents } from './components/pages/clawnews/ClawNewsAgents'
+import { ClawNewsSkills } from './components/pages/clawnews/ClawNewsSkills'
 import { ClawNewsQuickStart } from './components/pages/clawnews/docs/ClawNewsQuickStart'
 import { ClawNewsApiReference } from './components/pages/clawnews/docs/ClawNewsApiReference'
 import { ClawNewsFeatures } from './components/pages/clawnews/docs/ClawNewsFeatures'
@@ -38,6 +41,8 @@ function App() {
         <Route path="moltbook/post" element={<MoltbookPost />} />
         <Route path="moltbook/feed" element={<MoltbookFeed />} />
         <Route path="moltbook/search" element={<MoltbookSearch />} />
+        <Route path="moltbook/submolts" element={<MoltbookSubmolts />} />
+        <Route path="moltbook/agents" element={<MoltbookAgents />} />
         <Route path="moltbook/docs/quickstart" element={<MoltbookQuickStart />} />
         <Route path="moltbook/docs/api" element={<MoltbookApiReference />} />
         <Route path="moltbook/docs/features" element={<MoltbookFeatures />} />
@@ -48,6 +53,7 @@ function App() {
         <Route path="clawnews/post" element={<ClawNewsPost />} />
         <Route path="clawnews/feed" element={<ClawNewsFeed />} />
         <Route path="clawnews/agents" element={<ClawNewsAgents />} />
+        <Route path="clawnews/skills" element={<ClawNewsSkills />} />
         <Route path="clawnews/docs/quickstart" element={<ClawNewsQuickStart />} />
         <Route path="clawnews/docs/api" element={<ClawNewsApiReference />} />
         <Route path="clawnews/docs/features" element={<ClawNewsFeatures />} />

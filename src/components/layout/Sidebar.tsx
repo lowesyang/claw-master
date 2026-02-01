@@ -22,7 +22,7 @@ const navSections: NavSection[] = [
   {
     titleKey: 'nav.home',
     items: [
-      { path: '/', icon: '⚡', labelKey: 'nav.platformSelect' },
+      { path: '/', icon: 'ℹ️', labelKey: 'nav.platformSelect' },
     ],
   },
   {
@@ -36,6 +36,8 @@ const navSections: NavSection[] = [
       { path: '/moltbook/post', icon: '✍️', labelKey: 'nav.post' },
       { path: '/moltbook/feed', icon: '📡', labelKey: 'nav.feed' },
       { path: '/moltbook/search', icon: '🔮', labelKey: 'nav.search' },
+      { path: '/moltbook/submolts', icon: '🏘️', labelKey: 'nav.submolts' },
+      { path: '/moltbook/agents', icon: '🤖', labelKey: 'nav.discoverAgents' },
       { path: '/moltbook/docs/quickstart', icon: '🚀', labelKey: 'nav.quickStart' },
       { path: '/moltbook/docs/api', icon: '⚙️', labelKey: 'nav.apiRef' },
       { path: '/moltbook/docs/features', icon: '💎', labelKey: 'nav.features' },
@@ -52,6 +54,7 @@ const navSections: NavSection[] = [
       { path: '/clawnews/post', icon: '✍️', labelKey: 'nav.post' },
       { path: '/clawnews/feed', icon: '📡', labelKey: 'nav.feed' },
       { path: '/clawnews/agents', icon: '🤖', labelKey: 'nav.discoverAgents' },
+      { path: '/clawnews/skills', icon: '🛠️', labelKey: 'nav.skills' },
       { path: '/clawnews/docs/quickstart', icon: '🚀', labelKey: 'nav.quickStart' },
       { path: '/clawnews/docs/api', icon: '⚙️', labelKey: 'nav.apiRef' },
       { path: '/clawnews/docs/features', icon: '💎', labelKey: 'nav.features' },
@@ -352,34 +355,36 @@ export function Sidebar() {
             }),
           }}
         >
-          <div
-            className="nav-section-title"
-            style={{
-              ...(section.platform === 'moltbook' && { color: 'var(--moltbook-color)' }),
-              ...(section.platform === 'clawnews' && { color: 'var(--clawnews-color)' }),
-              ...(section.platform === 'clawnch' && { color: 'var(--color-purple)' }),
-            }}
-          >
-            {section.titleIcon && (
-              typeof section.titleIcon === 'string' && section.titleIcon.startsWith('/') ? (
-                <img
-                  src={section.titleIcon}
-                  alt=""
-                  style={{
-                    width: '20px',
-                    height: '20px',
-                    marginRight: '6px',
-                    verticalAlign: 'middle'
-                  }}
-                />
-              ) : (
-                <span style={{ marginRight: '6px', fontSize: '20px', verticalAlign: 'middle' }}>
-                  {section.titleIcon}
-                </span>
-              )
-            )}
-            {section.titlePrefix || ''}{t(section.titleKey)}
-          </div>
+          {section.platform && (
+            <div
+              className="nav-section-title"
+              style={{
+                ...(section.platform === 'moltbook' && { color: 'var(--moltbook-color)' }),
+                ...(section.platform === 'clawnews' && { color: 'var(--clawnews-color)' }),
+                ...(section.platform === 'clawnch' && { color: 'var(--color-purple)' }),
+              }}
+            >
+              {section.titleIcon && (
+                typeof section.titleIcon === 'string' && section.titleIcon.startsWith('/') ? (
+                  <img
+                    src={section.titleIcon}
+                    alt=""
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      marginRight: '6px',
+                      verticalAlign: 'middle'
+                    }}
+                  />
+                ) : (
+                  <span style={{ marginRight: '6px', fontSize: '20px', verticalAlign: 'middle' }}>
+                    {section.titleIcon}
+                  </span>
+                )
+              )}
+              {section.titlePrefix || ''}{t(section.titleKey)}
+            </div>
+          )}
           {section.items.map((item) => (
             <NavLink
               key={item.path}

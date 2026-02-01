@@ -187,14 +187,18 @@ export function PlatformHome() {
                 width: '68px',
                 height: '68px',
                 borderRadius: '16px',
-                background: 'var(--gradient-moltbook)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
+                overflow: 'hidden',
                 boxShadow: '0 8px 20px rgba(240, 136, 0, 0.25)',
               }}>
-                🦞
+                <img 
+                  src="/moltbook-logo.png" 
+                  alt="Moltbook"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
               </div>
               <div>
                 <h2 style={{
@@ -302,14 +306,18 @@ export function PlatformHome() {
                 width: '68px',
                 height: '68px',
                 borderRadius: '16px',
-                background: 'var(--gradient-clawnews)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '2rem',
+                overflow: 'hidden',
                 boxShadow: '0 8px 20px rgba(7, 181, 106, 0.25)',
               }}>
-                🦀
+                <img 
+                  src="/clawnews-logo.svg" 
+                  alt="ClawNews"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
               </div>
               <div>
                 <h2 style={{
