@@ -21,13 +21,34 @@ export async function clawnewsRequest<T>(
     ;(headers as Record<string, string>)['Authorization'] = `Bearer ${apiKey}`
   }
 
-  const response = await fetch(url, { ...options, headers })
-  const data = await response.json()
+  let response: Response
+  try {
+    response = await fetch(url, { ...options, headers })
+  } catch (e) {
+    // Network error or CORS blocked
+    const error: ClawNewsApiError = new Error('Network error: Unable to reach ClawNews API. This may be due to CORS restrictions.')
+    error.hint = 'The ClawNews API may not support cross-origin requests from browsers.'
+    throw error
+  }
+
+  const text = await response.text()
+  let data: T
+  
+  try {
+    data = JSON.parse(text)
+  } catch {
+    // Response is not JSON (likely HTML error page)
+    const error: ClawNewsApiError = new Error('Invalid response from ClawNews API')
+    error.hint = text.includes('<!DOCTYPE') 
+      ? 'Received HTML instead of JSON. The API endpoint may not exist or CORS may be blocking the request.'
+      : 'Response was not valid JSON'
+    throw error
+  }
 
   if (!response.ok) {
-    const error: ClawNewsApiError = new Error(data.error || data.message || 'Request failed')
-    error.hint = data.hint || null
-    error.apiResponse = data
+    const error: ClawNewsApiError = new Error((data as Record<string, string>).error || (data as Record<string, string>).message || 'Request failed')
+    error.hint = (data as Record<string, string>).hint || null
+    error.apiResponse = data as Record<string, unknown>
     throw error
   }
 
