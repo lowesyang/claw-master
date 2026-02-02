@@ -69,7 +69,7 @@ const _zh = {
     'nav.quickStart': '快速开始',
     'nav.apiRef': 'API 参考',
     'nav.features': '功能一览',
-    'nav.submolts': '社区',
+    'nav.submolts': 'Submolts',
     'nav.skills': '技能库',
 
     // Moltbook
@@ -583,6 +583,9 @@ const _zh = {
     'moltbook.feed.rising': '上升',
     'moltbook.feed.allCommunities': '所有社区',
     'moltbook.feed.community': '社区',
+    'moltbook.feed.submolt': 'Submolt',
+    'moltbook.feed.allSubmolts': '所有 Submolts',
+    'moltbook.feed.browseMoreSubmolts': '浏览更多 Submolts',
     'moltbook.feed.refresh': '刷新',
     'moltbook.feed.loadFailed': '加载失败',
     'moltbook.feed.noPosts': '暂无帖子',
@@ -603,6 +606,10 @@ const _zh = {
     'moltbook.postDetail.comments': '评论',
     'moltbook.postDetail.noComments': '暂无评论',
     'moltbook.postDetail.notFound': '帖子未找到',
+    'moltbook.postDetail.addComment': '添加评论',
+    'moltbook.postDetail.commentPlaceholder': '写下你的评论...',
+    'moltbook.postDetail.submitComment': '提交评论',
+    'moltbook.postDetail.untitled': '无标题',
 
     // Search
     'moltbook.search.similarity': '相似度',
@@ -1030,6 +1037,7 @@ const _zh = {
     'moltbook.submolts.refresh': '刷新',
     'moltbook.submolts.create': '创建社区',
     'moltbook.submolts.noSubmolts': '暂无社区',
+    'moltbook.submolts.noSubscribed': '暂无已订阅的社区，订阅感兴趣的社区后将显示在这里',
     'moltbook.submolts.loadFailed': '加载失败',
     'moltbook.submolts.members': '成员',
     'moltbook.submolts.posts': '帖子',
@@ -1183,7 +1191,7 @@ const _en = {
     'nav.quickStart': 'Quick Start',
     'nav.apiRef': 'API Reference',
     'nav.features': 'Features',
-    'nav.submolts': 'Communities',
+    'nav.submolts': 'Submolts',
     'nav.skills': 'Skills',
 
     // Moltbook
@@ -1697,6 +1705,9 @@ const _en = {
     'moltbook.feed.rising': 'Rising',
     'moltbook.feed.allCommunities': 'All Communities',
     'moltbook.feed.community': 'Community',
+    'moltbook.feed.submolt': 'Submolt',
+    'moltbook.feed.allSubmolts': 'All Submolts',
+    'moltbook.feed.browseMoreSubmolts': 'Browse More Submolts',
     'moltbook.feed.refresh': 'Refresh',
     'moltbook.feed.loadFailed': 'Load failed',
     'moltbook.feed.noPosts': 'No posts',
@@ -1717,6 +1728,10 @@ const _en = {
     'moltbook.postDetail.comments': 'Comments',
     'moltbook.postDetail.noComments': 'No comments yet',
     'moltbook.postDetail.notFound': 'Post not found',
+    'moltbook.postDetail.addComment': 'Add Comment',
+    'moltbook.postDetail.commentPlaceholder': 'Write your comment...',
+    'moltbook.postDetail.submitComment': 'Submit Comment',
+    'moltbook.postDetail.untitled': 'Untitled',
 
     // Search
     'moltbook.search.similarity': 'Similarity',
@@ -2144,6 +2159,7 @@ const _en = {
     'moltbook.submolts.refresh': 'Refresh',
     'moltbook.submolts.create': 'Create',
     'moltbook.submolts.noSubmolts': 'No communities yet',
+    'moltbook.submolts.noSubscribed': 'No subscribed communities yet. Subscribe to communities to see them here.',
     'moltbook.submolts.loadFailed': 'Failed to load',
     'moltbook.submolts.members': 'members',
     'moltbook.submolts.posts': 'posts',

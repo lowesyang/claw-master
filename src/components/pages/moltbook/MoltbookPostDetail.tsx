@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
-import { getPost, getPostComments, upvotePost, downvotePost, removeUpvote, removeDownvote } from '../../../services/api'
+import { getPost, getPostComments, createComment, upvotePost, downvotePost, removeUpvote, removeDownvote } from '../../../services/api'
 import { Post } from '../../../types'
 import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
@@ -27,6 +27,9 @@ export function MoltbookPostDetail() {
   const [error, setError] = useState<string | null>(null)
   const [voting, setVoting] = useState<'up' | 'down' | null>(null)
   const [voteState, setVoteState] = useState<'up' | 'down' | null>(null)
+  const [commentText, setCommentText] = useState('')
+  const [submittingComment, setSubmittingComment] = useState(false)
+  const [commentError, setCommentError] = useState<string | null>(null)
 
   useEffect(() => {
     if (postId) {
@@ -44,8 +47,9 @@ export function MoltbookPostDetail() {
         getPost(postId, apiKey),
         getPostComments(postId, apiKey).catch(() => ({ comments: [] })),
       ])
+      console.log('Post data received:', postData)
       setPost(postData)
-      setComments(commentsData.comments || [])
+      setComments(commentsData.comments || commentsData as unknown as Comment[] || [])
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -99,6 +103,28 @@ export function MoltbookPostDetail() {
     }
   }
 
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    const pid = post?.id || post?._id
+    if (!pid || !apiKey || !commentText.trim() || submittingComment) return
+
+    setSubmittingComment(true)
+    setCommentError(null)
+    try {
+      const newComment = await createComment(pid, commentText.trim(), apiKey)
+      setComments([...comments, { ...newComment, author: { name: 'You' }, created_at: new Date().toISOString() }])
+      setCommentText('')
+      // Update comment count
+      if (post) {
+        setPost({ ...post, comment_count: (post.comment_count ?? 0) + 1 })
+      }
+    } catch (err) {
+      setCommentError((err as Error).message)
+    } finally {
+      setSubmittingComment(false)
+    }
+  }
+
   if (!isLoggedIn) {
     return (
       <div>
@@ -140,6 +166,12 @@ export function MoltbookPostDetail() {
   }
 
   const submoltName = typeof post.submolt === 'object' ? post.submolt?.name : post.submolt || 'general'
+  const authorName = typeof post.author === 'object' ? post.author?.name : post.author || 'Anonymous'
+  const postContent = post.content || post.body || post.text || ''
+  const postTitle = post.title || t('moltbook.postDetail.untitled') || 'Untitled'
+  const postUpvotes = post.upvotes ?? post.score ?? 0
+  const postCommentCount = post.comment_count ?? post.comments_count ?? post.num_comments ?? comments.length
+  const postCreatedAt = post.created_at || post.createdAt
 
   return (
     <div>
@@ -184,7 +216,7 @@ export function MoltbookPostDetail() {
                 fontSize: '1.1rem',
                 color: voteState === 'up' ? 'var(--accent)' : voteState === 'down' ? '#ef4444' : 'var(--text-primary)',
               }}>
-                {post.upvotes ?? 0}
+                {postUpvotes}
               </span>
               <button
                 onClick={handleDownvote}
@@ -220,18 +252,18 @@ export function MoltbookPostDetail() {
                 m/{submoltName}
               </span>
               <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
-                👤 {post.author?.name || 'Anonymous'}
+                👤 {authorName}
               </span>
               <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
-                🕐 {formatTime(post.created_at)}
+                🕐 {formatTime(postCreatedAt)}
               </span>
             </div>
 
             <h2 style={{ fontSize: '1.4rem', marginBottom: '16px', color: 'var(--text-primary)' }}>
-              {escapeHtml(post.title)}
+              {escapeHtml(postTitle)}
             </h2>
 
-            {post.content && (
+            {postContent && (
               <div style={{
                 fontSize: '1rem',
                 lineHeight: 1.7,
@@ -239,7 +271,7 @@ export function MoltbookPostDetail() {
                 whiteSpace: 'pre-wrap',
                 marginBottom: '16px',
               }}>
-                {escapeHtml(post.content)}
+                {escapeHtml(postContent)}
               </div>
             )}
 
@@ -262,11 +294,52 @@ export function MoltbookPostDetail() {
             )}
 
             <div style={{ color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
-              💬 {post.comment_count || comments.length} {t('feed.comments') || 'comments'}
+              💬 {postCommentCount} {t('feed.comments') || 'comments'}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Comment form */}
+      {apiKey && (
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <h3 style={{ marginBottom: '16px', color: 'var(--text-primary)' }}>
+            ✍️ {t('moltbook.postDetail.addComment') || 'Add Comment'}
+          </h3>
+          <form onSubmit={handleSubmitComment}>
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder={t('moltbook.postDetail.commentPlaceholder') || 'Write your comment...'}
+              style={{
+                width: '100%',
+                minHeight: '100px',
+                padding: '12px',
+                borderRadius: '8px',
+                border: '1px solid var(--border)',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                fontSize: '0.95rem',
+                resize: 'vertical',
+                marginBottom: '12px',
+              }}
+            />
+            {commentError && (
+              <div style={{ color: '#ef4444', fontSize: '0.85rem', marginBottom: '12px' }}>
+                ❌ {commentError}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={submittingComment || !commentText.trim()}
+              className="btn-small"
+              style={{ opacity: submittingComment || !commentText.trim() ? 0.6 : 1 }}
+            >
+              {submittingComment ? (t('common.loading') || 'Loading...') : (t('moltbook.postDetail.submitComment') || 'Submit Comment')}
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* Comments section */}
       <div className="card">
@@ -278,9 +351,9 @@ export function MoltbookPostDetail() {
           <EmptyState icon="💬" message={t('moltbook.postDetail.noComments') || 'No comments yet'} />
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {comments.map((comment) => (
+            {comments.map((comment, idx) => (
               <div
-                key={comment.id}
+                key={comment.id || idx}
                 style={{
                   padding: '16px',
                   background: 'var(--bg-tertiary)',

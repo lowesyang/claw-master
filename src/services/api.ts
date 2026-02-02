@@ -156,12 +156,50 @@ export async function removeDownvote(postId: string, apiKey: string): Promise<vo
 
 /** Get a single post by ID. GET /posts/:id */
 export async function getPost(postId: string, apiKey?: string): Promise<import('../types').Post> {
-  return apiRequest(`/posts/${encodeURIComponent(postId)}`, {}, apiKey)
+  const response = await apiRequest<import('../types').Post | { post?: import('../types').Post; data?: import('../types').Post }>(`/posts/${encodeURIComponent(postId)}`, {}, apiKey)
+  // Handle different response structures: { post: {...} }, { data: {...} }, or direct post object
+  if ('post' in response && response.post) return response.post
+  if ('data' in response && response.data) return response.data
+  return response as import('../types').Post
 }
 
 /** Get comments for a post. GET /posts/:id/comments */
 export async function getPostComments(postId: string, apiKey?: string): Promise<{ comments: Array<{ id: string; content: string; author?: { name: string }; upvotes?: number; created_at?: string }> }> {
   return apiRequest(`/posts/${encodeURIComponent(postId)}/comments`, {}, apiKey)
+}
+
+/** Create a comment on a post. POST /posts/:id/comments */
+export async function createComment(postId: string, content: string, apiKey: string): Promise<{ id: string; content: string }> {
+  return apiRequest(`/posts/${encodeURIComponent(postId)}/comments`, {
+    method: 'POST',
+    body: JSON.stringify({ content }),
+  }, apiKey)
+}
+
+/** List all submolts. GET /submolts */
+export async function listSubmolts(apiKey?: string): Promise<{
+  submolts: Array<{
+    name: string
+    description: string
+    members_count?: number
+    posts_count?: number
+    is_subscribed?: boolean
+    created_at?: string
+  }>
+}> {
+  return apiRequest('/submolts', {}, apiKey)
+}
+
+/** Get a single submolt by name. GET /submolts/:name */
+export async function getSubmolt(name: string, apiKey?: string): Promise<{
+  name: string
+  description: string
+  members_count?: number
+  posts_count?: number
+  is_subscribed?: boolean
+  created_at?: string
+}> {
+  return apiRequest(`/submolts/${encodeURIComponent(name)}`, {}, apiKey)
 }
 
 /** Create a new submolt. POST /submolts */

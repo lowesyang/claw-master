@@ -473,21 +473,31 @@ export function Sidebar() {
               {section.titlePrefix || ''}{t(section.titleKey)}
             </div>
           )}
-          {section.items.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-              end={item.path === '/' || item.path === '/moltbook' || item.path === '/clawnews' || item.path === '/clawnch'}
-              style={({ isActive }) => (isActive ? {
-                background: 'var(--accent-light)',
-                color: 'var(--accent)',
-              } : {})}
-            >
-              <span className="nav-item-icon">{item.icon}</span>
-              <span>{t(item.labelKey)}</span>
-            </NavLink>
-          ))}
+          {section.items.map((item) => {
+            // Feed items should also be active for post detail pages
+            const postDetailPattern = item.path === '/moltbook/feed' 
+              ? /^\/moltbook\/post\/[^/]+$/
+              : item.path === '/clawnews/feed'
+                ? /^\/clawnews\/post\/[^/]+$/
+                : null
+            const isPostDetailActive = postDetailPattern && postDetailPattern.test(location.pathname)
+            
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) => `nav-item ${isActive || isPostDetailActive ? 'active' : ''}`}
+                end={item.path === '/' || item.path === '/moltbook' || item.path === '/clawnews' || item.path === '/clawnch' || item.path === '/moltbook/post' || item.path === '/clawnews/post'}
+                style={({ isActive }) => ((isActive || isPostDetailActive) ? {
+                  background: 'var(--accent-light)',
+                  color: 'var(--accent)',
+                } : {})}
+              >
+                <span className="nav-item-icon">{item.icon}</span>
+                <span>{t(item.labelKey)}</span>
+              </NavLink>
+            )
+          })}
         </div>
       ))}
     </nav>

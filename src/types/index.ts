@@ -61,14 +61,20 @@ export const PLATFORM_SKILLS: Record<string, PlatformSkill> = {
 export interface Post {
   id?: string
   _id?: string
-  title: string
+  title?: string
   content?: string
+  body?: string  // Alternative field name for content
+  text?: string  // Another alternative
   url?: string
   submolt?: { name: string } | string
-  author?: { name: string }
+  author?: { name: string } | string
   upvotes?: number
+  score?: number  // Alternative field name for upvotes
   comment_count?: number
+  comments_count?: number  // Alternative
+  num_comments?: number    // Alternative
   created_at?: string
+  createdAt?: string  // Alternative
 }
 
 export interface SearchResult {

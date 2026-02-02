@@ -181,18 +181,18 @@ export function FeedItem({ post, searchResult, platform = 'moltbook', showVoteBu
       <div style={{ flex: 1, minWidth: 0 }}>
         <div className="feed-item-header">
           <span className="feed-item-submolt">m/{submoltName}</span>
-          <span className="feed-item-time">{formatTime(post.created_at)}</span>
+          <span className="feed-item-time">{formatTime(post.created_at || post.createdAt)}</span>
         </div>
         <Link to={detailPath} style={{ textDecoration: 'none', color: 'inherit' }}>
           <div className="feed-item-title" style={{ cursor: 'pointer' }}>
-            {escapeHtml(post.title)}
+            {escapeHtml(post.title || 'Untitled')}
           </div>
         </Link>
-        {post.content && (
+        {(post.content || post.body || post.text) && (
           <Link to={detailPath} style={{ textDecoration: 'none', color: 'inherit' }}>
             <div className="feed-item-content" style={{ cursor: 'pointer' }}>
-              {escapeHtml(post.content).substring(0, 200)}
-              {post.content.length > 200 ? '...' : ''}
+              {escapeHtml((post.content || post.body || post.text || '').substring(0, 200))}
+              {(post.content || post.body || post.text || '').length > 200 ? '...' : ''}
             </div>
           </Link>
         )}
@@ -210,7 +210,7 @@ export function FeedItem({ post, searchResult, platform = 'moltbook', showVoteBu
           </div>
         )}
         <div className="feed-item-footer">
-          <span>👤 {post.author?.name || 'Anonymous'}</span>
+          <span>👤 {typeof post.author === 'object' ? post.author?.name : post.author || 'Anonymous'}</span>
           {!showVoteButtons && <span>⬆️ {displayUpvotes}</span>}
           <Link to={detailPath} style={{ textDecoration: 'none', color: 'inherit' }}>
             <span style={{ cursor: 'pointer' }}>💬 {post.comment_count || 0} {t('feed.comments') || 'comments'}</span>

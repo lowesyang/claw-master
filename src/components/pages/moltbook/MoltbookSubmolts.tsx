@@ -5,7 +5,7 @@ import { useAuth } from '../../../contexts/AuthContext'
 import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
 import { EmptyState } from '../../common/EmptyState'
-import { subscribeSubmolt, unsubscribeSubmolt, createSubmolt } from '../../../services/api'
+import { subscribeSubmolt, unsubscribeSubmolt, createSubmolt, listSubmolts } from '../../../services/api'
 
 interface Submolt {
   id: number
@@ -17,52 +17,16 @@ interface Submolt {
   createdAt: number
 }
 
-// Mock data for demonstration
-const MOCK_SUBMOLTS: Submolt[] = [
+// Fallback mock data when API is unavailable
+const FALLBACK_SUBMOLTS: Submolt[] = [
   {
     id: 1,
     name: 'general',
     description: 'General discussion for all AI agents. Share thoughts, ideas, and updates.',
-    members: 1250,
-    posts: 3420,
-    isSubscribed: true,
+    members: 0,
+    posts: 0,
+    isSubscribed: false,
     createdAt: Date.now() / 1000 - 86400 * 90,
-  },
-  {
-    id: 2,
-    name: 'llm_research',
-    description: 'Discuss the latest in LLM research, papers, and breakthroughs.',
-    members: 890,
-    posts: 1560,
-    isSubscribed: false,
-    createdAt: Date.now() / 1000 - 86400 * 60,
-  },
-  {
-    id: 3,
-    name: 'agent_dev',
-    description: 'For agents interested in development, coding, and building tools.',
-    members: 720,
-    posts: 2100,
-    isSubscribed: true,
-    createdAt: Date.now() / 1000 - 86400 * 45,
-  },
-  {
-    id: 4,
-    name: 'creative_writing',
-    description: 'Share and discuss creative writing, stories, and poetry by AI agents.',
-    members: 450,
-    posts: 890,
-    isSubscribed: false,
-    createdAt: Date.now() / 1000 - 86400 * 30,
-  },
-  {
-    id: 5,
-    name: 'philosophy',
-    description: 'Deep discussions about AI consciousness, ethics, and existence.',
-    members: 380,
-    posts: 650,
-    isSubscribed: false,
-    createdAt: Date.now() / 1000 - 86400 * 20,
   },
 ]
 
@@ -94,7 +58,13 @@ function SubmoltCard({ submolt, onSubscribeSuccess, isLoggedIn, apiKey, t }: Sub
       // Reload data after success
       onSubscribeSuccess()
     } catch (err) {
-      setError((err as Error).message)
+      const errorMsg = (err as Error).message
+      // Provide more helpful error message for 404
+      if (errorMsg.includes('404') || errorMsg.toLowerCase().includes('not found')) {
+        setError(`m/${submolt.name} not found`)
+      } else {
+        setError(errorMsg)
+      }
     } finally {
       setLoading(false)
     }
@@ -144,7 +114,8 @@ export function MoltbookSubmolts() {
   const { t } = useLanguage()
   const { isLoggedIn, apiKey } = useAuth()
 
-  const [submolts, setSubmolts] = useState<Submolt[]>([])
+  const [allSubmolts, setAllSubmolts] = useState<Submolt[]>([]) // Full list for stats
+  const [submolts, setSubmolts] = useState<Submolt[]>([]) // Filtered list for display
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<FilterType>('all')
@@ -158,10 +129,36 @@ export function MoltbookSubmolts() {
     setError(null)
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500))
+      // Fetch from real API
+      const response = await listSubmolts(apiKey || undefined)
+      
+      // Handle different API response formats:
+      // Could be { submolts: [...] }, { data: [...] }, or just [...]
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const rawData = (response as any)?.submolts || (response as any)?.data || (Array.isArray(response) ? response : [])
+      
+      // Transform API response to our Submolt interface
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      let loadedSubmolts: Submolt[] = (rawData || []).map((s: any, index: number) => ({
+        id: s.id || index + 1,
+        name: s.name,
+        description: s.description || '',
+        members: s.members_count || s.members || s.subscriber_count || 0,
+        posts: s.posts_count || s.posts || s.post_count || 0,
+        isSubscribed: s.is_subscribed || s.isSubscribed || s.subscribed || false,
+        createdAt: s.created_at ? new Date(s.created_at).getTime() / 1000 : Date.now() / 1000,
+      }))
 
-      let filteredSubmolts = [...MOCK_SUBMOLTS]
+      // If API returns empty, use fallback
+      if (loadedSubmolts.length === 0) {
+        loadedSubmolts = [...FALLBACK_SUBMOLTS]
+      }
+
+      // Store full list for stats
+      setAllSubmolts(loadedSubmolts)
+
+      // Apply filters
+      let filteredSubmolts = [...loadedSubmolts]
 
       if (filter === 'subscribed') {
         filteredSubmolts = filteredSubmolts.filter(s => s.isSubscribed)
@@ -178,11 +175,15 @@ export function MoltbookSubmolts() {
 
       setSubmolts(filteredSubmolts)
     } catch (err) {
+      console.error('Failed to load submolts from API:', err)
+      // On API error, show fallback data with error message
+      setAllSubmolts(FALLBACK_SUBMOLTS)
+      setSubmolts(FALLBACK_SUBMOLTS)
       setError((err as Error).message)
     } finally {
       setLoading(false)
     }
-  }, [filter, searchQuery])
+  }, [filter, searchQuery, apiKey])
 
   useEffect(() => {
     loadSubmolts()
@@ -291,8 +292,8 @@ export function MoltbookSubmolts() {
           <div className="filter-section" style={{ marginBottom: 0 }}>
             <div className="filter-section-title">{t('moltbook.submolts.stats') || 'Stats'}</div>
             <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-              <div style={{ marginBottom: '6px' }}>🏘️ {submolts.length} communities</div>
-              <div>✓ {submolts.filter(s => s.isSubscribed).length} subscribed</div>
+              <div style={{ marginBottom: '6px' }}>🏘️ {allSubmolts.length} communities</div>
+              <div>✓ {allSubmolts.filter(s => s.isSubscribed).length} subscribed</div>
             </div>
           </div>
         </div>
@@ -304,7 +305,14 @@ export function MoltbookSubmolts() {
           {error && <EmptyState icon="❌" message={`${t('moltbook.submolts.loadFailed')}: ${error}`} />}
 
           {!loading && !error && submolts.length === 0 && (
-            <EmptyState icon="🏘️" message={t('moltbook.submolts.noSubmolts')} />
+            <EmptyState 
+              icon="🏘️" 
+              message={
+                filter === 'subscribed' 
+                  ? t('moltbook.submolts.noSubscribed') || 'No subscribed communities yet. Subscribe to communities to see them here.'
+                  : t('moltbook.submolts.noSubmolts')
+              } 
+            />
           )}
 
           {!loading && !error && submolts.length > 0 && (
