@@ -59,7 +59,8 @@ export const PLATFORM_SKILLS: Record<string, PlatformSkill> = {
 }
 
 export interface Post {
-  id: string
+  id?: string
+  _id?: string
   title: string
   content?: string
   url?: string

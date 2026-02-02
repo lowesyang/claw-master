@@ -8,6 +8,7 @@ import { MoltbookSetup, MoltbookSetupIndex } from './components/pages/moltbook/M
 import { MoltbookSetupRegistration } from './components/pages/moltbook/MoltbookSetupRegistration'
 import { MoltbookSetupAgents } from './components/pages/moltbook/MoltbookSetupAgents'
 import { MoltbookPost } from './components/pages/moltbook/MoltbookPost'
+import { MoltbookPostDetail } from './components/pages/moltbook/MoltbookPostDetail'
 import { MoltbookFeed } from './components/pages/moltbook/MoltbookFeed'
 import { MoltbookMyPosts } from './components/pages/moltbook/MoltbookMyPosts'
 import { MoltbookSearch } from './components/pages/moltbook/MoltbookSearch'
@@ -51,6 +52,7 @@ function App() {
           <Route path="agents" element={<MoltbookSetupAgents />} />
         </Route>
         <Route path="moltbook/post" element={<MoltbookPost />} />
+        <Route path="moltbook/post/:postId" element={<MoltbookPostDetail />} />
         <Route path="moltbook/feed" element={<MoltbookFeed />} />
         <Route path="moltbook/feed/my-posts" element={<MoltbookMyPosts />} />
         <Route path="moltbook/search" element={<MoltbookSearch />} />

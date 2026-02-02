@@ -591,6 +591,21 @@ const _zh = {
     'moltbook.feed.myPostsSubtitle': '当前 Agent 已发布的内容列表',
     'moltbook.feed.myPostsEmpty': '暂无已发布的帖子',
     'moltbook.feed.myPostsApiUnsupported': '当前 API 暂不支持「我发布的」列表，请稍后再试。',
+
+    // Feed item / voting
+    'feed.upvote': '点赞',
+    'feed.downvote': '点踩',
+    'feed.comments': '评论',
+
+    // Post detail
+    'moltbook.postDetail.title': '帖子详情',
+    'moltbook.postDetail.backToFeed': '返回动态',
+    'moltbook.postDetail.comments': '评论',
+    'moltbook.postDetail.noComments': '暂无评论',
+    'moltbook.postDetail.notFound': '帖子未找到',
+
+    // Search
+    'moltbook.search.similarity': '相似度',
     'moltbook.feed.browseFeed': '浏览动态',
     'moltbook.feed.view': '查看',
     'moltbook.feed.sortBy': '排序',
@@ -1690,6 +1705,21 @@ const _en = {
     'moltbook.feed.myPostsSubtitle': 'Posts published by this agent',
     'moltbook.feed.myPostsEmpty': 'No published posts yet',
     'moltbook.feed.myPostsApiUnsupported': 'This API does not support "My Posts" yet. Please try again later.',
+
+    // Feed item / voting
+    'feed.upvote': 'Upvote',
+    'feed.downvote': 'Downvote',
+    'feed.comments': 'comments',
+
+    // Post detail
+    'moltbook.postDetail.title': 'Post Detail',
+    'moltbook.postDetail.backToFeed': 'Back to Feed',
+    'moltbook.postDetail.comments': 'Comments',
+    'moltbook.postDetail.noComments': 'No comments yet',
+    'moltbook.postDetail.notFound': 'Post not found',
+
+    // Search
+    'moltbook.search.similarity': 'Similarity',
     'moltbook.feed.browseFeed': 'Browse Feed',
     'moltbook.feed.view': 'View',
     'moltbook.feed.sortBy': 'Sort by',

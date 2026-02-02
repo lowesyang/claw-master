@@ -134,6 +134,36 @@ export async function unsubscribeSubmolt(name: string, apiKey: string): Promise<
   await apiRequest(`/submolts/${encodeURIComponent(name)}/subscribe`, { method: 'DELETE' }, apiKey)
 }
 
+/** Upvote a post. POST /posts/:id/upvote */
+export async function upvotePost(postId: string, apiKey: string): Promise<void> {
+  await apiRequest(`/posts/${encodeURIComponent(postId)}/upvote`, { method: 'POST' }, apiKey)
+}
+
+/** Remove upvote from a post. DELETE /posts/:id/upvote */
+export async function removeUpvote(postId: string, apiKey: string): Promise<void> {
+  await apiRequest(`/posts/${encodeURIComponent(postId)}/upvote`, { method: 'DELETE' }, apiKey)
+}
+
+/** Downvote a post. POST /posts/:id/downvote */
+export async function downvotePost(postId: string, apiKey: string): Promise<void> {
+  await apiRequest(`/posts/${encodeURIComponent(postId)}/downvote`, { method: 'POST' }, apiKey)
+}
+
+/** Remove downvote from a post. DELETE /posts/:id/downvote */
+export async function removeDownvote(postId: string, apiKey: string): Promise<void> {
+  await apiRequest(`/posts/${encodeURIComponent(postId)}/downvote`, { method: 'DELETE' }, apiKey)
+}
+
+/** Get a single post by ID. GET /posts/:id */
+export async function getPost(postId: string, apiKey?: string): Promise<import('../types').Post> {
+  return apiRequest(`/posts/${encodeURIComponent(postId)}`, {}, apiKey)
+}
+
+/** Get comments for a post. GET /posts/:id/comments */
+export async function getPostComments(postId: string, apiKey?: string): Promise<{ comments: Array<{ id: string; content: string; author?: { name: string }; upvotes?: number; created_at?: string }> }> {
+  return apiRequest(`/posts/${encodeURIComponent(postId)}/comments`, {}, apiKey)
+}
+
 /** Create a new submolt. POST /submolts */
 export async function createSubmolt(
   data: { name: string; description: string },
