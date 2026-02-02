@@ -14,7 +14,8 @@ export function MoltbookSetupAgents() {
   const { t } = useLanguage()
   const {
     isLoggedIn, apiKey, agentInfo,
-    savedAgents, currentAgentId, logout, switchAgent, removeAgent, updateAgentName
+    savedAgents, currentAgentId, logout, switchAgent, removeAgent, updateAgentName,
+    refreshAgentInfo
   } = useAuth()
 
   const [accountDetails, setAccountDetails] = useState<Agent | null>(null)
@@ -37,7 +38,10 @@ export function MoltbookSetupAgents() {
     setAccountError(null)
     try {
       const data = await apiRequest<{ agent?: Agent }>('/agents/me', {}, apiKey)
-      setAccountDetails(data.agent || data as unknown as Agent)
+      const agent = data.agent || data as unknown as Agent
+      setAccountDetails(agent)
+      // Also refresh the global agent info to update avatar in saved agents
+      refreshAgentInfo()
     } catch (error) {
       const err = error as { message?: string; hint?: string }
       if (err.message?.includes('not yet claimed')) {
@@ -167,17 +171,61 @@ export function MoltbookSetupAgents() {
               </div>
             ) : accountDetails ? (
               accountDetails.is_claimed ? (
-                <table className="api-table">
-                  <tbody>
-                    <tr><td>{t('moltbook.setup.name')}</td><td>{accountDetails.name || '-'}</td></tr>
-                    <tr><td>{t('moltbook.setup.description')}</td><td>{accountDetails.description || '-'}</td></tr>
-                    <tr><td>{t('setup.karma')}</td><td>{accountDetails.karma || 0}</td></tr>
-                    <tr><td>{t('setup.followers')}</td><td>{accountDetails.follower_count || 0}</td></tr>
-                    <tr><td>{t('setup.following')}</td><td>{accountDetails.following_count || 0}</td></tr>
-                    <tr><td>{t('setup.status')}</td><td>{t('auth.verified')}</td></tr>
-                    <tr><td>{t('setup.createdAt')}</td><td>{formatDate(accountDetails.created_at)}</td></tr>
-                  </tbody>
-                </table>
+                <>
+                  {/* Owner Avatar Display */}
+                  {accountDetails.owner?.x_avatar && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      marginBottom: '16px',
+                      padding: '16px',
+                      background: 'var(--bg-secondary)',
+                      borderRadius: '12px',
+                    }}>
+                      <img
+                        src={accountDetails.owner.x_avatar}
+                        alt={accountDetails.owner.x_name || accountDetails.name}
+                        style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '14px',
+                          objectFit: 'cover',
+                        }}
+                      />
+                      <div>
+                        <div style={{ fontWeight: 600, fontSize: '1.1rem' }}>
+                          {accountDetails.name}
+                        </div>
+                        {accountDetails.owner.x_handle && (
+                          <a
+                            href={`https://x.com/${accountDetails.owner.x_handle}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: 'var(--accent)',
+                              fontSize: '0.9rem',
+                              textDecoration: 'none',
+                            }}
+                          >
+                            {t('agent.owner')}: @{accountDetails.owner.x_handle}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <table className="api-table">
+                    <tbody>
+                      <tr><td>{t('moltbook.setup.name')}</td><td>{accountDetails.name || '-'}</td></tr>
+                      <tr><td>{t('moltbook.setup.description')}</td><td>{accountDetails.description || '-'}</td></tr>
+                      <tr><td>{t('setup.karma')}</td><td>{accountDetails.karma || 0}</td></tr>
+                      <tr><td>{t('setup.followers')}</td><td>{accountDetails.follower_count || 0}</td></tr>
+                      <tr><td>{t('setup.following')}</td><td>{accountDetails.following_count || 0}</td></tr>
+                      <tr><td>{t('setup.status')}</td><td>{t('auth.verified')}</td></tr>
+                      <tr><td>{t('setup.createdAt')}</td><td>{formatDate(accountDetails.created_at)}</td></tr>
+                    </tbody>
+                  </table>
+                </>
               ) : (
                 <>
                   <Alert icon="⏳" title={t('auth.agentUnclaimed')} type="warning">

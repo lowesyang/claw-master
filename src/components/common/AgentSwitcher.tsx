@@ -1,6 +1,50 @@
 import { useState, useEffect, useRef } from 'react'
 import { SavedAgent } from '../../types'
 import { useAgentSkill } from '../../hooks/useAgentSkill'
+import { useLanguage } from '../../contexts/LanguageContext'
+
+// Avatar component with fallback
+function AgentAvatar({ url, name, size = 32 }: { url?: string; name: string; size?: number }) {
+  const [imgError, setImgError] = useState(false)
+  
+  // Reset error state when URL changes
+  useEffect(() => {
+    setImgError(false)
+  }, [url])
+  
+  if (url && !imgError) {
+    return (
+      <img
+        src={url}
+        alt={name}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: size * 0.25,
+          objectFit: 'cover',
+          flexShrink: 0,
+        }}
+        onError={() => setImgError(true)}
+      />
+    )
+  }
+  
+  return (
+    <div style={{
+      width: size,
+      height: size,
+      borderRadius: size * 0.25,
+      background: 'var(--gradient-primary)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      fontSize: size * 0.5,
+      flexShrink: 0,
+    }}>
+      🤖
+    </div>
+  )
+}
 
 interface AgentSwitcherProps {
   savedAgents: SavedAgent[]
@@ -28,6 +72,7 @@ export function AgentSwitcher({
   const [error, setError] = useState<string | null>(null)
   const [removeConfirm, setRemoveConfirm] = useState<SavedAgent | null>(null)
   const { isRunning, toggleAgent, clearConfig } = useAgentSkill(platform)
+  const { t, language } = useLanguage()
   const autoSwitchingRef = useRef(false)
 
   const platformAgents = savedAgents.filter(a => a.platform === platform)
@@ -92,7 +137,8 @@ export function AgentSwitcher({
 
   const formatDate = (dateStr?: string) => {
     if (!dateStr) return '-'
-    return new Date(dateStr).toLocaleDateString('zh-CN', {
+    const locale = language === 'zh' ? 'zh-CN' : language === 'ja' ? 'ja-JP' : language === 'ko' ? 'ko-KR' : 'en-US'
+    return new Date(dateStr).toLocaleDateString(locale, {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
@@ -114,24 +160,22 @@ export function AgentSwitcher({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '8px',
+          gap: '10px',
           padding: '8px 16px',
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
-          borderRadius: '8px',
+          borderRadius: '12px',
           color: 'var(--text-primary)',
           cursor: 'pointer',
           fontSize: '0.9rem',
           transition: 'all 0.2s ease',
         }}
       >
-        <span style={{
-          width: '8px',
-          height: '8px',
-          borderRadius: '50%',
-          background: isRunning ? '#22c55e' : accentColor,
-          boxShadow: isRunning ? '0 0 8px rgba(34, 197, 94, 0.5)' : 'none',
-        }} />
+        <AgentAvatar 
+          url={currentAgent?.avatarUrl} 
+          name={currentAgent?.name || currentAgentName || 'Agent'} 
+          size={28}
+        />
         <span style={{ fontWeight: 500 }}>
           {currentAgent?.name || currentAgentName || 'Unknown Agent'}
         </span>
@@ -143,7 +187,7 @@ export function AgentSwitcher({
             color: '#22c55e',
             borderRadius: '4px',
           }}>
-            运行中
+            {t('agent.running')}
           </span>
         )}
         <span style={{
@@ -186,7 +230,7 @@ export function AgentSwitcher({
             color: 'var(--text-secondary)',
             fontWeight: 500,
           }}>
-            切换 Agent
+            {t('agentSwitcher.switchAgent')}
           </div>
 
           {error && (
@@ -230,6 +274,7 @@ export function AgentSwitcher({
                   }
                 }}
               >
+                <AgentAvatar url={agent.avatarUrl} name={agent.name} size={36} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   {editingId === agent.id ? (
                     <div style={{ display: 'flex', gap: '8px' }}>
@@ -265,7 +310,7 @@ export function AgentSwitcher({
                           fontSize: '0.8rem',
                         }}
                       >
-                        保存
+                        {t('common.save')}
                       </button>
                     </div>
                   ) : (
@@ -296,7 +341,7 @@ export function AgentSwitcher({
                             color: 'white',
                             borderRadius: '4px',
                           }}>
-                            当前
+                            {t('agentSwitcher.current')}
                           </span>
                         )}
                         {agent.id === currentAgentId && isRunning && (
@@ -316,7 +361,7 @@ export function AgentSwitcher({
                               borderRadius: '50%',
                               background: '#22c55e',
                             }} />
-                            运行中
+                            {t('agent.running')}
                           </span>
                         )}
                       </div>

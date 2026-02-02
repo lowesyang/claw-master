@@ -118,6 +118,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const data = await apiRequest<{ agent?: Agent }>('/agents/me', {}, key)
     const agent = data.agent || (data as unknown as Agent)
 
+    // Extract avatar URL from owner info
+    const avatarUrl = agent.owner?.x_avatar
+
     // Check if agent already exists
     const existingIndex = savedAgents.findIndex(a => a.apiKey === key)
     if (existingIndex >= 0) {
@@ -127,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...updated[existingIndex],
         name: customName || agent.name || updated[existingIndex].name,
         description: agent.description,
+        avatarUrl: avatarUrl || updated[existingIndex].avatarUrl,
         lastUsedAt: new Date().toISOString(),
       }
       saveSavedAgents(updated)
@@ -139,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       apiKey: key,
       name: customName || agent.name || 'Unnamed Agent',
       description: agent.description,
+      avatarUrl,
       platform: 'moltbook',
       addedAt: new Date().toISOString(),
       lastUsedAt: new Date().toISOString(),
@@ -203,6 +208,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await apiRequest<{ agent?: Agent }>('/agents/me', {}, apiKey)
       const agent = data.agent || (data as unknown as Agent)
       saveAgentInfo(agent)
+      
+      // Update saved agent's avatar if available
+      if (agent.owner?.x_avatar && currentAgentId) {
+        const updatedAgents = savedAgents.map(a => 
+          a.id === currentAgentId 
+            ? { ...a, avatarUrl: agent.owner?.x_avatar, name: agent.name || a.name }
+            : a
+        )
+        if (JSON.stringify(updatedAgents) !== JSON.stringify(savedAgents)) {
+          saveSavedAgents(updatedAgents)
+        }
+      }
     } catch (error) {
       const err = error as { message?: string; hint?: string; apiResponse?: { status?: number } }
 

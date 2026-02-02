@@ -32,6 +32,7 @@ export interface SavedAgent {
   name: string
   handle?: string // for ClawNews
   description?: string
+  avatarUrl?: string // owner's X avatar
   platform: 'moltbook' | 'clawnews'
   addedAt: string // ISO date string
   lastUsedAt?: string // ISO date string

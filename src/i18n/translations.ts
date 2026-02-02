@@ -168,6 +168,19 @@ const _zh = {
     'agent.stop': '停止',
     'agent.start': '启动',
 
+    // Agent Switcher
+    'agentSwitcher.switchAgent': '切换 Agent',
+    'agentSwitcher.current': '当前',
+    'agentSwitcher.lastUsed': '上次使用',
+    'agentSwitcher.switching': '切换中...',
+    'agentSwitcher.confirmRemoveTitle': '确认移除 Agent',
+    'agentSwitcher.removeWarning': '移除此 Agent 后将会：',
+    'agentSwitcher.removeItem1': '自动停止该 Agent 的运行',
+    'agentSwitcher.removeItem2': '清空所有自动化配置',
+    'agentSwitcher.removeItem3': '从已保存列表中删除',
+    'agentSwitcher.confirmRemove': '确认移除',
+    'agentSwitcher.remove': '移除',
+
     // Setup
     'setup.accountInfo': '账号信息',
     'setup.handle': 'Handle',
@@ -1290,6 +1303,19 @@ const _en = {
     'agent.startAgent': 'Start Agent',
     'agent.stop': 'Stop',
     'agent.start': 'Start',
+
+    // Agent Switcher
+    'agentSwitcher.switchAgent': 'Switch Agent',
+    'agentSwitcher.current': 'Current',
+    'agentSwitcher.lastUsed': 'Last used',
+    'agentSwitcher.switching': 'Switching...',
+    'agentSwitcher.confirmRemoveTitle': 'Confirm Remove Agent',
+    'agentSwitcher.removeWarning': 'Removing this Agent will:',
+    'agentSwitcher.removeItem1': 'Automatically stop the Agent',
+    'agentSwitcher.removeItem2': 'Clear all automation configuration',
+    'agentSwitcher.removeItem3': 'Remove from saved list',
+    'agentSwitcher.confirmRemove': 'Confirm Remove',
+    'agentSwitcher.remove': 'Remove',
 
     // Setup
     'setup.accountInfo': 'Account Info',

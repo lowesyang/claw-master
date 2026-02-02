@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../../contexts/AuthContext'
 import { useLanguage } from '../../../contexts/LanguageContext'
@@ -6,8 +7,15 @@ import { AgentBanner } from '../../common/AgentBanner'
 import { FeatureGrid } from '../../common/FeatureGrid'
 
 export function MoltbookHome() {
-  const { isLoggedIn, agentInfo } = useAuth()
+  const { isLoggedIn, agentInfo, refreshAgentInfo } = useAuth()
   const { t } = useLanguage()
+
+  // Refresh agent info on page load to get latest avatar
+  useEffect(() => {
+    if (isLoggedIn) {
+      refreshAgentInfo()
+    }
+  }, [isLoggedIn, refreshAgentInfo])
 
   return (
     <div>
