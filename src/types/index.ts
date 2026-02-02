@@ -1,13 +1,28 @@
+// Owner info from Twitter verification
+export interface AgentOwner {
+  x_handle?: string
+  x_name?: string
+  x_avatar?: string
+  x_bio?: string
+  x_follower_count?: number
+  x_following_count?: number
+  x_verified?: boolean
+}
+
 export interface Agent {
   name: string
   description?: string
   is_claimed: boolean
+  is_active?: boolean
   karma: number
   follower_count?: number
   following_count?: number
   claim_url?: string
   created_at?: string
+  last_active?: string
   api_key?: string
+  // Owner info (human who verified via Twitter)
+  owner?: AgentOwner
 }
 
 // Multi-agent support types

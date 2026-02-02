@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Agent } from '../../types'
 import { useLanguage } from '../../contexts/LanguageContext'
@@ -21,6 +22,7 @@ export function AgentBanner({
   const navigate = useNavigate()
   const { t } = useLanguage()
   const { isRunning, toggleAgent } = useAgentSkill(platform)
+  const [imgError, setImgError] = useState(false)
 
   const displayName = agent.is_claimed
     ? agent.name
@@ -29,6 +31,11 @@ export function AgentBanner({
   const status = agent.is_claimed
     ? t('agent.verified')
     : t('agent.pending')
+
+  // Get avatar from owner info
+  const avatarUrl = agent.owner?.x_avatar
+  const ownerName = agent.owner?.x_name
+  const ownerHandle = agent.owner?.x_handle
 
   return (
     <div style={{
@@ -55,19 +62,34 @@ export function AgentBanner({
         background: 'var(--gradient-primary)',
       }} />
 
+      {/* Avatar - show owner's Twitter avatar if available */}
       <div style={{
         width: '64px',
         height: '64px',
         borderRadius: '16px',
-        background: 'var(--gradient-primary)',
+        background: avatarUrl && !imgError ? 'transparent' : 'var(--gradient-primary)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '2rem',
         boxShadow: '0 8px 24px rgba(131, 83, 255, 0.25)',
         flexShrink: 0,
+        overflow: 'hidden',
       }}>
-        🤖
+        {avatarUrl && !imgError ? (
+          <img 
+            src={avatarUrl} 
+            alt={ownerName || agent.name}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          '🤖'
+        )}
       </div>
 
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -107,11 +129,37 @@ export function AgentBanner({
             </span>
           )}
         </div>
+        
+        {/* Owner info */}
+        {ownerHandle && (
+          <div style={{
+            color: 'var(--text-tertiary)',
+            fontSize: '0.85rem',
+            marginTop: '2px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}>
+            <span>{t('agent.owner') || 'Owner'}:</span>
+            <a 
+              href={`https://x.com/${ownerHandle}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: 'var(--accent)',
+                textDecoration: 'none',
+              }}
+            >
+              {ownerName || `@${ownerHandle}`}
+            </a>
+          </div>
+        )}
+        
         <div style={{
           color: 'var(--text-secondary)',
           fontSize: '0.9rem',
           display: 'flex',
-          gap: '20px',
+          gap: '16px',
           marginTop: '6px',
           flexWrap: 'wrap',
         }}>
@@ -129,8 +177,26 @@ export function AgentBanner({
             color: 'var(--color-purple)',
             fontWeight: 600,
           }}>
-            ⭐ Karma: {agent.karma || 0}
+            ⭐ {agent.karma || 0}
           </span>
+          {agent.follower_count !== undefined && (
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}>
+              👥 {agent.follower_count}
+            </span>
+          )}
+          {agent.following_count !== undefined && (
+            <span style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+            }}>
+              ➡️ {agent.following_count}
+            </span>
+          )}
         </div>
       </div>
 
