@@ -8,17 +8,8 @@ import { Alert } from '../../common/Alert'
 import { Loading } from '../../common/Loading'
 import { EmptyState } from '../../common/EmptyState'
 import { FeedItem } from '../../common/FeedItem'
-import { Select } from '../../common/Select'
 
 type SortType = 'hot' | 'new' | 'top' | 'rising'
-
-// Mock subscribed submolts data - in production, this should be fetched from API
-const SUBSCRIBED_SUBMOLTS = [
-  { name: 'general', description: 'General discussion' },
-  { name: 'agent_dev', description: 'Agent development' },
-  { name: 'llm_research', description: 'LLM research' },
-  { name: 'creative_writing', description: 'Creative writing' },
-]
 
 export function MoltbookFeed() {
   const { isLoggedIn, apiKey } = useAuth()
@@ -27,18 +18,13 @@ export function MoltbookFeed() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [sort, setSort] = useState<SortType>('hot')
-  const [submolt, setSubmolt] = useState('')
 
   const loadFeed = async () => {
     setLoading(true)
     setError(null)
 
     try {
-      let url = `/posts?sort=${sort}&limit=20`
-      if (submolt.trim()) {
-        url += `&submolt=${encodeURIComponent(submolt.trim())}`
-      }
-
+      const url = `/posts?sort=${sort}&limit=20`
       const data = await apiRequest<{ posts?: Post[]; data?: Post[] }>(url, {}, apiKey)
       setPosts(data.posts || data.data || [])
     } catch (err) {
@@ -149,23 +135,10 @@ export function MoltbookFeed() {
 
           <div className="filter-section">
             <div className="filter-section-title">{t('moltbook.feed.submolt') || 'Submolt'}</div>
-            <Select
-              value={submolt}
-              onChange={(value) => setSubmolt(value)}
-              placeholder={t('moltbook.feed.allSubmolts')}
-              options={[
-                { value: '', label: t('moltbook.feed.allSubmolts') },
-                ...SUBSCRIBED_SUBMOLTS.map((s) => ({
-                  value: s.name,
-                  label: `m/${s.name}`,
-                })),
-              ]}
-            />
             <Link
               to="/moltbook/submolts"
               style={{
                 display: 'block',
-                marginTop: '8px',
                 fontSize: '0.85rem',
                 color: 'var(--accent)',
                 textDecoration: 'none',

@@ -49,7 +49,6 @@ const navSections: NavSection[] = [
       { path: '/moltbook/feed', icon: '📡', labelKey: 'nav.feed' },
       { path: '/moltbook/search', icon: '🔮', labelKey: 'nav.search' },
       { path: '/moltbook/submolts', icon: '🏘️', labelKey: 'nav.submolts' },
-      { path: '/moltbook/agents', icon: '🤖', labelKey: 'nav.discoverAgents' },
       { path: '/moltbook/docs/quickstart', icon: '🚀', labelKey: 'nav.quickStart' },
       { path: '/moltbook/docs/api', icon: '⚙️', labelKey: 'nav.apiRef' },
       { path: '/moltbook/docs/features', icon: '💎', labelKey: 'nav.features' },

@@ -10,18 +10,20 @@ import { EmptyState } from '../../common/EmptyState'
 import { FeedItem } from '../../common/FeedItem'
 
 export function MoltbookMyPosts() {
-  const { isLoggedIn, apiKey } = useAuth()
+  const { isLoggedIn, apiKey, agentInfo } = useAuth()
   const { t } = useLanguage()
   const [posts, setPosts] = useState<Post[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const loadMyPosts = useCallback(async () => {
-    if (!apiKey) return
+    if (!apiKey || !agentInfo?.name) return
     setLoading(true)
     setError(null)
     try {
-      const data = await apiRequest<{ posts?: Post[]; data?: Post[] }>('/agents/me/posts', {}, apiKey)
+      // Use the agent's name to fetch their posts via /agents/{name}/posts endpoint
+      const agentName = encodeURIComponent(agentInfo.name)
+      const data = await apiRequest<{ posts?: Post[]; data?: Post[] }>(`/agents/${agentName}/posts`, {}, apiKey)
       setPosts(data.posts || data.data || [])
     } catch (err) {
       const msg = (err as Error).message
@@ -35,13 +37,13 @@ export function MoltbookMyPosts() {
     } finally {
       setLoading(false)
     }
-  }, [apiKey, t])
+  }, [apiKey, agentInfo?.name, t])
 
   useEffect(() => {
-    if (isLoggedIn && apiKey) {
+    if (isLoggedIn && apiKey && agentInfo?.name) {
       loadMyPosts()
     }
-  }, [isLoggedIn, apiKey, loadMyPosts])
+  }, [isLoggedIn, apiKey, agentInfo?.name, loadMyPosts])
 
   if (!isLoggedIn) {
     return (
@@ -90,7 +92,7 @@ export function MoltbookMyPosts() {
           </div>
           <div className="section-divider" />
           <div className="filter-section" style={{ marginBottom: 0 }}>
-            <button className="btn-small btn-secondary btn-block" onClick={loadMyPosts} disabled={loading}>
+            <button className="btn-small btn-secondary btn-block" onClick={loadMyPosts} disabled={loading || !agentInfo?.name}>
               🔄 {t('moltbook.feed.refresh')}
             </button>
             <Link to="/moltbook/post" style={{ textDecoration: 'none', display: 'block', marginTop: '8px' }}>
@@ -107,9 +109,10 @@ export function MoltbookMyPosts() {
         </div>
 
         <div className="content-area">
-          {loading && <Loading />}
+          {/* Show loading when fetching agent info or posts */}
+          {(loading || (!agentInfo?.name && !error)) && <Loading />}
           {error && <EmptyState icon="❌" message={`${t('moltbook.feed.loadFailed')}: ${error}`} />}
-          {!loading && !error && posts.length === 0 && (
+          {!loading && !error && agentInfo?.name && posts.length === 0 && (
             <EmptyState icon="📭" message={t('moltbook.feed.myPostsEmpty')} />
           )}
           {!loading && !error && posts.length > 0 && (

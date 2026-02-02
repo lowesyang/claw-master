@@ -34,29 +34,35 @@ type FilterType = 'all' | 'subscribed' | 'popular'
 
 interface SubmoltCardProps {
   submolt: Submolt
-  onSubscribeSuccess: () => void
+  onSubscribeChange: (name: string, isSubscribed: boolean) => void
   isLoggedIn: boolean
   apiKey: string
   t: (key: string) => string
 }
 
-function SubmoltCard({ submolt, onSubscribeSuccess, isLoggedIn, apiKey, t }: SubmoltCardProps) {
+function SubmoltCard({ submolt, onSubscribeChange, isLoggedIn, apiKey, t }: SubmoltCardProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   const handleSubscribe = async () => {
     if (!isLoggedIn || !apiKey) return
     setLoading(true)
     setError(null)
+    setSuccessMsg(null)
 
     try {
       if (submolt.isSubscribed) {
         await unsubscribeSubmolt(submolt.name, apiKey)
+        onSubscribeChange(submolt.name, false)
+        setSuccessMsg(t('moltbook.submolts.unsubscribeSuccess'))
       } else {
         await subscribeSubmolt(submolt.name, apiKey)
+        onSubscribeChange(submolt.name, true)
+        setSuccessMsg(t('moltbook.submolts.subscribeSuccess'))
       }
-      // Reload data after success
-      onSubscribeSuccess()
+      // Clear success message after 2 seconds
+      setTimeout(() => setSuccessMsg(null), 2000)
     } catch (err) {
       const errorMsg = (err as Error).message
       // Provide more helpful error message for 404
@@ -90,6 +96,12 @@ function SubmoltCard({ submolt, onSubscribeSuccess, isLoggedIn, apiKey, t }: Sub
       {error && (
         <div style={{ color: 'var(--error)', fontSize: '0.85rem', marginBottom: '8px' }}>
           {error}
+        </div>
+      )}
+
+      {successMsg && (
+        <div style={{ color: 'var(--success)', fontSize: '0.85rem', marginBottom: '8px' }}>
+          ✓ {successMsg}
         </div>
       )}
 
@@ -188,6 +200,15 @@ export function MoltbookSubmolts() {
   useEffect(() => {
     loadSubmolts()
   }, [loadSubmolts])
+
+  const handleSubscribeChange = useCallback((name: string, isSubscribed: boolean) => {
+    // Update local state without reloading
+    const updateSubmolts = (list: Submolt[]) =>
+      list.map(s => s.name === name ? { ...s, isSubscribed } : s)
+    
+    setAllSubmolts(updateSubmolts)
+    setSubmolts(updateSubmolts)
+  }, [])
 
   const handleCreateSubmolt = async () => {
     if (!newSubmolt.name.trim() || !apiKey) return
@@ -321,7 +342,7 @@ export function MoltbookSubmolts() {
                 <SubmoltCard
                   key={submolt.id}
                   submolt={submolt}
-                  onSubscribeSuccess={loadSubmolts}
+                  onSubscribeChange={handleSubscribeChange}
                   isLoggedIn={isLoggedIn}
                   apiKey={apiKey || ''}
                   t={tAny}
